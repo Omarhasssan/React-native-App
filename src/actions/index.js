@@ -1,2 +1,2 @@
 export * from './auth-actions';
-export * from './global-actions';
+export * from './form-actions';

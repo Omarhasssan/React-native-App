@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
-import firebase from '../config/firebase'; // 4.9.0
-import withLoading from '../hocs/withLoading';
-import { Alert, TouchableOpacity, Text, Button, View, StyleSheet, TextInput } from 'react-native';
+import {
+  Alert,
+  ActivityIndicator,
+  TouchableOpacity,
+  Text,
+  Button,
+  View,
+  StyleSheet,
+  TextInput,
+} from 'react-native';
 class FormRender extends Component {
   constructor(props) {
     super(props);
@@ -9,14 +16,35 @@ class FormRender extends Component {
       name: this.props.form.name,
       password: this.props.form.password,
       mobilenumber: this.props.form.mobilenumber,
+      clicked: false,
     };
   }
 
   componentWillMount() {
-    if (this.props.auth.msg) {
-      Alert.alert(`${this.props.auth.msg}`);
+    console.log('========mount========');
+    console.log(this.props);
+    console.log('========mount========');
+  }
+  componentWillReceiveProps(nextProps) {
+    console.log('========rc========');
+    console.log(nextProps);
+    console.log('========rc========');
+    const activeScreen = nextProps.nav.routes[nextProps.nav.routes.length - 1].key;
+    const ComponentScreen = nextProps.navigation.state.key;
+    if (this.state.clicked && ComponentScreen == activeScreen) {
+      if (nextProps.auth.msg) {
+        Alert.alert(`${nextProps.auth.msg}`);
+        this.props.onClearError();
+      }
+      this.setState({ clicked: false });
     }
   }
+  componentWillUnmount() {
+    console.log('unmountttt');
+    this.props.onClearError();
+    this.props.onClearForm();
+  }
+
   isDisabled = () => {
     const { name, mobilenumber, password } = this.state;
     return !name.length || !password.length || !mobilenumber;
@@ -25,12 +53,29 @@ class FormRender extends Component {
     const { onRegister } = this.props;
     const { name, password, mobilenumber } = this.state;
     onRegister({ name, mobilenumber, password });
+    this.setState({ clicked: true });
+  };
+  Login = () => {
+    console.log('login=>');
+    const { onLogin } = this.props;
+    const { name, password } = this.state;
+    onLogin({ name, password });
+    this.setState({ clicked: true });
   };
 
   render() {
     let title = this.props.navigation.state.routeName;
     const { navigate } = this.props.navigation;
     const { user } = this.props.auth;
+    const { clicked } = this.state;
+
+    if (this.props.auth.isFetching) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      );
+    }
 
     return (
       <View>
@@ -70,12 +115,22 @@ class FormRender extends Component {
               placeholder={'mobilenumber'}
             />
           ) : null}
-          <TouchableOpacity style={styles.btn} onPress={this.Register}>
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={title == 'SignUp' ? this.Register : this.Login}
+          >
             <Text style={{ color: 'gray' }}>{title}</Text>
           </TouchableOpacity>
         </View>
         {title == 'SignUp' ? (
-          <Button title={'Already have an account'} onPress={() => navigate('Hello')} />
+          <Button
+            title={'Already have an account'}
+            onPress={() => {
+              navigate('Login');
+              this.props.onClearError();
+              this.props.onClearForm();
+            }}
+          />
         ) : null}
       </View>
     );
@@ -109,4 +164,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
 });
-export default withLoading(FormRender, ({ auth }) => auth.isFetching);
+export default FormRender;

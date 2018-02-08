@@ -5,6 +5,7 @@ import { validateSignUpForm } from './FormValidation';
 export const DBHelpers = {
   saveUser,
   findByName,
+  findUser,
 };
 
 function saveUser(user) {
@@ -28,6 +29,18 @@ function saveUser(user) {
       return Promise.reject(errMsg);
     });
 }
+function findUser(user) {
+  return findByName(user.name)
+    .then(returnedUser => {
+      if (returnedUser.password == user.password) {
+        return Promise.resolve(returnedUser);
+      }
+      return Promise.reject();
+    })
+    .catch(() => {
+      return Promise.reject();
+    });
+}
 
 function findByName(name) {
   return new Promise((resolve, reject) => {
@@ -36,7 +49,7 @@ function findByName(name) {
       .ref('users')
       .on('value', snapshot => {
         snapshot.forEach(user => {
-          if (user.toJSON().name == name) return resolve(user);
+          if (user.toJSON().name == name) return resolve(user.toJSON());
         });
         return reject();
       });

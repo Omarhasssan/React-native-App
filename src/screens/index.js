@@ -1,5 +1,7 @@
 import { StackNavigator } from 'react-navigation';
 import Auth from '../containers/Auth';
+// import SignUp from '../containers/Signup';
+// import SignIn from '../containers/SignIn';
 
 const Screens = StackNavigator({
   SignUp: {
@@ -15,5 +17,4 @@ const Screens = StackNavigator({
     },
   },
 });
-
 export default Screens;

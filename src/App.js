@@ -1,18 +1,28 @@
 import React from 'react';
+import { connect } from 'react-redux';
+
 import { StyleSheet, Text, View } from 'react-native';
-import Screens from './screens'
-import {Provider} from 'react-redux';
+import Screens from './screens';
+import { StackNavigator, addNavigationHelpers } from 'react-navigation';
+import { Provider } from 'react-redux';
 import configureStore from './store/configureStore';
-export default class App extends React.Component {
 
-  render() {
-    
-    return (
-      <Provider store={configureStore()}>
-      <Screens />
-      </Provider>
-    );
-  }
-}
+const App = ({ dispatch, nav }) => (
+  <Screens
+    navigation={addNavigationHelpers({
+      dispatch,
+      state: nav,
+    })}
+  />
+);
 
+const mapStateToProps = ({ nav }) => ({
+  nav,
+});
 
+const AppWithNavigation = connect(mapStateToProps)(App);
+export default () => (
+  <Provider store={configureStore()}>
+    <AppWithNavigation />
+  </Provider>
+);

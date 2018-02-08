@@ -5,13 +5,15 @@ export default function (state = {}, action) {
     case 'LOGOUT_REQUEST':
       return { isFetching: true };
     case 'SIGNUP_SUCCESS':
-    case 'SIGNIN_SUCCESS':
+    case 'LOGIN_SUCCESS':
     case 'LOGOUT_SUCCESS':
       return { user: action.user };
     case 'SIGNUP_FAILURE':
-    case 'SIGNIN_FAILURE':
+    case 'LOGIN_FAILURE':
     case 'LOGOUT_FAILURE':
       return { msg: action.err };
+    case 'CLEAR_ERROR':
+      return {};
     default:
       return state;
   }
