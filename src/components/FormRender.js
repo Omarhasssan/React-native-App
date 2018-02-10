@@ -9,73 +9,48 @@ import {
   StyleSheet,
   TextInput,
 } from 'react-native';
+import Spinner from './Spinner';
 class FormRender extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: this.props.form.name,
-      password: this.props.form.password,
-      mobilenumber: this.props.form.mobilenumber,
-      clicked: false,
+      name: '',
+      password: '',
+      mobilenumber: '',
+      btnClicked: false,
     };
   }
 
-  componentWillMount() {
-    console.log('========mount========');
-    console.log(this.props);
-    console.log('========mount========');
-  }
   componentWillReceiveProps(nextProps) {
-    console.log('========rc========');
-    console.log(nextProps);
-    console.log('========rc========');
     const activeScreen = nextProps.nav.routes[nextProps.nav.routes.length - 1].key;
     const ComponentScreen = nextProps.navigation.state.key;
-    if (this.state.clicked && ComponentScreen == activeScreen) {
+    if (this.state.btnClicked && ComponentScreen == activeScreen) {
       if (nextProps.auth.msg) {
         Alert.alert(`${nextProps.auth.msg}`);
         this.props.onClearError();
       }
-      this.setState({ clicked: false });
+      this.setState({ btnClicked: false });
     }
   }
+  clearForm = () => {
+    this.setState({ name: '', mobilenumber: '', password: '' });
+  };
   componentWillUnmount() {
-    console.log('unmountttt');
     this.props.onClearError();
-    this.props.onClearForm();
+    this.clearForm();
   }
 
   isDisabled = () => {
     const { name, mobilenumber, password } = this.state;
     return !name.length || !password.length || !mobilenumber;
   };
-  Register = () => {
-    const { onRegister } = this.props;
-    const { name, password, mobilenumber } = this.state;
-    onRegister({ name, mobilenumber, password });
-    this.setState({ clicked: true });
-  };
-  Login = () => {
-    console.log('login=>');
-    const { onLogin } = this.props;
-    const { name, password } = this.state;
-    onLogin({ name, password });
-    this.setState({ clicked: true });
-  };
 
   render() {
     let title = this.props.navigation.state.routeName;
-    const { navigate } = this.props.navigation;
-    const { user } = this.props.auth;
-    const { clicked } = this.state;
+    const { navigation, onRegister, onLogin, onClearError } = this.props;
+    const { btnClicked, name, password, mobilenumber } = this.state;
 
-    if (this.props.auth.isFetching) {
-      return (
-        <View style={{ flex: 1, justifyContent: 'center' }}>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-      );
-    }
+    if (this.props.auth.isFetching) return <Spinner />;
 
     return (
       <View>
@@ -90,17 +65,13 @@ class FormRender extends Component {
                 borderTopRightRadius: 3,
               },
             ]}
-            onChangeText={name => {
-              this.setState({ name }, () => this.props.onUpdate(this.state));
-            }}
+            onChangeText={name => this.setState({ name })}
             value={this.state.name}
             placeholder={'username'}
           />
           <TextInput
             style={[styles.textinput, { borderBottomLeftRadius: 3, borderBottomRightRadius: 3 }]}
-            onChangeText={password => {
-              this.setState({ password }, () => this.props.onUpdate(this.state));
-            }}
+            onChangeText={password => this.setState({ password })}
             value={this.state.password}
             placeholder={'password'}
             secureTextEntry={true}
@@ -108,16 +79,19 @@ class FormRender extends Component {
           {title == 'SignUp' ? (
             <TextInput
               style={[styles.textinput, { borderBottomLeftRadius: 3, borderBottomRightRadius: 3 }]}
-              onChangeText={mobilenumber => {
-                this.setState({ mobilenumber }, () => this.props.onUpdate(this.state));
-              }}
+              onChangeText={mobilenumber => this.setState({ mobilenumber })}
               value={this.state.mobilenumber}
               placeholder={'mobilenumber'}
             />
           ) : null}
           <TouchableOpacity
             style={styles.btn}
-            onPress={title == 'SignUp' ? this.Register : this.Login}
+            onPress={() => {
+              title == 'SignUp'
+                ? onRegister({ name, password, mobilenumber })
+                : onLogin({ name, password });
+              this.setState({ btnClicked: true });
+            }}
           >
             <Text style={{ color: 'gray' }}>{title}</Text>
           </TouchableOpacity>
@@ -126,9 +100,9 @@ class FormRender extends Component {
           <Button
             title={'Already have an account'}
             onPress={() => {
-              navigate('Login');
-              this.props.onClearError();
-              this.props.onClearForm();
+              navigation.navigate('Login');
+              onClearError();
+              this.clearForm();
             }}
           />
         ) : null}
