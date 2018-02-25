@@ -1,4 +1,3 @@
-import firebase from '../config/firebase';
 import { DBHelpers } from '../helpers';
 
 export const Register = user => (dispatch) => {

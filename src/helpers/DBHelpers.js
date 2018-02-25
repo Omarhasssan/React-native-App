@@ -6,8 +6,22 @@ export const DBHelpers = {
   saveUser,
   findByName,
   findUser,
+  getUsers,
 };
-
+function getUsers() {
+  let arr = [];
+  return new Promise((resolve, reject) => {
+    return firebase
+      .database()
+      .ref('users')
+      .on('value', snapshot => {
+        snapshot.forEach(user => {
+          arr.push(user.toJSON());
+        });
+        return resolve(arr);
+      });
+  });
+}
 function saveUser(user) {
   return validateSignUpForm(user)
     .then(() =>
