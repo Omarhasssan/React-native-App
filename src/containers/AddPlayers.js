@@ -16,7 +16,7 @@ const mapDispatchToProps = dispatch => ({
 const renderHeaderRight = (playersId = {}, navigation) => (
   <TouchableOpacity
     disabled={Object.keys(playersId).length === 0}
-    onPress={() => navigation.navigate('TeamName', { playersId })}
+    onPress={() => navigation.navigate('CreateTeamStepTwo', { team: { playersId } })}
   >
     <Text
       style={{

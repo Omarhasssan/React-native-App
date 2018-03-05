@@ -6,6 +6,10 @@ import withCheckUserHaveTeam from '../hocs/withCheckUserHaveTeam';
 import StepOneComp from '../components/StepOneComp';
 
 class StepOneContainer extends Component {
+  static navigationOptions = {
+    title: 'asd',
+  };
+
   render() {
     const { navigation } = this.props;
     return (

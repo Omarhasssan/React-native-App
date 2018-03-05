@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
-import Item2 from './Item2';
+import Item2 from '../components/Item2';
 
 class SelectedData extends Component {
   state = {

@@ -5,9 +5,12 @@ import { validateSignUpForm } from './FormValidation';
 export const DBHelpers = {
   saveUser,
   findByName,
-  findUser,
+  checkUserFound,
   getUsers,
+  updateUser,
+  addTeam,
 };
+
 function getUsers() {
   let arr = [];
   return new Promise((resolve, reject) => {
@@ -22,6 +25,23 @@ function getUsers() {
       });
   });
 }
+function addTeam(team) {
+  const teamsRef = firebase
+    .database()
+    .ref('teams')
+    .push();
+  team.id = teamsRef.key;
+  teamsRef.set(team);
+  return teamsRef.key;
+}
+
+function updateUser(userId, updateUser) {
+  firebase
+    .database()
+    .ref(`${'users'}/${userId}`)
+    .update(updateUser);
+}
+
 function saveUser(user) {
   return validateSignUpForm(user)
     .then(() =>
@@ -33,7 +53,7 @@ function saveUser(user) {
             .database()
             .ref('users')
             .push();
-
+          user.id = userRef.key;
           userRef.set(user);
           return Promise.resolve(user);
         }),
@@ -43,8 +63,9 @@ function saveUser(user) {
       return Promise.reject(errMsg);
     });
 }
-function findUser(user) {
-  return findByName(user.name)
+
+function checkUserFound(user) {
+  return findByName(user.name, 'users')
     .then(returnedUser => {
       if (returnedUser.password == user.password) {
         return Promise.resolve(returnedUser);
@@ -56,14 +77,14 @@ function findUser(user) {
     });
 }
 
-function findByName(name) {
+function findByName(name, tableName) {
   return new Promise((resolve, reject) => {
     return firebase
       .database()
-      .ref('users')
+      .ref(tableName)
       .on('value', snapshot => {
-        snapshot.forEach(user => {
-          if (user.toJSON().name == name) return resolve(user.toJSON());
+        snapshot.forEach(data => {
+          if (data.toJSON().name == name) return resolve(data.toJSON());
         });
         return reject();
       });

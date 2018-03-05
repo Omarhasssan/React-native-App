@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { List, ListItem, CheckBox } from 'react-native-elements';
 import Item from '../components/Item';
-import SelectedData from '../components/SelectedData';
-import _ from 'lodash';
 import {
   Text,
   TouchableOpacity,

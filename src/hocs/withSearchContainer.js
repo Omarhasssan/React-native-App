@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Search from '../components/Search';
 import SearchResults from '../containers/SearchResults';
-import SelectedData from '../components/SelectedData';
+import SelectedData from '../containers/SelectedData';
 import Spinner from '../components/Spinner';
 import { List, ListItem, CheckBox } from 'react-native-elements';
 

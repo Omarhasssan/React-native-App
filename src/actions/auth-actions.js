@@ -16,7 +16,7 @@ export const Register = user => (dispatch) => {
 
 export const Login = user => (dispatch) => {
   dispatch({ type: 'LOGIN_REQUEST' });
-  return DBHelpers.findUser(user)
+  return DBHelpers.checkUserFound(user)
     .then((user) => {
       dispatch({
         type: 'LOGIN_SUCCESS',

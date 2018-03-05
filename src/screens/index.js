@@ -5,8 +5,17 @@ import Auth from '../containers/Auth';
 import Search from '../components/Search';
 import StepOneContainer from '../containers/StepOneContainer';
 import AddPlayers from '../containers/AddPlayers';
+import Profile from '../containers/Profile';
+import TeamName from '../components/TeamName';
+import TeamNameContainer from '../containers/TeamNameContainer';
 
 const Screens = StackNavigator({
+  SignUp: {
+    screen: Auth,
+    navigationOptiosssns: {
+      title: 'Register',
+    },
+  },
   CreateTeamStepOne: {
     screen: AddPlayers,
     navigationOptions: {
@@ -19,12 +28,24 @@ const Screens = StackNavigator({
     },
   },
 
-  SignUp: {
-    screen: Auth,
+  CreateTeamStepTwo: {
+    screen: TeamNameContainer,
     navigationOptions: {
-      title: 'Register',
+      title: 'Team Name',
+      headerLeft: (
+        <TouchableOpacity>
+          <Text>cancel</Text>
+        </TouchableOpacity>
+      ),
     },
   },
+  Profile: {
+    screen: Profile,
+    navigationOptions: {
+      title: 'Profile',
+    },
+  },
+
   Login: {
     screen: Auth,
     navigationOptions: {
@@ -45,10 +66,6 @@ const Screens = StackNavigator({
   },
   Setup: {
     screen: StepOneContainer,
-    navigationOptions: {
-      title: 'Setup',
-      headerLeft: null,
-    },
   },
 });
 export default Screens;

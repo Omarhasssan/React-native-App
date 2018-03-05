@@ -4,6 +4,7 @@ import { Register, clearError, Login } from '../actions';
 import FormRender from '../components/FormRender';
 import Spinner from '../components/Spinner';
 import { Alert } from 'react-native';
+import StepOneContainer from './StepOneContainer';
 
 const intialState = {
   name: '',
@@ -27,13 +28,15 @@ class Auth extends Component {
         nextProps.onClearError();
         this.setState({ btnClicked: false });
       }
-      if (nextProps.auth.user) {
-        this.props.navigation.navigate('Setup');
-      }
     }
   }
   render() {
+    const activeScreen = this.props.nav.routes[this.props.nav.routes.length - 1].key;
+    const curntComponent = this.props.navigation.state.key;
     if (this.props.auth.isFetching) return <Spinner />;
+    if (this.props.auth.user && curntComponent == activeScreen) {
+      return <StepOneContainer navigation={this.props.navigation} />;
+    }
 
     return (
       <FormRender
