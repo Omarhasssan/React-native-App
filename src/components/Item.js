@@ -29,6 +29,8 @@ class Item extends Component {
   render() {
     const { item, onCheck } = this.props;
     const { checked } = this.state;
+    if (item.name == 'aa') console.log('img', item.imgUri);
+
     return (
       <TouchableOpacity
         onPress={() => {
@@ -39,8 +41,16 @@ class Item extends Component {
         style={styles.itemContainer}
       >
         <Image
-          style={{ alignSelf: 'center', marginRight: 7 }}
-          source={require('../imges/user.png')}
+          style={{
+            alignSelf: 'center',
+            marginRight: 7,
+            borderColor: '#D9D9D9',
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            borderWidth: 1,
+          }}
+          source={(item.imgUri && { uri: item.imgUri }) || require('../imges/user.png')}
         />
         <Text style={{ flex: 1, alignSelf: 'center' }}>{item.name}</Text>
         <CheckBox

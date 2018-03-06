@@ -1,14 +1,32 @@
 import React from 'react';
-import { TouchableOpacity, Text, Button, View, StyleSheet, TextInput } from 'react-native';
+import { TouchableOpacity, Image, Text, Button, View, StyleSheet, TextInput } from 'react-native';
+import ImagePicker from './ImagePicker';
 
 const FormRender = (props) => {
   const {
-    name, password, mobilenumber, btnClicked,
+    name, password, mobilenumber, imgUri, btnClicked, onShowModel,
   } = props;
   const title = props.navigation.state.routeName;
   return (
     <View>
       <View style={styles.container}>
+        {title == 'SignUp' ? (
+          <View
+            style={{
+              width: `${100}%`,
+              height: 'auto',
+              alignItems: 'center',
+              marginBottom: 20,
+            }}
+          >
+            <ImagePicker
+              onShowModel={() => {
+                onShowModel();
+              }}
+              imgUri={imgUri}
+            />
+          </View>
+        ) : null}
         <TextInput
           style={[
             styles.textinput,
@@ -42,7 +60,12 @@ const FormRender = (props) => {
           style={styles.btn}
           onPress={() => {
             title == 'SignUp'
-              ? props.onRegister({ name, password, mobilenumber })
+              ? props.onRegister({
+                  name,
+                  password,
+                  mobilenumber,
+                  imgUri,
+                })
               : props.onLogin({ name, password });
             props.onChangeBtn(true);
           }}
@@ -68,7 +91,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    marginTop: `${50}%`,
+    marginTop: `${10}%`,
     marginBottom: `${50}%`,
     height: 'auto',
     width: `${90}%`,

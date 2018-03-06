@@ -10,6 +10,17 @@ import TeamName from '../components/TeamName';
 import TeamNameContainer from '../containers/TeamNameContainer';
 
 const Screens = StackNavigator({
+  CreateTeamStepOne: {
+    screen: AddPlayers,
+    navigationOptions: {
+      title: 'Add Players',
+      headerLeft: (
+        <TouchableOpacity>
+          <Text>cancel</Text>
+        </TouchableOpacity>
+      ),
+    },
+  },
   SignUp: {
     screen: Auth,
     navigationOptiosssns: {

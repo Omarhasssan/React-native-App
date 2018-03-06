@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
+import { View, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux';
 import { Register, clearError, Login } from '../actions';
 import FormRender from '../components/FormRender';
 import Spinner from '../components/Spinner';
+import Model from '../components/Model';
 import { Alert } from 'react-native';
 import StepOneContainer from './StepOneContainer';
+import { ImagePicker } from 'expo';
 
 const intialState = {
   name: '',
@@ -17,7 +20,19 @@ class Auth extends Component {
     name: '',
     password: '',
     mobilenumber: '',
+    imgUri: '',
+    showModel: false,
     btnClicked: false,
+  };
+  _pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    if (!result.cancelled) {
+      this.setState({ imgUri: result.uri, showModel: false });
+    }
   };
   componentWillReceiveProps(nextProps) {
     const activeScreen = nextProps.nav.routes[nextProps.nav.routes.length - 1].key;
@@ -31,6 +46,7 @@ class Auth extends Component {
     }
   }
   render() {
+    const { showModel } = this.state;
     const activeScreen = this.props.nav.routes[this.props.nav.routes.length - 1].key;
     const curntComponent = this.props.navigation.state.key;
     if (this.props.auth.isFetching) return <Spinner />;
@@ -39,14 +55,47 @@ class Auth extends Component {
     }
 
     return (
-      <FormRender
-        {...this.state}
-        onChangeName={name => this.setState({ name })}
-        onChangePassword={password => this.setState({ password })}
-        onChangeMobileNumber={mobilenumber => this.setState({ mobilenumber })}
-        onChangeBtn={btnClicked => this.setState({ btnClicked })}
-        {...this.props}
-      />
+      <View>
+        {showModel && (
+          <TouchableOpacity
+            onPress={() => this.setState({ showModel: false })}
+            style={{
+              position: 'absolute',
+              backgroundColor: 'gray',
+              width: `${100}%`,
+              height: `${100}%`,
+              zIndex: 1,
+              opacity: 0.5,
+            }}
+          />
+        )}
+        {showModel && (
+          <Model
+            options={[
+              {
+                option: 'ChangePhoto',
+                onClick: () => this._pickImage(),
+              },
+              {
+                option: 'RemovePhoto',
+                onClick: () => this.setState({ imgUri: '', showModel: false }),
+              },
+            ]}
+            onCancel={() => this.setState({ showModel: false })}
+          />
+        )}
+        <FormRender
+          {...this.state}
+          onShowModel={() => {
+            this.setState({ showModel: true });
+          }}
+          onChangeName={name => this.setState({ name })}
+          onChangePassword={password => this.setState({ password })}
+          onChangeMobileNumber={mobilenumber => this.setState({ mobilenumber })}
+          onChangeBtn={btnClicked => this.setState({ btnClicked })}
+          {...this.props}
+        />
+      </View>
     );
   }
 }
