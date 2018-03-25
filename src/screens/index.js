@@ -10,15 +10,17 @@ import TeamName from '../components/TeamName';
 import TeamNameContainer from '../containers/TeamNameContainer';
 
 const Screens = StackNavigator({
-  CreateTeamStepOne: {
-    screen: AddPlayers,
+  Profile: {
+    screen: Profile,
     navigationOptions: {
-      title: 'Add Players',
-      headerLeft: (
-        <TouchableOpacity>
-          <Text>cancel</Text>
-        </TouchableOpacity>
-      ),
+      title: 'Profile',
+      // headerLeft: null,
+    },
+  },
+  Login: {
+    screen: Auth,
+    navigationOptiosssns: {
+      title: 'Login',
     },
   },
   SignUp: {
@@ -27,6 +29,7 @@ const Screens = StackNavigator({
       title: 'Register',
     },
   },
+
   CreateTeamStepOne: {
     screen: AddPlayers,
     navigationOptions: {
@@ -38,29 +41,15 @@ const Screens = StackNavigator({
       ),
     },
   },
-
   CreateTeamStepTwo: {
     screen: TeamNameContainer,
     navigationOptions: {
       title: 'Team Name',
-      headerLeft: (
-        <TouchableOpacity>
-          <Text>cancel</Text>
-        </TouchableOpacity>
-      ),
-    },
-  },
-  Profile: {
-    screen: Profile,
-    navigationOptions: {
-      title: 'Profile',
-    },
-  },
-
-  Login: {
-    screen: Auth,
-    navigationOptions: {
-      title: 'Login',
+      // headerLeft: (
+      //   <TouchableOpacity>
+      //     <Text>cancel</Text>
+      //   </TouchableOpacity>
+      // ),
     },
   },
 

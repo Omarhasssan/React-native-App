@@ -18,6 +18,11 @@ export const Login = user => (dispatch) => {
   dispatch({ type: 'LOGIN_REQUEST' });
   return DBHelpers.checkUserFound(user)
     .then((user) => {
+      // MAKE A SOCKET ROOM FOR USER
+      dispatch({
+        type: 'CREATE_ROOM',
+        id: user.id,
+      });
       dispatch({
         type: 'LOGIN_SUCCESS',
         user,

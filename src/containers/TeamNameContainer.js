@@ -4,48 +4,43 @@ import { addTeam } from '../actions';
 import { connect } from 'react-redux';
 import { TouchableOpacity, Text } from 'react-native';
 
-// ON NEXT GO TO NEXT SCREEN
-// AND SAVE DATA TO USER
-
 class TeamNameContainer extends Component {
   state = {
     teamName: '',
   };
+
   static navigationOptions({ navigation }) {
     return {
       headerRight: (
         <TouchableOpacity
-          disabled={!navigation.state.params.team.name}
           onPress={() => {
             navigation.state.params.prps.onSaveTeam(
+              navigation.state.params.socket || '',
               navigation.state.params.prps.user,
-              navigation.state.params.team,
+              navigation.state.params.teamName,
+              navigation.state.params.playersId,
             );
-            navigation.navigate('Profile');
           }}
         >
-          <Text
-            style={{
-              color: `${!navigation.state.params.team.name ? 'gray' : 'blue'}`,
-              opacity: `${!navigation.state.params.team.name ? 0.7 : 1}`,
-            }}
-          >
-            Create
-          </Text>
+          <Text>Create</Text>
         </TouchableOpacity>
       ),
     };
   }
+
   render() {
-    const team = this.props.navigation.state.params.team;
-    const { user, onSaveTeam } = this.props;
+    const playersId = this.props.navigation.state.params.playersId;
+    const { user, onSaveTeam, navigation, socket, sendTeamRequest } = this.props;
+    const { teamName } = this.state;
     return (
       <TeamName
         onChange={teamName => {
           this.setState({ teamName }, () => {
-            this.props.navigation.setParams({
-              prps: { user, onSaveTeam },
-              team: { ...team, name: this.state.teamName },
+            navigation.setParams({
+              ...navigation.state.params,
+              prps: { user, onSaveTeam, sendTeamRequest },
+              teamName: teamName,
+              socket: socket,
             });
           });
         }}
@@ -54,12 +49,13 @@ class TeamNameContainer extends Component {
   }
 }
 
-const mapStateToProps = ({ auth }) => ({
+const mapStateToProps = ({ auth, team, socket }) => ({
   user: auth.user,
+  socket: socket,
 });
 const mapDispatchToProps = dispatch => ({
-  onSaveTeam(user, team) {
-    dispatch(addTeam(user, team));
+  onSaveTeam(socket, user, teamName, playersId) {
+    dispatch(addTeam(socket, user, teamName, playersId));
   },
 });
 

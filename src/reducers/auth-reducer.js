@@ -1,4 +1,13 @@
-export default function (state = {}, action) {
+const intialState = {
+  user: {
+    id: '-L8TyAXqmrK_vf5h-0NH',
+    imgUri: '',
+    mobilenumber: '123',
+    name: 'a1',
+    password: 'aaaa',
+  },
+};
+export default function (state = intialState, action) {
   switch (action.type) {
     case 'SIGNUP_REQUEST':
     case 'LOGIN_REQUEST':
@@ -8,6 +17,7 @@ export default function (state = {}, action) {
     case 'LOGIN_SUCCESS':
     case 'UPDATE_CURRENT_USER':
       return { user: action.user };
+
     case 'SIGNUP_FAILURE':
     case 'LOGIN_FAILURE':
     case 'LOGOUT_FAILURE':

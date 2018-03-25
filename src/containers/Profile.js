@@ -1,21 +1,38 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Text } from 'react-native';
-
-// ON NEXT GO TO NEXT SCREEN
-// AND SAVE DATA TO USER
-
+import { Text, View, Image, StyleSheet } from 'react-native';
+import { getUserRequest, acceptRequest } from '../actions';
+import Tabs from '../components/Tabs';
+import Top from '../components/ProfileTop';
+import Invitations from './Invitations';
 class Profile extends Component {
-  static navigationOptions = {
-    title: 'Welcome',
+  state = {
+    activeTab: 'Home',
   };
+
   render() {
-    return <Text>welcome {this.props.user.name}</Text>;
+    const { activeTab } = this.state;
+    return (
+      <View style={styles.container}>
+        <Top
+          setActive={tabName => {
+            this.setState({ activeTab: tabName });
+          }}
+          activeTab={activeTab}
+        />
+        <View>
+          {(activeTab == 'Home' && <Text>Home</Text>) ||
+            (activeTab == 'Invitations' && <Invitations />) ||
+            (activeTab == 'Info' && <Text>Info</Text>)}
+        </View>
+      </View>
+    );
   }
 }
 
-const mapStateToProps = ({ auth }) => ({
-  user: auth.user,
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
 });
-
-export default connect(mapStateToProps)(Profile);
+export default Profile;

@@ -1,12 +1,18 @@
 import { DBHelpers } from '../helpers';
 /*eslint-disable */
 
-export const addTeam = (user, teamInfo) => dispatch => {
-  let teamId = DBHelpers.addTeam(teamInfo);
-  let updateUser = { ...user, teamId: teamId };
-  DBHelpers.updateUser(user.id, updateUser);
-  return dispatch({
+export const updateUser = (user, type, value) => {
+  const updatedUser = { ...user, [type]: value };
+  DBHelpers.updateUser(user.id, updatedUser);
+  return {
     type: 'UPDATE_CURRENT_USER',
-    user: updateUser,
-  });
+    user: updatedUser,
+  };
 };
+export const getPlayers = () => dispatch =>
+  DBHelpers.getUsers().then(users => {
+    dispatch({
+      type: 'GET_USERS',
+      users,
+    });
+  });

@@ -24,6 +24,7 @@ class Auth extends Component {
     showModel: false,
     btnClicked: false,
   };
+
   _pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
@@ -49,6 +50,7 @@ class Auth extends Component {
     const { showModel } = this.state;
     const activeScreen = this.props.nav.routes[this.props.nav.routes.length - 1].key;
     const curntComponent = this.props.navigation.state.key;
+    console.log('user', this.props.auth.user);
     if (this.props.auth.isFetching) return <Spinner />;
     if (this.props.auth.user && curntComponent == activeScreen) {
       return <StepOneContainer navigation={this.props.navigation} />;

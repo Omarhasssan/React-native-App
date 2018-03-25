@@ -14,18 +14,8 @@ const mapDispatchToProps = dispatch => ({
   },
 });
 const renderHeaderRight = (playersId = {}, navigation) => (
-  <TouchableOpacity
-    disabled={Object.keys(playersId).length === 0}
-    onPress={() => navigation.navigate('CreateTeamStepTwo', { team: { playersId } })}
-  >
-    <Text
-      style={{
-        color: `${Object.keys(playersId).length === 0 ? 'gray' : 'blue'}`,
-        opacity: `${Object.keys(playersId).length === 0 ? 0.7 : 1}`,
-      }}
-    >
-      Next
-    </Text>
+  <TouchableOpacity onPress={() => navigation.navigate('CreateTeamStepTwo', { playersId })}>
+    <Text>Next</Text>
   </TouchableOpacity>
 );
 export default connect(mapStateToProps, mapDispatchToProps)(withSearchContainer(

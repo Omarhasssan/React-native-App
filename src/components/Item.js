@@ -41,15 +41,7 @@ class Item extends Component {
         style={styles.itemContainer}
       >
         <Image
-          style={{
-            alignSelf: 'center',
-            marginRight: 7,
-            borderColor: '#D9D9D9',
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            borderWidth: 1,
-          }}
+          style={styles.userImg}
           source={(item.imgUri && { uri: item.imgUri }) || require('../imges/user.png')}
         />
         <Text style={{ flex: 1, alignSelf: 'center' }}>{item.name}</Text>
@@ -74,6 +66,15 @@ const styles = StyleSheet.create({
     borderColor: '#e0e0e0',
     paddingLeft: 5,
     paddingRight: 5,
+  },
+  userImg: {
+    alignSelf: 'center',
+    marginRight: 7,
+    borderColor: '#D9D9D9',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
   },
 });
 export default Item;
