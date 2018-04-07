@@ -4,19 +4,17 @@ import { Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
 
 class Item2 extends Component {
   state = {
-    checked: false,
+    checked: true,
   };
-  componentWillMount() {
-    this.setState({ checked: true });
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps.itemIsChecked != this.state.checked || this.state != nextState;
   }
-  componentWillReceiveProps() {
-    this.setState({ checked: true });
-  }
-  render() {
-    const { item, onCheck } = this.props;
-    const { checked } = this.state;
 
+  render() {
+    const { item, onRemove } = this.props;
+    const { checked } = this.state;
     if (!checked) return null;
+
     return (
       <View key={item.id} style={{ flexDirection: 'column', marginRight: 10 }}>
         <Image
@@ -36,8 +34,7 @@ class Item2 extends Component {
             right: 0,
           }}
           onPress={() => {
-            this.setState({ checked: false });
-            onCheck(item.id);
+            this.setState({ checked: false }, () => onRemove(item.id));
           }}
         >
           <Image source={require('../imges/crossicon.png')} />

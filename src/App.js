@@ -7,8 +7,12 @@ import Screens from './screens';
 import { StackNavigator, addNavigationHelpers } from 'react-navigation';
 import { Provider } from 'react-redux';
 import configureStore from './store/configureStore';
+import { checkIfWeKnowThisUserBefore } from '../src/actions';
 
 class App extends Component {
+  componentDidMount() {
+    this.props.dispatch(checkIfWeKnowThisUserBefore());
+  }
   render() {
     console.disableYellowBox = true;
     const { dispatch, nav } = this.props;
@@ -28,11 +32,8 @@ const mapStateToProps = ({ nav }) => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  connect() {
-    dispatch({ type: 'CONNECT' });
-  },
-  disconnect() {
-    dispatch({ type: 'DISCONNECT' });
+  checkIfWeKnowThisUserBefore() {
+    dispatch(checkIfWeKnowThisUserBefore());
   },
   dispatch,
 });

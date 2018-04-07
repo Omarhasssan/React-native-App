@@ -1,26 +1,37 @@
 import React, { Component } from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import { connect } from 'react-redux';
 
 import withCheckUserHaveTeam from '../hocs/withCheckUserHaveTeam';
 import StepOneComp from '../components/StepOneComp';
+import { getRooms } from '../actions';
 
 class StepOneContainer extends Component {
-  static navigationOptions = {
-    title: 'asd',
-  };
-
   render() {
     const { navigation } = this.props;
     return (
-      <StepOneComp
-        onJoinTeam={() => navigation.navigate('JoinTeam')}
-        onCreateTeam={() => navigation.navigate('CreateTeamStepOne')}
-      />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <StepOneComp
+          onJoinTeam={() => navigation.navigate('JoinTeam')}
+          onCreateTeam={() => navigation.navigate('CreateTeamStepOne')}
+        />
+      </View>
     );
   }
 }
-const mapStateToProps = ({ auth }) => ({
-  auth,
+const mapDispatchToProps = dispatch => ({
+  getRooms() {
+    dispatch(getRooms());
+  },
 });
-export default connect(mapStateToProps)(withCheckUserHaveTeam(StepOneContainer));
+const mapStateToProps = ({ auth, roomsReducer }) => ({
+  user: auth.user,
+  roomsReducer,
+});
+export default connect(mapStateToProps, mapDispatchToProps)(withCheckUserHaveTeam(StepOneContainer));

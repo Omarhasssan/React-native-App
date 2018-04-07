@@ -1,6 +1,6 @@
 import { DBHelpers } from '../helpers';
-import { sendTeamRequest } from './request-actions';
-
+import { sendJoiningTeamRequest } from './request-actions';
+import { updateUser } from './user-actions';
 /*eslint-disable */
 
 export const addTeam = (socket, user, teamName, playersId) => dispatch => {
@@ -9,9 +9,8 @@ export const addTeam = (socket, user, teamName, playersId) => dispatch => {
     type: 'CREATE_TEAM',
     team,
   });
-  const updatedUser = { ...user, teamId: team.id };
-  DBHelpers.updateUser(user.id, updatedUser);
-  sendTeamRequest(socket, team, playersId);
+  dispatch(updateUser(user, 'teamId', team.id));
+  sendJoiningTeamRequest(socket, team, playersId);
 };
 
 export const updateTeam = (team, type, value) => {

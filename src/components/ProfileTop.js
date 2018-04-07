@@ -5,15 +5,18 @@ import Tabs from './Tabs';
 export default (ProfileTop = props => (
   <View style={{ width: `${100}%`, height: `${25}%` }}>
     <View style={styles.topContainer}>
-      <Image style={styles.userImg} source={require('../imges/user.png')} />
+      <Image
+        style={styles.userImg}
+        source={(props.user.imgUri && { uri: props.user.imgUri }) || require('../imges/user.png')}
+      />
       <View style={{ width: `${100}%`, alignItems: 'center', padding: 5 }}>
-        <Text>Omar Hassan</Text>
+        <Text>{props.user.name}</Text>
       </View>
     </View>
     <View style={styles.tabsContainer}>
       <Tabs
         setActive={tabName => props.setActive(tabName)}
-        tabs={['Home', 'Invitations', 'Info']}
+        tabs={['Team', 'Invitations', 'Info']}
         activeTab={props.activeTab}
       />
     </View>

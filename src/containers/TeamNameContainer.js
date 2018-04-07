@@ -20,6 +20,7 @@ class TeamNameContainer extends Component {
               navigation.state.params.teamName,
               navigation.state.params.playersId,
             );
+            navigation.navigate('Profile');
           }}
         >
           <Text>Create</Text>

@@ -4,7 +4,7 @@ import SearchResults from '../containers/SearchResults';
 import SelectedData from '../containers/SelectedData';
 import Spinner from '../components/Spinner';
 import { List, ListItem, CheckBox } from 'react-native-elements';
-
+var _ = require('lodash');
 import {
   Text,
   TouchableOpacity,
@@ -14,80 +14,96 @@ import {
   FlatList,
   ScrollView,
 } from 'react-native';
-const arr = [];
-export default (withSearchContainer = (dispatchGetData, data, renderHeaderRight) =>
+
+export default (withSearchContainer = (
+  dispatchGetData,
+  data,
+  renderHeaderRight,
+  setCheckedItems,
+  loadCheckedItems,
+  settings,
+) =>
   class extends Component {
     state = {
       data: '',
       text: '',
-      allCheckedItems: [],
       loading: false,
     };
     static navigationOptions({ navigation }) {
       if (navigation.state.params) {
         return {
-          headerRight: renderHeaderRight(navigation.state.params.prps),
+          headerRight: renderHeaderRight(navigation.state.params.checkedItems, navigation),
         };
       }
     }
     componentWillMount() {
-      const { allCheckedItems } = this.state;
-      this.props.navigation.setParams({
-        prps: { ...this.props },
-      });
+      const { navigation, clearCheckedItems } = this.props;
+      //if (loadCheckedItems(this.props) == null) clearCheckedItems();
+      loadCheckedItems(this.props);
       this.setState({ loading: true });
       dispatchGetData(this.props);
     }
     componentWillReceiveProps(nextProps) {
+      if (
+        Object.keys(nextProps.checkedItems).length !==
+          Object.keys(this.props.checkedItems).length ||
+        !this.isEqual(nextProps.checkedItems, this.props.checkedItems)
+      ) {
+        this.updateCheckedItems();
+        setCheckedItems(nextProps.checkedItems, this.props);
+      }
       if (data(nextProps).length) {
         this.setState({ data: nextProps.players });
         this.setState({ loading: false });
       }
     }
-    update(selectedData) {
-      this.playersId = selectedData.map(s => s.id);
-      this.props.navigation.setParams({
-        prps: { ...this.props, checkedData: this.playersId },
-      });
+    isEqual(arr1, arr2) {
+      for (var k1 in arr1) {
+        let fnd = false;
+        for (var k2 in arr2) if (k1 == k2) fnd = true;
+        if (!fnd) return false;
+      }
+      return true;
+    }
+    updateCheckedItems() {
+      const { navigation, checkedItems } = this.props;
+      if (navigation)
+        navigation.setParams({
+          checkedItems: checkedItems,
+        });
     }
 
     render() {
-      const { data, loading, text, allCheckedItems } = this.state;
+      const { data, text, loading } = this.state;
+      const { checkedItems, addCheckedItem, removeCheckedItem, clearCheckedItems } = this.props;
       if (loading) return <Spinner />;
       this.selectedData = [];
       this.filteredData = [];
       if (text.length) {
         this.filteredData = data.filter(d => d.name.includes(text));
       } else this.filteredData = data;
-      for (var k in allCheckedItems)
-        if (allCheckedItems[k] == true) this.selectedData.push(data.filter(d => d.id == k)[0]);
-
+      for (var k in checkedItems) this.selectedData.push(data.filter(d => d.id == k)[0]);
       return (
-        <View>
+        <View style={{ flex: 1 }}>
           <Search onChangeText={text => this.setState({ text })} />
           <SelectedData
             selectedData={this.selectedData}
-            onCheck={key => {
-              this.temp = [];
-              for (var k in this.state.allCheckedItems)
-                this.temp[k] = this.state.allCheckedItems[k];
-              this.temp[key] = false;
-              this.setState({ allCheckedItems: this.temp }, () => {
-                this.update(this.selectedData);
-              });
-            }}
+            onRemove={key => removeCheckedItem(key)}
+            checkedItems={checkedItems}
           />
-          <SearchResults
-            onCheck={checkedItems => {
-              this.temp = [];
-              for (var k in checkedItems) this.temp[k] = checkedItems[k];
-              this.setState({ allCheckedItems: this.temp }, () => {
-                this.update(this.selectedData);
-              });
-            }}
-            data={this.filteredData}
-            allCheckedItems={allCheckedItems}
-          />
+          <View style={{ height: `${100}%` }}>
+            <SearchResults
+              onCheck={(key, value) => {
+                if (!value) removeCheckedItem(key);
+                else if (settings.singleCheck) {
+                  clearCheckedItems();
+                  addCheckedItem(key);
+                } else addCheckedItem(key);
+              }}
+              checkedItems={checkedItems}
+              data={this.filteredData}
+            />
+          </View>
         </View>
       );
     }

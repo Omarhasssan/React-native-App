@@ -5,6 +5,9 @@ import players from './global-reducer';
 import userInvitations from './userRequests-reducer';
 import team from './team-reducer';
 import socket from './socket-reducer';
+import roomsReducer from './rooms-reducer';
+import showObserverModel from './observerModel-reducer';
+import checkedItems from './checkedItems-reducer';
 
 const rootReducer = combineReducers({
   auth,
@@ -13,6 +16,9 @@ const rootReducer = combineReducers({
   userInvitations,
   team,
   socket,
+  roomsReducer,
+  showObserverModel,
+  checkedItems,
 });
 
 export default rootReducer;

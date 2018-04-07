@@ -16,26 +16,25 @@ class Item extends Component {
     checked: false,
   };
   shouldComponentUpdate(nextProps, nextState) {
-    return this.state != nextState || this.props.item != nextProps.item;
+    return (
+      nextProps.itemIsChecked != this.state.checked ||
+      this.props.item != nextProps.item ||
+      this.state != nextState
+    );
   }
-  componentWillMount() {
-    this.setState({ checked: false });
-  }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.itemIsChecked != this.state.checked)
       this.setState({ checked: nextProps.itemIsChecked });
   }
-
   render() {
-    const { item, onCheck } = this.props;
+    const { item, onCheck, itemIsChecked } = this.props;
     const { checked } = this.state;
-    if (item.name == 'aa') console.log('img', item.imgUri);
 
     return (
       <TouchableOpacity
         onPress={() => {
-          this.setState({ checked: !checked });
-          onCheck(item.id, !checked);
+          this.setState({ checked: !checked }, () => onCheck(item.id, !checked));
         }}
         key={item.id}
         style={styles.itemContainer}

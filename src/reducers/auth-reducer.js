@@ -5,9 +5,10 @@ const intialState = {
     mobilenumber: '123',
     name: 'a1',
     password: 'aaaa',
+    teamId: '-L8U6moS8EIZn-d33_cO',
   },
 };
-export default function (state = intialState, action) {
+export default function (state = {}, action) {
   switch (action.type) {
     case 'SIGNUP_REQUEST':
     case 'LOGIN_REQUEST':

@@ -9,7 +9,6 @@ export const sendTeamRequest = (socket, team, playersId) => {
   });
 };
 export const getUserRequest = (socket, user) => dispatch => {
-  console.log('in get userRequest action');
   DBHelpers.getUserRequest(user.id).then(userRequests => {
     let userReqs = userRequests.filter(req => req.status == 'PENDING');
     dispatch({
@@ -18,8 +17,6 @@ export const getUserRequest = (socket, user) => dispatch => {
     });
   });
   socket.on('requests', request => {
-    console.log('**********');
-    console.log(request);
     dispatch({
       type: 'ADD_REQUEST',
       request: request,
@@ -29,7 +26,8 @@ export const getUserRequest = (socket, user) => dispatch => {
 
 export const acceptRequest = (user, request) => dispatch => {
   // add this team to user
-  updateUser(user, 'teamId', request.teamId);
+  dispatch(updateUser(user, 'teamId', request.teamId));
+
   // add playerId to team
   DBHelpers.getTeamById(request.teamId).then(team => {
     if (team.playersId) updateTeam(team, 'playersId', [...team.playersId, request.playerId]);

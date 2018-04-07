@@ -12,13 +12,32 @@ app.get('/', (req, res) => {
 
 let userId;
 io.on('connection', (socket) => {
-  console.log('connected', socket.id);
-  socket.on('join', (data) => {
-    console.log(data.id, 'have a room');
+  console.log('connected');
+  socket.on('disconnect', () => {
+    console.log('dissssss');
+  });
+  // create room to send and recieve requests
+  socket.on('roomByUserId', (data) => {
     socket.join(data.id);
   });
   socket.on('sendRequest', (data) => {
-    console.log('heree in sendRequest channel', data.userId);
     io.sockets.in(data.userId).emit('requests', data.request);
+  });
+
+  // create room to join with another team
+  // socket.on('roomByRoomId', (data) => {
+  //   socket.join(data.id);
+  // });
+  // socket.on('roomChanged', (data) => {
+  //   io.sockets.in(data.updatedRoom.id).emit('roomChanged', data.updatedRoom);
+  // });
+  socket.on('joinRoomsChannel', () => {
+    socket.join('roomsChannel');
+  });
+  socket.on('updateRoom', (data) => {
+    io.sockets.in('roomsChannel').emit('roomUpdated', data.updatedRoom);
+  });
+  socket.on('addRoom', (data) => {
+    io.sockets.in('roomsChannel').emit('roomAdded', data.addedRoom);
   });
 });

@@ -4,11 +4,10 @@ import { connect } from 'react-redux';
 import { Register, clearError, Login } from '../actions';
 import FormRender from '../components/FormRender';
 import Spinner from '../components/Spinner';
-import Model from '../components/Model';
 import { Alert } from 'react-native';
 import StepOneContainer from './StepOneContainer';
 import { ImagePicker } from 'expo';
-
+import OptionsWithModel from '../components/Options';
 const intialState = {
   name: '',
   password: '',
@@ -21,7 +20,7 @@ class Auth extends Component {
     password: '',
     mobilenumber: '',
     imgUri: '',
-    showModel: false,
+    showModel: true,
     btnClicked: false,
   };
 
@@ -50,29 +49,16 @@ class Auth extends Component {
     const { showModel } = this.state;
     const activeScreen = this.props.nav.routes[this.props.nav.routes.length - 1].key;
     const curntComponent = this.props.navigation.state.key;
-    console.log('user', this.props.auth.user);
     if (this.props.auth.isFetching) return <Spinner />;
     if (this.props.auth.user && curntComponent == activeScreen) {
-      return <StepOneContainer navigation={this.props.navigation} />;
+      this.props.navigation.navigate('Profile');
+      //return <StepOneContainer navigation={this.props.navigation} />;
     }
 
     return (
       <View>
         {showModel && (
-          <TouchableOpacity
-            onPress={() => this.setState({ showModel: false })}
-            style={{
-              position: 'absolute',
-              backgroundColor: 'gray',
-              width: `${100}%`,
-              height: `${100}%`,
-              zIndex: 1,
-              opacity: 0.5,
-            }}
-          />
-        )}
-        {showModel && (
-          <Model
+          <OptionsWithModel
             options={[
               {
                 option: 'ChangePhoto',
@@ -88,9 +74,7 @@ class Auth extends Component {
         )}
         <FormRender
           {...this.state}
-          onShowModel={() => {
-            this.setState({ showModel: true });
-          }}
+          onShowModel={() => this.setState({ showModel: true })}
           onChangeName={name => this.setState({ name })}
           onChangePassword={password => this.setState({ password })}
           onChangeMobileNumber={mobilenumber => this.setState({ mobilenumber })}

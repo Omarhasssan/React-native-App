@@ -3,6 +3,7 @@ import { validateSignUpForm } from './FormValidation';
 /*eslint-disable */
 
 export const DBHelpers = {
+  getRooms,
   saveUser,
   findByName,
   checkUserFound,
@@ -15,6 +16,8 @@ export const DBHelpers = {
   getRequestById,
   updateRequest,
   updateTeam,
+  addRoom,
+  getUserById,
 };
 
 function getUserRequest(userId) {
@@ -47,6 +50,20 @@ function getUsers() {
       });
   });
 }
+function getRooms() {
+  let arr = [];
+  return new Promise((resolve, reject) => {
+    return firebase
+      .database()
+      .ref('Rooms')
+      .on('value', snapshot => {
+        snapshot.forEach(room => {
+          arr.push(room.toJSON());
+        });
+        return resolve(arr);
+      });
+  });
+}
 function addRequest(Request) {
   let req = Request;
   const requestsRef = firebase
@@ -55,6 +72,14 @@ function addRequest(Request) {
     .push();
   req.id = requestsRef.key;
   requestsRef.set(req);
+}
+function addRoom(room) {
+  const roomRef = firebase
+    .database()
+    .ref('Rooms')
+    .push();
+  room.id = roomRef.key;
+  roomRef.set(room);
 }
 function addTeam(teamName) {
   let Team = { name: teamName, playersId: [] };
@@ -83,6 +108,16 @@ function getTeamById(teamId) {
     return firebase
       .database()
       .ref(`${'teams'}/${teamId}`)
+      .on('value', snapshot => {
+        return resolve(snapshot.toJSON());
+      });
+  });
+}
+function getUserById(userId) {
+  return new Promise((resolve, reject) => {
+    return firebase
+      .database()
+      .ref(`${'users'}/${userId}`)
       .on('value', snapshot => {
         return resolve(snapshot.toJSON());
       });

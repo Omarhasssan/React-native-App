@@ -11,7 +11,6 @@ class Invitations extends Component {
 
   render() {
     const { user, userInvitations, onAccept } = this.props;
-    console.log('userInvs', userInvitations);
     return (
       <View>
         {userInvitations.map(inv => (

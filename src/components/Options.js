@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import withModel from '../hocs/withModel';
 
-export default (Model = props => (
-  <View style={styles.optionsContainer}>
+const Options = props => (
+  <View>
     <View>
       {props.options.map((option, i) => (
         <TouchableOpacity
@@ -28,19 +29,8 @@ export default (Model = props => (
       </TouchableOpacity>
     </View>
   </View>
-));
+);
 const styles = StyleSheet.create({
-  optionsContainer: {
-    width: `${90}%`,
-    height: 'auto',
-    borderWidth: 1,
-    borderColor: 'transparent',
-    borderRadius: 10,
-    alignSelf: 'center',
-    position: 'absolute',
-    zIndex: 2,
-    bottom: 60,
-  },
   lastBtn: {
     borderBottomLeftRadius: 5,
     borderBottomRightRadius: 5,
@@ -58,3 +48,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export default withModel(Options);
