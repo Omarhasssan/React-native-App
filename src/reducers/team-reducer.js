@@ -1,12 +1,9 @@
-export default function (state = [], action) {
+export default function (state = { name: '', players: [] }, action) {
   switch (action.type) {
-    case 'CREATE_TEAM':
-      return [...state, action.team];
-    case 'UPDATE_TEAM':
-      return state.map((team) => {
-        if (team.teamId === action.payload.teamId) return action.payload.updatedTeam;
-        return team;
-      });
+    case 'SET_TEAM_NAME':
+      return { ...state, name: action.teamName };
+    case 'SET_TEAM_PLAYERS':
+      return { ...state, players: action.teamPlayers };
     default:
       return state;
   }

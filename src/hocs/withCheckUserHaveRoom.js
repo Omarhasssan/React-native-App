@@ -30,7 +30,6 @@ export default (withCheckUserHaveRoom = WrappedComponent =>
     render() {
       const { user } = this.props;
       if (!user.roomId) return <WrappedComponent {...this.props} />;
-
-      return <Room screenProps={this.props.screenProps} roomId={user.roomId} />;
+      return <Room roomId={user.roomId} />;
     }
   });

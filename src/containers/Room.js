@@ -14,8 +14,7 @@ class Room extends Component {
   componentDidMount() {
     const { navigation, socket, user } = this.props;
     const { roomId } = navigation ? navigation.state.params : this.props;
-
-    this.props.joinRoom(roomId);
+    if (user.roomId != roomId) this.props.joinRoom(roomId);
     this.props.getRoom(roomId);
   }
   componentWillReceiveProps(nextProps) {

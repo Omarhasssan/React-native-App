@@ -20,6 +20,17 @@ const Screens = StackNavigator({
       title: 'Login',
     },
   },
+  CreateTeamStepOne: {
+    screen: AddPlayers,
+    navigationOptions: {
+      title: 'Add Players',
+      // headerLeft: (
+      //   <TouchableOpacity>
+      //     <Text>cancel</Text>
+      //   </TouchableOpacity>
+      // ),
+    },
+  },
   AddObserver: {
     screen: AddObserver,
     navigationOptiosssns: {
@@ -52,17 +63,6 @@ const Screens = StackNavigator({
     },
   },
 
-  CreateTeamStepOne: {
-    screen: AddPlayers,
-    navigationOptions: {
-      title: 'Add Players',
-      // headerLeft: (
-      //   <TouchableOpacity>
-      //     <Text>cancel</Text>
-      //   </TouchableOpacity>
-      // ),
-    },
-  },
   CreateTeamStepTwo: {
     screen: TeamNameContainer,
     navigationOptions: {

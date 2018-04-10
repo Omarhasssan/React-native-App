@@ -5,12 +5,20 @@ export default class Invitation extends Component {
   constructor(props) {
     super();
   }
-  componentWillMount() {}
+
   render() {
-    const { invitation, onAccept } = this.props;
+    const { invitation, onAccept, type } = this.props;
     return (
       <View>
-        <Text>{invitation.teamName}</Text>
+        {(type == 'observingMatch' && (
+          <View>
+            <Text>Date : {invitation.room.settings.date}</Text>
+            <Text>Location : {invitation.room.settings.location}</Text>
+            <Text>team1 : {invitation.room.teamOwner.name}</Text>
+            <Text>team2 : {invitation.room.joinedTeam && invitation.room.joinedTeam.name}</Text>
+          </View>
+        )) || <Text>{invitation.teamName}</Text>}
+
         <TouchableOpacity onPress={() => onAccept(invitation)}>
           <Text>Accept</Text>
         </TouchableOpacity>

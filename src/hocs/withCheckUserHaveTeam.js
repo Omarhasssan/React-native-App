@@ -5,14 +5,10 @@ import TabNavigator from '../containers/TabNavigator';
 
 export default (withCheckUserHaveTeam = WrappedComponent =>
   class extends Component {
-    componentDidMount() {
-      this.props.getRooms();
-    }
-
     render() {
-      const { user, roomsReducer } = this.props;
+      const { user } = this.props;
       if (!user.teamId) return <WrappedComponent {...this.props} />;
-      if (user.roomId && roomsReducer.rooms.length) {
+      if (user.roomId) {
         return <TabNavigator screenProps={this.props.navigation} />;
       }
       if (!user.roomId) return <TabNavigator screenProps={this.props.navigation} />;

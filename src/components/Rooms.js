@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
+const _ = require('lodash');
+
 import {
   Text,
   TouchableOpacity,
@@ -13,10 +15,6 @@ import {
 import { joinRoom, getRooms } from '../actions';
 
 class Rooms extends Component {
-  componentDidMount() {
-    this.props.getRooms();
-  }
-
   render() {
     const {
       rooms, user, socket, onJoin, screenProps,
@@ -35,8 +33,13 @@ class Rooms extends Component {
               }}
             >
               <Text>{item.Name}</Text>
-              <Text>Team Name : {item.teamName}</Text>
-              <Text>Locatin : {item.Location}</Text>
+              <Text>Team Name : {item.teamOwner.name}</Text>
+              <Text>Locatin : {item.settings.location}</Text>
+              <Text>
+                observer :
+                {_.has(item.settings, 'observer') && item.settings.observer.name}
+              </Text>
+              <Text>date : {item.settings.date}</Text>
             </TouchableOpacity>
           )}
         />
@@ -53,9 +56,6 @@ const mapStateToProps = ({ auth, socket, roomsReducer }) => ({
 const mapDispatchToProps = dispatch => ({
   onJoin(user, room, socket) {
     dispatch(joinRoom(user, room, socket));
-  },
-  getRooms() {
-    dispatch(getRooms());
   },
 });
 

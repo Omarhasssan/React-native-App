@@ -31,14 +31,18 @@ export default (withSearchContainer = (
     };
     static navigationOptions({ navigation }) {
       if (navigation.state.params) {
+        console.log('a', navigation.state.params.prps.onSetTeamPlayers);
         return {
-          headerRight: renderHeaderRight(navigation.state.params.checkedItems, navigation),
+          headerRight: renderHeaderRight(
+            navigation.state.params.checkedItems,
+            navigation,
+            navigation.state.params.prps,
+          ),
         };
       }
     }
     componentWillMount() {
       const { navigation, clearCheckedItems } = this.props;
-      //if (loadCheckedItems(this.props) == null) clearCheckedItems();
       loadCheckedItems(this.props);
       this.setState({ loading: true });
       dispatchGetData(this.props);
@@ -49,7 +53,7 @@ export default (withSearchContainer = (
           Object.keys(this.props.checkedItems).length ||
         !this.isEqual(nextProps.checkedItems, this.props.checkedItems)
       ) {
-        this.updateCheckedItems();
+        this.updateCheckedItems(nextProps.checkedItems);
         setCheckedItems(nextProps.checkedItems, this.props);
       }
       if (data(nextProps).length) {
@@ -65,11 +69,12 @@ export default (withSearchContainer = (
       }
       return true;
     }
-    updateCheckedItems() {
-      const { navigation, checkedItems } = this.props;
+    updateCheckedItems(checkedItems) {
+      const { navigation } = this.props;
       if (navigation)
         navigation.setParams({
-          checkedItems: checkedItems,
+          checkedItems: Object.keys(checkedItems),
+          prps: this.props,
         });
     }
 

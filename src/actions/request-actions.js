@@ -1,21 +1,38 @@
 /*eslint-disable */
 import { DBHelpers } from '../helpers';
 import { updateUser, getTeamById, updateTeam } from '../actions';
-export const sendTeamRequest = (socket, team, playersId) => {
+export const sendJoiningTeamRequest = (socket, team, playersId) => {
   playersId.map(playerId => {
-    const Request = { teamName: team.name, teamId: team.id, playerId: playerId, status: 'PENDING' };
+    const Request = {
+      type: 'joinTeam',
+      teamName: team.name,
+      teamId: team.id,
+      playerId: playerId,
+      status: 'PENDING',
+    };
     DBHelpers.addRequest(Request);
     socket.emit('sendRequest', { userId: playerId, request: Request });
   });
 };
+export const sendObservingRequest = (room, user, socket) => {
+  const Request = {
+    type: 'observing',
+    status: 'PENDING',
+    room: room,
+    playerId: user.id,
+  };
+  socket.emit('sendRequest', { userId: user.id, request: Request });
+};
 export const getUserRequest = (socket, user) => dispatch => {
-  DBHelpers.getUserRequest(user.id).then(userRequests => {
-    let userReqs = userRequests.filter(req => req.status == 'PENDING');
-    dispatch({
-      type: 'USER_REQUESTS',
-      userReqs,
-    });
-  });
+  //from database
+  // DBHelpers.getUserRequest(user.id).then(userRequests => {
+  //   let userReqs = userRequests.filter(req => req.status == 'PENDING');
+  //   dispatch({
+  //     type: 'USER_REQUESTS',
+  //     userReqs,
+  //   });
+  // });
+  // realtime
   socket.on('requests', request => {
     dispatch({
       type: 'ADD_REQUEST',

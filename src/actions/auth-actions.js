@@ -32,7 +32,6 @@ export const Login = user => (dispatch) => {
       dispatch({
         type: 'JOIN_ROOMS_CHANNEL',
       });
-
       // should save to async storage ?
       AsyncStorage.setItem('@User', JSON.stringify(user)).then(() => console.log('user saved'));
     })

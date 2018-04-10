@@ -4,9 +4,20 @@ import { connect } from 'react-redux';
 
 import withCheckUserHaveTeam from '../hocs/withCheckUserHaveTeam';
 import StepOneComp from '../components/StepOneComp';
-import { getRooms } from '../actions';
+import { addTeam } from '../actions';
 
 class StepOneContainer extends Component {
+  componentWillReceiveProps(nextProps) {
+    // if team_players and team_name then disptch save team
+    console.log('rc');
+    const {
+      onSaveTeam, teamPlayers, teamName, socket, user, navigation,
+    } = nextProps;
+    if (teamPlayers && teamName) {
+      onSaveTeam(socket, user, teamName, teamPlayers);
+      navigation.navigate('Profile');
+    }
+  }
   render() {
     const { navigation } = this.props;
     return (
@@ -26,12 +37,14 @@ class StepOneContainer extends Component {
   }
 }
 const mapDispatchToProps = dispatch => ({
-  getRooms() {
-    dispatch(getRooms());
+  onSaveTeam(socket, user, teamName, teamPlayers) {
+    dispatch(addTeam(socket, user, teamName, teamPlayers));
   },
 });
-const mapStateToProps = ({ auth, roomsReducer }) => ({
+const mapStateToProps = ({ auth, team, socket }) => ({
   user: auth.user,
-  roomsReducer,
+  teamPlayers: team.players,
+  teamName: team.name,
+  socket,
 });
 export default connect(mapStateToProps, mapDispatchToProps)(withCheckUserHaveTeam(StepOneContainer));

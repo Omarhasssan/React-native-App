@@ -18,6 +18,7 @@ export const DBHelpers = {
   updateTeam,
   addRoom,
   getUserById,
+  updateRoom,
 };
 
 function getUserRequest(userId) {
@@ -50,17 +51,24 @@ function getUsers() {
       });
   });
 }
-function getRooms() {
-  let arr = [];
+async function getRooms() {
+  let arr = [],
+    res;
   return new Promise((resolve, reject) => {
-    return firebase
+    firebase
       .database()
       .ref('Rooms')
-      .on('value', snapshot => {
-        snapshot.forEach(room => {
-          arr.push(room.toJSON());
-        });
-        return resolve(arr);
+      .on('value', async snapshot => {
+        let rooms = snapshot.toJSON();
+        for (indx in rooms) {
+          rooms[indx].teamOwner = await getTeamById(rooms[indx].teamOwner);
+          res = await getTeamById(rooms[indx].joinedTeam);
+          if (res) rooms[indx].joinedTeam = res;
+          res = await getUserById(rooms[indx].settings.observer);
+          if (res) rooms[indx].settings.observer = res;
+          arr.push(rooms[indx]);
+        }
+        resolve(arr);
       });
   });
 }
@@ -96,6 +104,12 @@ function updateTeam(teamId, updateTeam) {
     .database()
     .ref(`${'teams'}/${teamId}`)
     .update(updateTeam);
+}
+function updateRoom(route, value) {
+  return firebase
+    .database()
+    .ref(route)
+    .set(value);
 }
 function updateUser(userId, updateUser) {
   return firebase

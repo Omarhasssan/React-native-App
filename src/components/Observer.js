@@ -26,14 +26,12 @@ export default (Observer = props => (
       {props.roomOwner && (
         <View>
           <Btn
-            fontStyle="bold"
-            txtSize="6"
+            txtStyle={{ fontStyle: 'bold', fontSize: 6, color: 'white' }}
+            containerStyle={{
+ padding: 3, width: 'auto', height: 13, backgroundColor: '#1da1f2',
+}}
             txt={`${(props.observer && 'Change Observer') || 'Add Observer'}`}
-            width="auto"
-            height={13}
-            color="white"
             onPress={props.onAdd}
-            backgroundColor="#1da1f2"
           />
         </View>
       )}

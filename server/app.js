@@ -16,7 +16,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('dissssss');
   });
-  // create room to send and recieve requests
+  // create room by useId to send and recieve requests
   socket.on('roomByUserId', (data) => {
     socket.join(data.id);
   });
@@ -24,13 +24,6 @@ io.on('connection', (socket) => {
     io.sockets.in(data.userId).emit('requests', data.request);
   });
 
-  // create room to join with another team
-  // socket.on('roomByRoomId', (data) => {
-  //   socket.join(data.id);
-  // });
-  // socket.on('roomChanged', (data) => {
-  //   io.sockets.in(data.updatedRoom.id).emit('roomChanged', data.updatedRoom);
-  // });
   socket.on('joinRoomsChannel', () => {
     socket.join('roomsChannel');
   });

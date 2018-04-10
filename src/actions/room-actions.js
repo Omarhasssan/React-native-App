@@ -1,42 +1,49 @@
 import { DBHelpers } from '../helpers';
 import { updateUser } from './user-actions';
 import { AsyncStorage } from 'react-native';
+import { sendObservingRequest } from './request-actions';
 
 export const createRoom = (user, Name, Location, socket) => (dispatch) => {
   // save room to database admin of el room and room details
 
   const room = {};
+  room.teamOwner = user.teamId;
+  room.name = Name;
+  room.settings = {};
+  room.settings.location = Location;
+  DBHelpers.addRoom(room);
+
   DBHelpers.getTeamById(user.teamId).then((team) => {
-    room.teamOwner = team;
-    room.name = Name;
-    room.settings = {};
-    room.settings.location = Location;
-
-    DBHelpers.addRoom(room);
-
+    const Room = { ...room, teamOwner: team };
     dispatch({
       type: 'CREATE_ROOM_BY_ROOM_ID',
-      id: room.id,
+      id: Room.id,
     });
     dispatch({
       type: 'ADD_ROOM',
-      room,
+      room: Room,
     });
 
-    socket.emit('addRoom', { addedRoom: room });
+    socket.emit('addRoom', { addedRoom: Room });
 
-    dispatch(updateUser(user, 'roomId', room.id));
+    dispatch(updateUser(user, 'roomId', Room.id));
     AsyncStorage.getItem('@User').then((user) => {
       const updatedUser = JSON.parse(user);
-      updatedUser.roomId = room.id;
+      updatedUser.roomId = Room.id;
       AsyncStorage.setItem('@User', JSON.stringify(updatedUser)).then(() => {
-        console.log('update user success', updatedUser);
+        console.log('update user success');
       });
     });
   });
 };
 export const getRooms = () => (dispatch) => {
-  DBHelpers.getRooms().then(rooms => dispatch({ type: 'ROOMS', rooms }));
+  DBHelpers.getRooms().then((rooms) => {
+    dispatch({ type: 'ROOMS', rooms });
+  });
+};
+
+export const updateRoomDB = (route, value) => {
+  DBHelpers.updateRoom(route, value);
 };
 
 export const updateRoom = (room, type, value, socket) => (dispatch) => {
@@ -58,16 +65,17 @@ export const listenToRoomChanges = socket => (dispatch) => {
   });
 };
 export const joinRoom = (user, room, socket) => (dispatch) => {
-  if (room.teamOwnerId !== user.teamId) {
-    DBHelpers.getTeamById(user.teamId).then((team) => {
-      dispatch(updateRoom(room, 'joinedTeam', team, socket));
-    });
-  }
+  updateRoomDB(`Rooms/${room.id}/joinedTeam`, user.teamId);
+  DBHelpers.getTeamById(user.teamId).then((team) => {
+    dispatch(updateRoom(room, 'joinedTeam', team, socket));
+  });
 };
 export const setRoomDate = (room, date, socket) => (dispatch) => {
+  updateRoomDB(`Rooms/${room.id}/settings/date`, date);
   dispatch(updateRoom(room, 'settings', { ...room.settings, date }, socket));
 };
 export const leaveRoom = (room, socket) => (dispatch) => {
+  updateRoomDB(`Rooms/${room.id}/joinedTeam`, null);
   dispatch(updateRoom(room, 'joinedTeam', null, socket));
 };
 export const getRoom = roomId => (dispatch) => {
@@ -75,10 +83,18 @@ export const getRoom = roomId => (dispatch) => {
 };
 export const setRoomObserver = (room, observerId, socket) => (dispatch) => {
   if (observerId) {
+    updateRoomDB(`Rooms/${room.id}/settings/observer`, observerId);
     DBHelpers.getUserById(observerId).then((user) => {
-      dispatch(updateRoom(room, 'settings', { ...room.settings, observer: { ...user } }, socket));
+      dispatch(updateRoom(
+        room,
+        'settings',
+        { ...room.settings, observer: { ...user, status: 'PENDING' } },
+        socket,
+      ));
     });
+    sendObservingRequest(room, observerId, socket);
   } else {
+    updateRoomDB(`Rooms/${room.id}/settings/observer`, null);
     dispatch(updateRoom(room, 'settings', { ...room.settings, observer: {} }, socket));
   }
 };
