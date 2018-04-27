@@ -10,15 +10,16 @@ export default class Tabs extends Component {
       <View style={styles.tabContainer}>
         {tabs.map((tab, i) => (
           <TouchableOpacity
-            //style={}
             style={
               tab == activeTab
                 ? [styles.tab, styles.activeTab]
-                : i == tabs.length - 1 ? [styles.tab, { borderRightWidth: 0 }] : styles.tab
+                : i == tabs.length - 1
+                  ? [styles.tab, { borderRightWidth: 0 }]
+                  : styles.tab
             }
             onPress={() => setActive(tab)}
           >
-            <Text>{tab}</Text>
+            <Text style={{ fontSize: 8 }}>{tab}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -29,12 +30,13 @@ export default class Tabs extends Component {
 const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
-    width: `${80}%`,
+    width: `${100}%`,
     justifyContent: 'space-between',
     borderWidth: 1,
     borderColor: '#1da1f2',
     borderRadius: 3,
     height: 30,
+    //flex: 1,
   },
   activeTab: {
     backgroundColor: '#1da1f2',

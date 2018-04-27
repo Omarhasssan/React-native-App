@@ -4,7 +4,6 @@ export default function (state = [], action) {
       // console.log('in request reducer', action.Request);
       return [...state, action.request];
     case 'USER_REQUESTS':
-      // console.log('in USER_REQUESTS reducer', action.userRequests);
       return [...action.userReqs];
     case 'ACCEPT_REQUEST':
     case 'REJECT_REQUEST':

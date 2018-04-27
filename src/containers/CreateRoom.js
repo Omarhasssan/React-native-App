@@ -6,10 +6,9 @@ import { createRoom } from '../actions';
 class CreateRoom extends Component {
   state = {
     Name: '',
-    Location: '',
   };
   render() {
-    const { Name, Location } = this.state;
+    const { Name } = this.state;
     const { onCreate, user, socket } = this.props;
     return (
       <View style={{ flex: 1, justifyContent: 'center' }}>
@@ -22,16 +21,8 @@ class CreateRoom extends Component {
           onChangeText={Name => this.setState({ Name })}
           placeholder="Room Name"
         />
-        <TxtInput
-          style={{
-            backgroundColor: 'transparent',
-            borderBottomColor: '#e5eaf9',
-            borderBottomWidth: 1,
-          }}
-          onChangeText={Location => this.setState({ Location })}
-          placeholder="Location"
-        />
-        <Button title="Create Room" onPress={() => onCreate(user, Name, Location, socket)} />
+
+        <Button title="Create Room" onPress={() => onCreate(user, Name, socket)} />
       </View>
     );
   }
@@ -41,8 +32,8 @@ const mapStateToProps = ({ auth, socket }) => ({
   socket: socket,
 });
 const mapDispatchToProps = dispatch => ({
-  onCreate(user, Name, Location, socket) {
-    dispatch(createRoom(user, Name, Location, socket));
+  onCreate(user, Name, socket) {
+    dispatch(createRoom(user, Name, socket));
   },
 });
 

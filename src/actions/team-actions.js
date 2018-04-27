@@ -1,33 +1,41 @@
 import { AsyncStorage } from 'react-native';
 import { DBHelpers } from '../helpers';
-import { sendJoiningTeamRequest } from './request-actions';
-import { updateUser } from './user-actions';
+import { updateUserTeam, updateUserRoleToCaptain } from './user-actions';
+import { sendJoiningTeamRequest } from '.';
+import Player from '../components/Player';
 /*eslint-disable */
 
-export const addTeam = (socket, user, teamName, playersId) => dispatch => {
-  const team = DBHelpers.addTeam(teamName);
-  dispatch({
-    type: 'CREATE_TEAM',
-    team,
-  });
-  dispatch(updateUser(user, 'teamId', team.id));
-  sendJoiningTeamRequest(socket, team, playersId);
-  AsyncStorage.getItem('@User').then(user => {
-    const updatedUser = JSON.parse(user);
-    updatedUser.teamId = team.id;
-    AsyncStorage.setItem('@User', JSON.stringify(updatedUser)).then(() => {
-      console.log('update user success');
-    });
+// implement getTeams
+export const getTeams = () => dispatch => {
+  DBHelpers.getTeams().then(teams => {
+    dispatch({ type: 'TEAMS', teams });
   });
 };
+export const createTeamWithSendingRequests = (user, teamName, playersId, socket) => dispatch => {
+  let team = { name: teamName };
+  DBHelpers.addTeam(team);
+  dispatch({
+    type: 'ADD_TEAM',
+    team,
+  });
+  dispatch({
+    type: 'CREATE_ROOM_BY_TEAM_ID',
+    id: team.id,
+  });
+  dispatch(updateUserTeam(user, team));
+  dispatch(updateUserRoleToCaptain(user));
+  dispatch(sendJoiningTeamRequest(team, playersId, socket));
+};
+export const getTeam = teamId => dispatch => {
+  dispatch({ type: 'GET_TEAM', teamId });
+};
 
-export const updateTeam = (team, type, value) => {
-  const updatedTeam = { ...team, [type]: value };
-  DBHelpers.updateTeam(team.id, updatedTeam);
+export const updateTeamPlayers = (teamId, player) => dispatch => {
+  DBHelpers.updateTeamPlayers(teamId, player.id);
   // should update in team reducer
   dispatch({
-    type: 'UPDATE_TEAM',
-    payload: { teamId: team.id, updatedTeam: updatedTeam },
+    type: 'UPDATE_TEAM_PLAYERS',
+    payload: { teamId: teamId, player: player },
   });
 };
 
@@ -36,4 +44,15 @@ export const setTeamName = teamName => dispatch => {
 };
 export const setTeamPlayers = teamPlayers => dispatch => {
   dispatch({ type: 'SET_TEAM_PLAYERS', teamPlayers });
+};
+
+export const listenToTeamRequestStatus = () => dispatch => {
+  DBHelpers.onRequestStatusChanged().then(req => {
+    DBHelpers.getUserById(req.playerId).then(player => {
+      dispatch(updateTeamPlayers(req.teamId, player));
+      DBHelpers.getTeamById(req.teamId).then(team => {
+        dispatch(updateUserTeam(player, team));
+      });
+    });
+  });
 };

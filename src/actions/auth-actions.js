@@ -9,6 +9,7 @@ export const Register = user => (dispatch) => {
         type: 'SIGNUP_SUCCESS',
         user,
       });
+      AsyncStorage.setItem('@UserId', user.id).then(() => console.log('user saved'));
     })
     .catch((err) => {
       dispatch({ type: 'SIGNUP_FAILURE', err });
@@ -33,7 +34,7 @@ export const Login = user => (dispatch) => {
         type: 'JOIN_ROOMS_CHANNEL',
       });
       // should save to async storage ?
-      AsyncStorage.setItem('@User', JSON.stringify(user)).then(() => console.log('user saved'));
+      AsyncStorage.setItem('@UserId', user.id).then(() => console.log('user saved'));
     })
     .catch(() => {
       dispatch({ type: 'LOGIN_FAILURE', err: 'username or password incorret' });
@@ -43,28 +44,34 @@ export const clearError = () => (dispatch) => {
   dispatch({ type: 'CLEAR_ERROR' });
 };
 export const checkIfWeKnowThisUserBefore = () => (dispatch) => {
-  // AsyncStorage.removeItem('@User');
+  // AsyncStorage.removeItem('@UserId');
 
-  AsyncStorage.getItem('@User').then((user) => {
-    if (user !== null) {
-      dispatch({
-        type: 'CREATE_ROOM_BY_USER_ID',
-        id: user.id,
+  AsyncStorage.getItem('@UserId').then((userId) => {
+    if (userId != null) {
+      DBHelpers.getUserById(userId).then(async (user) => {
+        dispatch({
+          type: 'CREATE_ROOM_BY_USER_ID',
+          id: user.id,
+        });
+        if (user.teamId) {
+          user.team = await DBHelpers.getTeamById(user.teamId);
+          dispatch({
+            type: 'CREATE_ROOM_BY_TEAM_ID',
+            id: user.teamId,
+          });
+        }
+        if (user.roomId) {
+          user.room = await DBHelpers.getRoomById(user.roomId);
+          dispatch({
+            type: 'CREATE_ROOM_BY_ROOM_ID',
+            id: user.room.id,
+          });
+        }
+        dispatch({
+          type: 'LOGIN_SUCCESS',
+          user,
+        });
       });
-      dispatch({
-        type: 'JOIN_ROOMS_CHANNEL',
-      });
-      dispatch({
-        type: 'LOGIN_SUCCESS',
-        user: JSON.parse(user),
-      });
-
-      // if (JSON.parse(user).roomId) {
-      //   dispatch({
-      //     type: 'CREATE_ROOM_BY_ROOM_ID',
-      //     id: JSON.parse(user).roomId,
-      //   });
-      // }
     }
   });
 };

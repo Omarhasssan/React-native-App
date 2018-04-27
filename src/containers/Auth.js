@@ -5,7 +5,7 @@ import { Register, clearError, Login } from '../actions';
 import FormRender from '../components/FormRender';
 import Spinner from '../components/Spinner';
 import { Alert } from 'react-native';
-import StepOneContainer from './StepOneContainer';
+import CreateOrJoinTeam from './CreateOrJoinTeam';
 import { ImagePicker } from 'expo';
 import OptionsWithModel from '../components/Options';
 const intialState = {
@@ -52,7 +52,6 @@ class Auth extends Component {
     if (this.props.auth.isFetching) return <Spinner />;
     if (this.props.auth.user && curntComponent == activeScreen) {
       this.props.navigation.navigate('Profile');
-      //return <StepOneContainer navigation={this.props.navigation} />;
     }
 
     return (

@@ -9,6 +9,7 @@ import { getRooms } from '../actions';
 
 const mapStateToProps = ({ roomsReducer, auth }) => ({
   rooms: roomsReducer.rooms,
+  room: roomsReducer.curntRoom,
   user: auth.user,
 });
 const Tabs = TabNavigator({
@@ -23,8 +24,12 @@ class TabNav extends Component {
     getRooms();
   }
   componentWillReceiveProps(nextProps) {
+    console.log('in', this.props.user.name);
+    console.log('this.Prps', this.props.room);
+    console.log('nxt', nextProps.room);
     if (nextProps.rooms) this.setState({ loading: false });
   }
+
   render() {
     const { loading } = this.state;
     if (loading) return <Spinner />;

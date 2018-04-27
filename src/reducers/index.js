@@ -4,6 +4,7 @@ import nav from './nav-reducer';
 import players from './global-reducer';
 import userInvitations from './userRequests-reducer';
 import team from './team-reducer';
+import teamsReducer from './teams-reducer';
 import socket from './socket-reducer';
 import roomsReducer from './rooms-reducer';
 import showObserverModel from './observerModel-reducer';
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   userInvitations,
   team,
   socket,
+  teamsReducer,
   roomsReducer,
   showObserverModel,
   checkedItems,

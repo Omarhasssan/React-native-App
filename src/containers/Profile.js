@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Text, View, Image, StyleSheet, TouchableOpacity, Button } from 'react-native';
-import { getUserRequest, acceptRequest, hideModel, listenToRoomChanges } from '../actions';
+import { hideModel, listenToRoomChanges, onAcceptJoiningTeamRequest, getTeams } from '../actions';
 import Tabs from '../components/Tabs';
 import Top from '../components/ProfileTop';
 import TabNavigator from './TabNavigator';
 import Invitations from './Invitations';
-import StepOneContainer from './StepOneContainer';
+import CreateOrJoinTeam from './CreateOrJoinTeam';
 import AddObserver from './AddObserver';
 import withModel from '../hocs/withModel';
 const modelWithStyle = withModel(
@@ -17,8 +17,11 @@ const mapDispatchToProps = dispatch => ({
   closeModel() {
     dispatch(hideModel());
   },
-  listenToRoomChanges(socket) {
-    dispatch(listenToRoomChanges(socket));
+  listenToRoomChanges(user, socket) {
+    dispatch(listenToRoomChanges(user, socket));
+  },
+  getTeams() {
+    dispatch(getTeams());
   },
 });
 const ObserverWithModel = connect(null, mapDispatchToProps)(modelWithStyle(AddObserver));
@@ -26,13 +29,17 @@ class Profile extends Component {
   state = {
     activeTab: 'Team',
   };
+
   componentDidMount() {
-    const { socket, listenToRoomChanges } = this.props;
-    listenToRoomChanges(socket);
+    const { socket, listenToRoomChanges, getTeams, user } = this.props;
+    listenToRoomChanges(user, socket);
   }
   render() {
     const { activeTab } = this.state;
     const { navigation, user, showObserverModel } = this.props;
+    let defaultTabs = ['Team', 'Invitations', 'Info'];
+    let captainTabs = [];
+    if (user.role == 'CAPTAIN') captainTabs = ['CreateOrJoinRoom'];
     return (
       <View style={styles.container}>
         {showObserverModel && <ObserverWithModel />}
@@ -42,12 +49,14 @@ class Profile extends Component {
           }}
           activeTab={activeTab}
           user={user}
+          tabs={[...captainTabs, ...defaultTabs]}
         />
 
         <View style={{ flex: 1 }}>
-          {(activeTab == 'Team' && <StepOneContainer navigation={navigation} />) ||
+          {(activeTab == 'Team' && <CreateOrJoinTeam navigation={navigation} />) ||
             (activeTab == 'Invitations' && <Invitations />) ||
-            (activeTab == 'Info' && <Text>player goals , matches played </Text>)}
+            (activeTab == 'Info' && <Text>player goals , matches played </Text>) ||
+            (activeTab == 'CreateOrJoinRoom' && <TabNavigator screenProps={navigation} />)}
         </View>
       </View>
     );

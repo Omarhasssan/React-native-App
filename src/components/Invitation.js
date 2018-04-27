@@ -9,7 +9,7 @@ export default class Invitation extends Component {
   render() {
     const { invitation, onAccept, type } = this.props;
     return (
-      <View>
+      <View style={styles.invitationContainer}>
         {(type == 'observingMatch' && (
           <View>
             <Text>Date : {invitation.room.settings.date}</Text>
@@ -17,15 +17,34 @@ export default class Invitation extends Component {
             <Text>team1 : {invitation.room.teamOwner.name}</Text>
             <Text>team2 : {invitation.room.joinedTeam && invitation.room.joinedTeam.name}</Text>
           </View>
-        )) || <Text>{invitation.teamName}</Text>}
+        )) || <Text>{invitation.team && invitation.team.name}</Text>}
 
-        <TouchableOpacity onPress={() => onAccept(invitation)}>
-          <Text>Accept</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text>Reject</Text>
-        </TouchableOpacity>
+        <View style={styles.btnsContainer}>
+          <Btn containerStyle={styles.Acbtn} txt="Accept" onPress={() => onAccept(invitation)} />
+          <Btn containerStyle={styles.Rjbtn} txt="Reject" />
+        </View>
       </View>
     );
   }
 }
+const styles = StyleSheet.create({
+  invitationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 10,
+    alignItems: 'center',
+  },
+  btnsContainer: {
+    flexDirection: 'row',
+    width: 130,
+    justifyContent: 'space-between',
+  },
+  Acbtn: {
+    padding: 5,
+    backgroundColor: '#1da1f2',
+  },
+  Rjbtn: {
+    padding: 5,
+    backgroundColor: 'white',
+  },
+});

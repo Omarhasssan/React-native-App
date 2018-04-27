@@ -29,7 +29,7 @@ export default (withCheckUserHaveRoom = WrappedComponent =>
     }
     render() {
       const { user } = this.props;
-      if (!user.roomId) return <WrappedComponent {...this.props} />;
-      return <Room roomId={user.roomId} />;
+      if (!user.room) return <WrappedComponent {...this.props} />;
+      return <Room room={user.room} />;
     }
   });

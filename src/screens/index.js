@@ -3,7 +3,7 @@ import { StackNavigator } from 'react-navigation';
 import { TouchableOpacity, Text } from 'react-native';
 import Auth from '../containers/Auth';
 import Search from '../components/Search';
-import StepOneContainer from '../containers/StepOneContainer';
+import CreateOrJoinTeam from '../containers/CreateOrJoinTeam';
 import AddPlayers from '../containers/AddPlayers';
 import Profile from '../containers/Profile';
 import TeamName from '../components/TeamName';
@@ -87,7 +87,7 @@ const Screens = StackNavigator({
     },
   },
   Setup: {
-    screen: StepOneContainer,
+    screen: CreateOrJoinTeam,
   },
 });
 export default Screens;

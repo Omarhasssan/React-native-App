@@ -1,9 +1,11 @@
 import firebase from '../config/firebase';
 import { validateSignUpForm } from './FormValidation';
 /*eslint-disable */
+var _ = require('lodash');
 
 export const DBHelpers = {
   getRooms,
+  getRequestByteamId,
   saveUser,
   findByName,
   checkUserFound,
@@ -19,20 +21,32 @@ export const DBHelpers = {
   addRoom,
   getUserById,
   updateRoom,
+  getTeams,
+  updateTeamPlayers,
+  onRequestStatusChanged,
+  getRoomById,
 };
 
 function getUserRequest(userId) {
   let arr = [];
   return new Promise((resolve, reject) => {
-    return firebase
+    firebase
       .database()
       .ref('TeamRequests')
-      .on('value', snapshot => {
-        snapshot.forEach(request => {
-          if (userId === request.toJSON().playerId) {
-            arr.push(request.toJSON());
+      .once('value', async snapshot => {
+        const reqs = snapshot.toJSON();
+        for (index in reqs) {
+          let newReq = {};
+          if (reqs[index].playerId == userId) {
+            newReq.team = await getTeamById(reqs[index].teamId);
+            newReq.status = reqs[index].status;
+            newReq.type = reqs[index].type;
+            newReq.player = await getUserById(reqs[index].playerId);
+            newReq.id = reqs[index].id;
+            arr.push(newReq);
           }
-        });
+        }
+
         return resolve(arr);
       });
   });
@@ -43,11 +57,29 @@ function getUsers() {
     return firebase
       .database()
       .ref('users')
-      .on('value', snapshot => {
+      .once('value', snapshot => {
         snapshot.forEach(user => {
           arr.push(user.toJSON());
         });
         return resolve(arr);
+      });
+  });
+}
+function getRoomById(roomId) {
+  return new Promise((resolve, reject) => {
+    firebase
+      .database()
+      .ref(`${'Rooms'}/${roomId}`)
+      .once('value', async snapshot => {
+        const room = snapshot.toJSON();
+        room.teamOwner = await getTeamById(room.teamOwner);
+        if (room.joinedTeam) {
+          room.joinedTeam = await getTeamById(room.joinedTeam);
+        }
+        if (room.settings && _.has(room.settings, 'observer')) {
+          room.settings.observer = await getUserById(room.settings.observer);
+        }
+        resolve(room);
       });
   });
 }
@@ -58,28 +90,65 @@ async function getRooms() {
     firebase
       .database()
       .ref('Rooms')
-      .on('value', async snapshot => {
+      .once('value', async snapshot => {
         let rooms = snapshot.toJSON();
         for (indx in rooms) {
           rooms[indx].teamOwner = await getTeamById(rooms[indx].teamOwner);
-          res = await getTeamById(rooms[indx].joinedTeam);
-          if (res) rooms[indx].joinedTeam = res;
-          res = await getUserById(rooms[indx].settings.observer);
-          if (res) rooms[indx].settings.observer = res;
+          if (rooms[indx].joinedTeam) {
+            rooms[indx].joinedTeam = await getTeamById(rooms[indx].joinedTeam);
+          }
+          if (rooms[indx].settings && _.has(rooms[indx].settings, 'observer')) {
+            rooms[indx].settings.observer = await getUserById(rooms[indx].settings.observer);
+          }
           arr.push(rooms[indx]);
         }
         resolve(arr);
       });
   });
 }
+async function getTeams() {
+  let arr = [],
+    res;
+  return new Promise((resolve, reject) => {
+    firebase
+      .database()
+      .ref('teams')
+      .once('value', async snapshot => {
+        let teams = snapshot.toJSON();
+        for (indx in teams) {
+          if (teams[indx].players) {
+            for (i in teams[indx].players) {
+              teams[indx].players[i] = await getUserById(teams[indx].players[i]);
+            }
+            teams[indx].players = Object.values(teams[indx].players);
+          }
+          arr.push(teams[indx]);
+        }
+        resolve(arr);
+      });
+  });
+}
+function onRequestStatusChanged() {
+  return new Promise((resolve, reject) => {
+    firebase
+      .database()
+      .ref('TeamRequests')
+      .on('child_changed', data => {
+        let req = data.toJSON();
+        if (req.status == 'ACCEPTED') {
+          resolve(req);
+        }
+      });
+  });
+}
 function addRequest(Request) {
-  let req = Request;
+  let req = { ...Request };
   const requestsRef = firebase
     .database()
     .ref('TeamRequests')
     .push();
   req.id = requestsRef.key;
-  requestsRef.set(req);
+  requestsRef.set(req).then;
 }
 function addRoom(room) {
   const roomRef = firebase
@@ -89,40 +158,60 @@ function addRoom(room) {
   room.id = roomRef.key;
   roomRef.set(room);
 }
-function addTeam(teamName) {
-  let Team = { name: teamName, playersId: [] };
+function addTeam(team) {
   const teamsRef = firebase
     .database()
     .ref('teams')
     .push();
-  Team.id = teamsRef.key;
-  teamsRef.set(Team);
-  return Team;
+  team.id = teamsRef.key;
+  teamsRef.set(team);
 }
-function updateTeam(teamId, updateTeam) {
+function getTeamPlayers(teamId) {
+  let arr = [];
+  return new Promise((resolve, reject) => {
+    return firebase
+      .database()
+      .ref(`${'teams'}/${teamId}/${'players'}`)
+      .once('value', snapshot => {
+        if (snapshot.toJSON() != null) return resolve(Object.values(snapshot.toJSON()));
+        return resolve([]);
+      });
+  });
+}
+function updateTeamPlayers(teamId, playerId) {
+  return getTeamPlayers(teamId).then(teamPlayers => {
+    teamPlayers.push(playerId);
+    firebase
+      .database()
+      .ref(`${'teams'}/${teamId}/${'players'}`)
+      .set(teamPlayers);
+  });
+}
+function updateTeam(route, value) {
   return firebase
     .database()
-    .ref(`${'teams'}/${teamId}`)
-    .update(updateTeam);
+    .ref(`route`)
+    .set(value);
 }
+
 function updateRoom(route, value) {
   return firebase
     .database()
     .ref(route)
     .set(value);
 }
-function updateUser(userId, updateUser) {
+function updateUser(route, value) {
   return firebase
     .database()
-    .ref(`${'users'}/${userId}`)
-    .update(updateUser);
+    .ref(route)
+    .set(value);
 }
 function getTeamById(teamId) {
   return new Promise((resolve, reject) => {
     return firebase
       .database()
       .ref(`${'teams'}/${teamId}`)
-      .on('value', snapshot => {
+      .once('value', snapshot => {
         return resolve(snapshot.toJSON());
       });
   });
@@ -132,7 +221,7 @@ function getUserById(userId) {
     return firebase
       .database()
       .ref(`${'users'}/${userId}`)
-      .on('value', snapshot => {
+      .once('value', snapshot => {
         return resolve(snapshot.toJSON());
       });
   });
@@ -147,12 +236,24 @@ function getRequestById(requestId) {
       });
   });
 }
-
-function updateRequest(requestId, updatedRequest) {
+function getRequestByteamId(teamId) {
+  let arr = [];
+  return new Promise((resolve, reject) => {
+    return firebase
+      .database()
+      .ref(`${'TeamRequests'}`)
+      .on('value', snapshot => {
+        let reqs = snapshot.toJSON();
+        for (i in reqs) if (reqs[i].teamId == teamId) arr.push(reqs[i]);
+        return resolve(arr);
+      });
+  });
+}
+function updateRequest(requestId) {
   return firebase
     .database()
-    .ref(`${'TeamRequests'}/${requestId}`)
-    .update(updatedRequest);
+    .ref(`${'TeamRequests'}/${requestId}/${'status'}`)
+    .set('ACCEPTED');
 }
 
 function saveUser(user) {

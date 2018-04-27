@@ -16,7 +16,7 @@ export default (ProfileTop = props => (
     <View style={styles.tabsContainer}>
       <Tabs
         setActive={tabName => props.setActive(tabName)}
-        tabs={['Team', 'Invitations', 'Info']}
+        tabs={props.tabs}
         activeTab={props.activeTab}
       />
     </View>

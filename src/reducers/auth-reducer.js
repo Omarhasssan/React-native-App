@@ -16,8 +16,12 @@ export default function (state = {}, action) {
       return { isFetching: true };
     case 'SIGNUP_SUCCESS':
     case 'LOGIN_SUCCESS':
-    case 'UPDATE_CURRENT_USER':
       return { user: action.user };
+    case 'UPDATE_CURRENT_USER':
+      return Object.assign(
+        {},
+        { user: { ...state.user, [action.payload.type]: action.payload.value } },
+      );
 
     case 'SIGNUP_FAILURE':
     case 'LOGIN_FAILURE':

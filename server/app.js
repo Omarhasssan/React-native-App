@@ -6,29 +6,35 @@ const io = require('socket.io')(server);
 
 server.listen(9460);
 
-app.get('/', (req, res) => {
-  res.sendFile(`${__dirname}/index.html`);
-});
-
-let userId;
 io.on('connection', (socket) => {
   console.log('connected');
   socket.on('disconnect', () => {
     console.log('dissssss');
   });
+
   // create room by useId to send and recieve requests
   socket.on('roomByUserId', (data) => {
     socket.join(data.id);
+  });
+  socket.on('roomByRoomId', (data) => {
+    socket.join(data.id);
+  });
+  socket.on('setCurntRoom', (data) => {
+    io.sockets.in(data.roomId).emit('getCurntRoom', data.roomId);
   });
   socket.on('sendRequest', (data) => {
     io.sockets.in(data.userId).emit('requests', data.request);
   });
 
   socket.on('joinRoomsChannel', () => {
+    console.log('joinRommsChannel');
     socket.join('roomsChannel');
   });
-  socket.on('updateRoom', (data) => {
-    io.sockets.in('roomsChannel').emit('roomUpdated', data.updatedRoom);
+  socket.on('roomUpdated', (data) => {
+    // this for all joined in roomsChannel
+    io.sockets.in('roomsChannel').emit('updateRooms', data.updatedRoom);
+    // there should be one for spasfic room
+    io.sockets.in(data.updatedRoom.id).emit('updateRoom', data.updatedRoom);
   });
   socket.on('addRoom', (data) => {
     io.sockets.in('roomsChannel').emit('roomAdded', data.addedRoom);

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Text, View, Image, StyleSheet } from 'react-native';
-import { leaveRoom, showModel, getRoom } from '../actions';
+import { leaveRoom, showModel, getRoom, joinRoom, setRoom } from '../actions';
 import Teams from '../components/Teams';
 import Observer from '../components/Observer';
 import SetDateTime from '../containers/SetDateTime';
@@ -9,30 +9,38 @@ var _ = require('lodash');
 class Room extends Component {
   state = {
     date: '',
+    type: '',
+    room: {},
   };
-
   componentDidMount() {
-    const { navigation, socket, user } = this.props;
-    const { roomId } = navigation ? navigation.state.params : this.props;
-    if (user.roomId != roomId) this.props.joinRoom(roomId);
-    this.props.getRoom(roomId);
-  }
-  componentWillReceiveProps(nextProps) {
-    const { room, navigation } = this.props;
-    const { roomId } = navigation ? navigation.state.params : this.props;
-    if (nextProps.room != this.props.room) this.props.getRoom(roomId);
-  }
-
-  componentWillUnmount() {
-    const { navigation, user, socket, room } = this.props;
-    // if not roomOwner he can leave
-    if (user.roomId != room.id) {
-      this.props.leaveRoom(room, socket);
+    const { navigation, setRoom, user } = this.props;
+    const { room } = navigation ? navigation.state.params : this.props;
+    // if roomID comes from props then its roomOwner , if navigation then joinedRoom
+    if (this.props.room) {
+      this.setState({ type: 'createdRoom' }, () => setRoom(room, 'owner'));
+    }
+    // comes from navigation
+    else {
+      this.setState({ type: 'joinedRoom' }, () => setRoom(room, 'guest'));
     }
   }
+  componentWillReceiveProps(nextProps) {
+    const { type } = this.state;
+    const { roomsReducer, user, socket, joinRoom } = nextProps;
+    if (type == 'createdRoom') {
+      this.setState({ room: roomsReducer.createdRoom });
+    } else if (type == 'joinedRoom') {
+      this.setState({ room: roomsReducer.joinedRoom });
+    }
+  }
+  componentWillUnmount() {
+    const { user, leaveRoom, socket } = this.props;
+    const { room } = this.state;
+    leaveRoom(room, socket);
+  }
   render() {
-    const { date } = this.state;
-    const { style, user, showObserverModel, room, setRoomDate } = this.props;
+    const { date, room } = this.state;
+    const { style, user, showObserverModel, setRoomDate } = this.props;
     return (
       <View style={{ flex: 1 }}>
         <Teams roomOwner={room.teamOwner} joinedTeam={room.joinedTeam} />
@@ -57,6 +65,7 @@ class Room extends Component {
               date={_.has(room.settings, 'date') && room.settings.date}
               setDate={date => setRoomDate(room, date, socket)}
             />
+            {/* add change location */}
           </View>
         </View>
       </View>
@@ -76,23 +85,23 @@ const styles = StyleSheet.create({
 const mapStateToProps = ({ auth, socket, roomsReducer }) => ({
   user: auth.user,
   socket,
-  room: roomsReducer.curntRoom,
+  roomsReducer,
 });
 const mapDispatchToProps = dispatch => ({
-  leaveRoom(roomId, socket) {
-    dispatch(leaveRoom(roomId, socket));
-  },
-  getRoom(roomId) {
-    dispatch(getRoom(roomId));
-  },
   showObserverModel() {
     dispatch(showModel());
   },
   setRoomDate(room, date, socket) {
     dispatch(setRoomDate(room, date, socket));
   },
-  joinRoom(roomId) {
-    dispatch({ type: 'CREATE_ROOM_BY_ROOM_ID', id: roomId });
+  setRoom(room, userType) {
+    dispatch(setRoom(room, userType));
+  },
+  joinRoom(room, user, socket) {
+    dispatch(joinRoom(room, user, socket));
+  },
+  leaveRoom(room, socket) {
+    dispatch(leaveRoom(room, socket));
   },
 });
 export default connect(mapStateToProps, mapDispatchToProps)(Room);
