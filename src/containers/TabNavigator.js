@@ -1,44 +1,27 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { TabNavigator } from 'react-navigation'; // Version can be specified in package.json
 import CreateRoom from './CreateRoom';
-import Rooms from '../components/Rooms';
+import Rooms from './Rooms';
 import withCheckUserHaveRoom from '../hocs/withCheckUserHaveRoom';
-import Spinner from '../components/Spinner';
-import { getRooms } from '../actions';
+import { joinRoom } from '../actions';
 
-const mapStateToProps = ({ roomsReducer, auth }) => ({
-  rooms: roomsReducer.rooms,
-  room: roomsReducer.curntRoom,
-  user: auth.user,
-});
 const Tabs = TabNavigator({
-  CreateRoom: { screen: connect(mapStateToProps)(withCheckUserHaveRoom(CreateRoom)) },
+  createdRoom: { screen: withCheckUserHaveRoom(CreateRoom) },
   JoinRoom: { screen: Rooms },
 });
 
-class TabNav extends Component {
-  componentWillMount() {
-    const { getRooms } = this.props;
-    this.setState({ loading: true });
-    getRooms();
-  }
-  componentWillReceiveProps(nextProps) {
-    console.log('in', this.props.user.name);
-    console.log('this.Prps', this.props.room);
-    console.log('nxt', nextProps.room);
-    if (nextProps.rooms) this.setState({ loading: false });
-  }
+const TabNav = props => <Tabs screenProps={props} />;
 
-  render() {
-    const { loading } = this.state;
-    if (loading) return <Spinner />;
-    return <Tabs {...this.props} />;
-  }
-}
+const mapStateToProps = ({ roomsReducer, auth, socket }) => ({
+  rooms: roomsReducer.rooms,
+  room: roomsReducer.createdRoom,
+  user: auth.user,
+  socket,
+});
 const mapDispatchToProps = dispatch => ({
-  getRooms() {
-    dispatch(getRooms());
+  joinRoom(room, user, socket) {
+    dispatch(joinRoom(room, user, socket));
   },
 });
 

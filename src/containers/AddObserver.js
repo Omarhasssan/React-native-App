@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import withSearchContainer from '../hocs/withSearchContainer';
 import withModel from '../hocs/withModel';
+
 import {
   getPlayers,
   addCheckedItem,
@@ -13,12 +14,14 @@ import {
   setRoomObserver,
 } from '../actions';
 
+const _ = require('lodash');
+
 const mapStateToProps = ({
   players, checkedItems, roomsReducer, socket,
 }) => ({
   players,
   checkedItems,
-  room: roomsReducer.curntRoom,
+  room: roomsReducer.createdRoom,
   socket,
 });
 const mapDispatchToProps = dispatch => ({
@@ -51,7 +54,7 @@ export default connect(mapStateToProps, mapDispatchToProps)(withSearchContainer(
     else setObserver(room, null, socket);
   },
   ({ room, loadCheckedItems }) =>
-    (room.settings.observer && room.settings.observer.id
+    (_.has(room, 'settings') && room.settings.observer && room.settings.observer.id
       ? loadCheckedItems(Object.assign([], { [room.settings.observer.id]: true }))
       : null),
   {

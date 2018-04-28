@@ -36,13 +36,13 @@ class Invitations extends Component {
         />
         {observingTab && (
           <List
-            data={userInvitations}
+            data={userInvitations.observingRequests}
             style={{ backgroundColor: '#ccd3e0', height: `${100}%` }}
             renderItem={({ item }) => (
               <Invitation
                 type={'observingMatch'}
                 onAccept={inv => onAccept(inv)}
-                invitation={item.type == 'observingMatch' ? item : null}
+                invitation={item}
               />
             )}
           />
@@ -64,14 +64,10 @@ class Invitations extends Component {
         />
         {joiningTeamsTab && (
           <List
-            data={userInvitations}
+            data={userInvitations.teamRequests}
             style={{ backgroundColor: '#ccd3e0', height: `${100}%` }}
             renderItem={({ item }) => (
-              <Invitation
-                type={'joiningTeam'}
-                onAccept={inv => onAccept(inv)}
-                invitation={item.type == 'joinTeam' ? item : null}
-              />
+              <Invitation type={'joiningTeam'} onAccept={inv => onAccept(inv)} invitation={item} />
             )}
           />
         )}

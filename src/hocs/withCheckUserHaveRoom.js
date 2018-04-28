@@ -13,23 +13,26 @@ export default (withCheckUserHaveRoom = WrappedComponent =>
     }
 
     componentWillMount() {
+      const { user } = this.props.screenProps;
       this.props.navigation.setParams({
-        roomId: this.props.user.roomId,
+        roomId: user.roomId,
       });
     }
     componentWillReceiveProps(nextProps) {
+      const { user } = nextProps.screenProps;
+
       if (
         this.props.navigation.state.params &&
-        nextProps.user.roomId != this.props.navigation.state.params.roomId
+        user.roomId != this.props.navigation.state.params.roomId
       ) {
         this.props.navigation.setParams({
-          roomId: nextProps.user.roomId,
+          roomId: user.roomId,
         });
       }
     }
     render() {
-      const { user } = this.props;
-      if (!user.room) return <WrappedComponent {...this.props} />;
-      return <Room room={user.room} />;
+      const { room } = this.props.screenProps;
+      if (!room) return <WrappedComponent {...this.props} />;
+      return <Room room={room} />;
     }
   });

@@ -27,7 +27,7 @@ const mapDispatchToProps = dispatch => ({
 const ObserverWithModel = connect(null, mapDispatchToProps)(modelWithStyle(AddObserver));
 class Profile extends Component {
   state = {
-    activeTab: 'Team',
+    activeTab: 'CreateOrJoinRoom',
   };
 
   componentDidMount() {
@@ -56,7 +56,7 @@ class Profile extends Component {
           {(activeTab == 'Team' && <CreateOrJoinTeam navigation={navigation} />) ||
             (activeTab == 'Invitations' && <Invitations />) ||
             (activeTab == 'Info' && <Text>player goals , matches played </Text>) ||
-            (activeTab == 'CreateOrJoinRoom' && <TabNavigator screenProps={navigation} />)}
+            (activeTab == 'CreateOrJoinRoom' && <TabNavigator stackNavigation={navigation} />)}
         </View>
       </View>
     );

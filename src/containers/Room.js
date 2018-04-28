@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Text, View, Image, StyleSheet } from 'react-native';
-import { leaveRoom, showModel, getRoom, joinRoom, setRoom } from '../actions';
+import { leaveRoom, showModel, getRoom, joinRoom, setJoinedRoom } from '../actions';
 import Teams from '../components/Teams';
 import Observer from '../components/Observer';
 import SetDateTime from '../containers/SetDateTime';
@@ -13,15 +13,17 @@ class Room extends Component {
     room: {},
   };
   componentDidMount() {
-    const { navigation, setRoom, user } = this.props;
+    const { navigation, setJoinedRoom, user, listenToObserverRequestStatus } = this.props;
     const { room } = navigation ? navigation.state.params : this.props;
     // if roomID comes from props then its roomOwner , if navigation then joinedRoom
     if (this.props.room) {
-      this.setState({ type: 'createdRoom' }, () => setRoom(room, 'owner'));
+      this.setState({ type: 'createdRoom' });
+      this.setState({ room: room });
+      //listenToObserverRequestStatus();
     }
     // comes from navigation
     else {
-      this.setState({ type: 'joinedRoom' }, () => setRoom(room, 'guest'));
+      this.setState({ type: 'joinedRoom' }, () => setJoinedRoom(room));
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -55,14 +57,16 @@ class Room extends Component {
             <Observer
               onAdd={() => showObserverModel()}
               observer={
-                _.has(room.settings, 'observer') && Object.keys(room.settings.observer).length > 0
+                _.has(room, 'settings') &&
+                _.has(room.settings, 'observer') &&
+                Object.keys(room.settings.observer).length > 0
                   ? room.settings.observer
                   : null
               }
               roomOwner={room.id === user.roomId}
             />
             <SetDateTime
-              date={_.has(room.settings, 'date') && room.settings.date}
+              date={_.has(room, 'settings') && _.has(room.settings, 'date')}
               setDate={date => setRoomDate(room, date, socket)}
             />
             {/* add change location */}
@@ -94,8 +98,8 @@ const mapDispatchToProps = dispatch => ({
   setRoomDate(room, date, socket) {
     dispatch(setRoomDate(room, date, socket));
   },
-  setRoom(room, userType) {
-    dispatch(setRoom(room, userType));
+  setJoinedRoom(room) {
+    dispatch(setJoinedRoom(room));
   },
   joinRoom(room, user, socket) {
     dispatch(joinRoom(room, user, socket));

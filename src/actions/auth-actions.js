@@ -60,11 +60,18 @@ export const checkIfWeKnowThisUserBefore = () => (dispatch) => {
             id: user.teamId,
           });
         }
+
         if (user.roomId) {
           user.room = await DBHelpers.getRoomById(user.roomId);
+
           dispatch({
             type: 'CREATE_ROOM_BY_ROOM_ID',
             id: user.room.id,
+          });
+
+          dispatch({
+            type: 'SET_CREATED_ROOM',
+            room: user.room,
           });
         }
         dispatch({

@@ -28,8 +28,11 @@ export default (Observer = props => (
           <Btn
             txtStyle={{ fontStyle: 'bold', fontSize: 6, color: 'white' }}
             containerStyle={{
- padding: 3, width: 'auto', height: 13, backgroundColor: '#1da1f2',
-}}
+              padding: 3,
+              width: 'auto',
+              height: 13,
+              backgroundColor: '#1da1f2',
+            }}
             txt={`${(props.observer && 'Change Observer') || 'Add Observer'}`}
             onPress={props.onAdd}
           />
@@ -38,7 +41,7 @@ export default (Observer = props => (
     </View>
     <View style={{ flex: 1 }}>
       <Text style={{ fontStyle: 'italic', fontSize: 6 }}>
-        {(props.observer && props.roomOwner && 'A Request will sent to him') ||
+        {(props.observer && 'REQUEST STATUS :' && props.observer.status) ||
           (props.roomOwner &&
             '*You should add an observer to record match details such as who scores goals and which team won*') ||
           (!props.roomOwner &&

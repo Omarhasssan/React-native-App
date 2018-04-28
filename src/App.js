@@ -12,14 +12,19 @@ import {
 import { StackNavigator, addNavigationHelpers } from 'react-navigation';
 import { Provider } from 'react-redux';
 import configureStore from './store/configureStore';
-import { checkIfWeKnowThisUserBefore, getTeams, listenToTeamRequestStatus } from '../src/actions';
+import {
+  checkIfWeKnowThisUserBefore,
+  getTeams,
+  listenToTeamRequestStatus,
+  getRooms,
+} from '../src/actions';
 import Spinner from './components/Spinner';
 import { DBHelpers } from '../src/helpers';
 const middleware = createReactNavigationReduxMiddleware('root', state => state.nav);
 const addListener = createReduxBoundAddListener('root');
 class App extends Component {
   state = {
-    teamsLoaded: false,
+    dataLoaded: false,
   };
 
   componentDidMount() {
@@ -27,6 +32,8 @@ class App extends Component {
     this.props.checkIfWeKnowThisUserBefore();
     // load teams
     this.props.loadTeams();
+    // load Rooms
+    this.props.getRooms();
     /*
     *LISTEN TO TEAM REQUEST STATUS 
     *WHEN IT CHANGES TO ACCEPTED 
@@ -35,7 +42,7 @@ class App extends Component {
     this.props.listenToTeamRequestStatus();
   }
   componentWillReceiveProps(nextProps) {
-    nextProps.teams ? this.setState({ teamsLoaded: true }) : null;
+    nextProps.teams && nextProps.rooms ? this.setState({ dataLoaded: true }) : null;
   }
   componentWillUnmount() {
     console.log('app unmount');
@@ -43,10 +50,10 @@ class App extends Component {
   render() {
     console.disableYellowBox = true;
     const { dispatch, nav, teams } = this.props;
-    const { teamsLoaded } = this.state;
-    if (!teamsLoaded) return <Spinner />;
+    const { dataLoaded } = this.state;
+    if (!dataLoaded) return <Spinner />;
     return (
-      teamsLoaded && (
+      dataLoaded && (
         <Screens
           navigation={addNavigationHelpers({
             dispatch,
@@ -59,9 +66,10 @@ class App extends Component {
   }
 }
 
-const mapStateToProps = ({ nav, teamsReducer }) => ({
+const mapStateToProps = ({ nav, teamsReducer, roomsReducer }) => ({
   nav,
   teams: teamsReducer,
+  rooms: roomsReducer.rooms,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -70,6 +78,9 @@ const mapDispatchToProps = dispatch => ({
   },
   loadTeams() {
     dispatch(getTeams());
+  },
+  getRooms() {
+    dispatch(getRooms());
   },
   listenToTeamRequestStatus() {
     dispatch(listenToTeamRequestStatus());

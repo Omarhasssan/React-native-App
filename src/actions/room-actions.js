@@ -22,6 +22,10 @@ export const createRoom = (user, Name, socket) => (dispatch) => {
       type: 'ADD_ROOM',
       room: Room,
     });
+    dispatch({
+      type: 'SET_CREATED_ROOM',
+      room: Room,
+    });
     socket.emit('addRoom', { addedRoom: Room });
 
     dispatch(updateUserRoom(user, Room));
@@ -36,18 +40,11 @@ export const getRooms = () => (dispatch) => {
 export const updateRoomDB = (route, value) => {
   DBHelpers.updateRoom(route, value);
 };
-export const setRoom = (room, userType) => (dispatch) => {
-  if (userType === 'owner') {
-    dispatch({
-      type: 'SET_CREATED_ROOM',
-      room,
-    });
-  } else {
-    dispatch({
-      type: 'SET_JOINED_ROOM',
-      room,
-    });
-  }
+export const setJoinedRoom = room => (dispatch) => {
+  dispatch({
+    type: 'SET_JOINED_ROOM',
+    room,
+  });
 };
 
 export const updateRoom = (room, type, value, socket) => (dispatch) => {
@@ -117,7 +114,9 @@ export const leaveRoom = (room, socket) => (dispatch) => {
 
 export const setRoomObserver = (room, observerId, socket) => (dispatch) => {
   if (observerId) {
-    updateRoomDB(`Rooms/${room.id}/settings/observer`, observerId);
+    updateRoomDB(`Rooms/${room.id}/settings/observer/id`, observerId);
+    updateRoomDB(`Rooms/${room.id}/settings/observer/status`, 'PENDING');
+
     DBHelpers.getUserById(observerId).then((user) => {
       dispatch(updateRoom(
         room,
@@ -125,10 +124,16 @@ export const setRoomObserver = (room, observerId, socket) => (dispatch) => {
         { ...room.settings, observer: { ...user, status: 'PENDING' } },
         socket,
       ));
+      dispatch(sendObservingRequest(room, user, socket));
     });
-    sendObservingRequest(room, observerId, socket);
   } else {
     updateRoomDB(`Rooms/${room.id}/settings/observer`, null);
     dispatch(updateRoom(room, 'settings', { ...room.settings, observer: {} }, socket));
   }
+};
+export const listenToObserverRequestStatus = (room, socket) => (dispatch) => {
+  DBHelpers.onRequestStatusChanged().then((req) => {
+    updateRoomDB(`Rooms/${room.id}/settings/observer/status`, 'ACCEPTED');
+    dispatch(updateRoom(room, 'settings', { ...room.settings.observer, status: 'ACCEPTED' }, socket));
+  });
 };
