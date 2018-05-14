@@ -9,6 +9,9 @@ export default (DateTimePickerTester = (props) => {
     <View
       style={{
         flexDirection: 'row',
+        // height: 20,
+        alignItems: 'center',
+        marginBottom: 20,
       }}
     >
       <View

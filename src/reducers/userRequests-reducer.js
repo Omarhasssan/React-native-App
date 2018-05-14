@@ -21,6 +21,7 @@ export default function (state = { teamRequests: [], observingRequests: [] }, ac
       };
     case 'ACCEPT_OBSERVING_REQUEST':
     case 'REJECT_OBSERVING_REQUEST':
+    case 'REMOVE_OBSERVING_REQUEST':
       if (
         state.observingRequests.length === 1 &&
         state.observingRequests[0].id === action.requestId

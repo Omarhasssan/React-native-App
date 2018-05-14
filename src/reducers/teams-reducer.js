@@ -10,9 +10,7 @@ function updateTeamPlayers(teams, teamId, player) {
     return team;
   });
 }
-function getTeamById(teams, teamId) {
-  return teams.filter(team => team.id === teamId)[0];
-}
+
 export default function (state = { teams: [], curntTeam: {} }, action) {
   switch (action.type) {
     case 'ADD_TEAM':
@@ -25,11 +23,14 @@ export default function (state = { teams: [], curntTeam: {} }, action) {
         teams: updateTeamPlayers(state.teams, action.payload.teamId, action.payload.player),
         curntTeam:
           action.payload.teamId === state.curntTeam.id
-            ? { ...state.curntTeam, players: [...state.curntTeam.players, action.payload.player] }
+            ? {
+              ...state.curntTeam,
+              players: [...state.curntTeam.players, action.payload.player],
+            }
             : state.curntTeam,
       };
-    case 'GET_TEAM':
-      return { ...state, curntTeam: getTeamById(state.teams, action.teamId) };
+    case 'SET_CURNT_TEAM':
+      return { ...state, curntTeam: action.team };
     default:
       return state;
   }

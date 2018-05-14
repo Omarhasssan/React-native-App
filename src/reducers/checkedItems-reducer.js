@@ -1,19 +1,19 @@
 let arr = [];
-export default function (state = [], action) {
+export default function (state = { loaded: false, items: [] }, action) {
   switch (action.type) {
     case 'ADD_CHECKED_ITEM':
       // arr = state;
       // arr[action.key] = true;
-      return { ...state, [action.key]: true };
+      return { loaded: false, items: { ...state.items, [action.key]: true } };
     case 'REMOVE_CHECKED_ITEM': {
       arr = [];
-      for (const k in state) if (k != action.key) arr[k] = true;
-      return Object.assign([], arr);
+      for (const k in state.items) if (k != action.key) arr[k] = true;
+      return { loaded: false, items: arr };
     }
     case 'LOAD_CHECKED_ITEMS':
-      return Object.assign([], action.checkedItems);
+      return { loaded: true, items: action.checkedItems };
     case 'CLEAR':
-      return [];
+      return {};
     default:
       return state;
   }

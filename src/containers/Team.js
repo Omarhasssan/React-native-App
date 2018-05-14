@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Text, View, Image, StyleSheet, FlatList, ScrollView } from 'react-native';
-import { getTeam } from '../actions';
 import Player from '../components/Player';
 
 class Team extends Component {
@@ -11,12 +10,9 @@ class Team extends Component {
     teamNextMatchesTab: false,
     joinTeamRequestsTab: false,
   };
-
-  componentDidMount() {
-    const { teamId, getTeam } = this.props;
-    getTeam(teamId);
+  componentWillReceiveProps(nextProps) {
+    console.log('team is ', nextProps.team);
   }
-
   componentWillUnmount() {
     console.log('team unmounted');
   }
@@ -24,6 +20,7 @@ class Team extends Component {
   render() {
     const { user, team } = this.props;
     const { teamInfoTab, teamNextMatchesTab, teamPlayersTab, joinTeamRequestsTab } = this.state;
+    console.log('tm', team);
     return (
       <View>
         <Btn
@@ -98,14 +95,9 @@ class Team extends Component {
     );
   }
 }
-const mapDispatchToProps = dispatch => ({
-  getTeam(teamId) {
-    dispatch(getTeam(teamId));
-  },
-});
-const mapStateToProps = ({ auth, socket, teamsReducer }) => ({
+
+const mapStateToProps = ({ auth, socket }) => ({
   user: auth.user,
   socket,
-  team: teamsReducer.curntTeam,
 });
-export default connect(mapStateToProps, mapDispatchToProps)(Team);
+export default connect(mapStateToProps)(Team);

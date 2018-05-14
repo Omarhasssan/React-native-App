@@ -22,7 +22,8 @@ export const createTeamWithSendingRequests = (user, teamName, playersId, socket)
     type: 'CREATE_ROOM_BY_TEAM_ID',
     id: team.id,
   });
-  dispatch(updateUserTeam(user, team));
+
+  dispatch(updateUserTeam(user.id, team.id));
   dispatch(updateUserRoleToCaptain(user));
   dispatch(sendJoiningTeamRequest(team, playersId, socket));
 };
@@ -30,12 +31,12 @@ export const getTeam = teamId => dispatch => {
   dispatch({ type: 'GET_TEAM', teamId });
 };
 
-export const updateTeamPlayers = (teamId, player) => dispatch => {
-  DBHelpers.updateTeamPlayers(teamId, player.id);
-  // should update in team reducer
-  dispatch({
-    type: 'UPDATE_TEAM_PLAYERS',
-    payload: { teamId: teamId, player: player },
+export const onTeamHasNewPlayer = () => dispatch => {
+  DBHelpers.onTeamHasNewPlayer().then(team => {
+    dispatch({
+      type: 'UPDATE_TEAM_PLAYERS',
+      payload: { teamId: team.id, player: team.player },
+    });
   });
 };
 
@@ -44,15 +45,4 @@ export const setTeamName = teamName => dispatch => {
 };
 export const setTeamPlayers = teamPlayers => dispatch => {
   dispatch({ type: 'SET_TEAM_PLAYERS', teamPlayers });
-};
-
-export const listenToTeamRequestStatus = () => dispatch => {
-  DBHelpers.onRequestStatusChanged().then(req => {
-    DBHelpers.getUserById(req.playerId).then(player => {
-      dispatch(updateTeamPlayers(req.teamId, player));
-      DBHelpers.getTeamById(req.teamId).then(team => {
-        dispatch(updateUserTeam(player, team));
-      });
-    });
-  });
 };

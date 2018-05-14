@@ -18,7 +18,7 @@ export default (Rooms = (props) => {
   const { screenProps } = props;
   const { navigate } = screenProps.stackNavigation;
   const {
-    rooms, user, socket, joinRoom,
+    rooms, user, socket, joinRoom, team,
   } = screenProps;
   return (
     <ScrollView contentContainerStyle={{ backgroundColor: 'white', height: `${100}%` }}>
@@ -30,13 +30,13 @@ export default (Rooms = (props) => {
           item.id != user.roomId && (
             <TouchableOpacity
               onPress={() => {
-                joinRoom(item, user, socket);
+                joinRoom(item, team, socket);
                 navigate('Room', { room: item });
               }}
             >
               <Text>{item.Name}</Text>
               <Text>Team Name : {item.teamOwner.name}</Text>
-              <Text>Locatin : {item.settings && item.settings.location}</Text>
+              <Text>Locatin : {item.settings && item.settings.location.address}</Text>
               <Text>
                 observer :
                 {_.has(item.settings, 'observer') && item.settings.observer.name}

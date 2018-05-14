@@ -1,6 +1,7 @@
 const express = require('express');
 
 const app = express();
+
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
@@ -12,6 +13,9 @@ io.on('connection', (socket) => {
     console.log('dissssss');
   });
 
+  socket.on('leaveRoom', (data) => {
+    socket.leave(data.roomId, () => console.log('left the god damn room'));
+  });
   // create room by useId to send and recieve requests
   socket.on('roomByUserId', (data) => {
     socket.join(data.id);
@@ -25,15 +29,18 @@ io.on('connection', (socket) => {
   socket.on('sendRequest', (data) => {
     io.sockets.in(data.userId).emit('requests', data.request);
   });
-
+  socket.on('removeRequest', (data) => {
+    io.sockets.in(data.userId).emit('removeRequest', data.request);
+  });
   socket.on('joinRoomsChannel', () => {
     console.log('joinRommsChannel');
     socket.join('roomsChannel');
   });
   socket.on('roomUpdated', (data) => {
+    console.log("in roomuPDATED++++++++++")
     // this for all joined in roomsChannel
     io.sockets.in('roomsChannel').emit('updateRooms', data.updatedRoom);
-    // there should be one for spasfic room
+    // this is   for target room
     io.sockets.in(data.updatedRoom.id).emit('updateRoom', data.updatedRoom);
   });
   socket.on('addRoom', (data) => {

@@ -6,7 +6,6 @@ export default (withModel = (style, closeModel) => WrappedComponent =>
     render() {
       const { closeModel } = this.props;
       const { justifyContent, width, height } = style;
-      console.log('closeModel', closeModel, 'style', style);
       return (
         <View
           style={{
@@ -47,5 +46,3 @@ const styles = StyleSheet.create({
   },
 });
 
-// settings of model
-// model needs flex start or end or center and width and height

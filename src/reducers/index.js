@@ -9,6 +9,7 @@ import socket from './socket-reducer';
 import roomsReducer from './rooms-reducer';
 import showObserverModel from './observerModel-reducer';
 import checkedItems from './checkedItems-reducer';
+import observingMatches from './observingMatches-reducer';
 
 const rootReducer = combineReducers({
   auth,
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   roomsReducer,
   showObserverModel,
   checkedItems,
+  observingMatches,
 });
 
 export default rootReducer;

@@ -12,6 +12,7 @@ import {
   clearCheckedItems,
   loadCheckedItems,
   setRoomObserver,
+  hideModel,
 } from '../actions';
 
 const _ = require('lodash');
@@ -43,19 +44,26 @@ const mapDispatchToProps = dispatch => ({
   setObserver(room, observerId, socket) {
     dispatch(setRoomObserver(room, observerId, socket));
   },
+  closeModel() {
+    dispatch(hideModel());
+  },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withSearchContainer(
   ({ onGetPlayers }) => onGetPlayers(),
   ({ players }) => players,
   null,
-  (observerId, { room, setObserver, socket }) => {
-    if (Object.keys(observerId).length > 0) setObserver(room, ...Object.keys(observerId), socket);
-    else setObserver(room, null, socket);
+  (observerId, {
+    room, setObserver, socket, closeModel,
+  }) => {
+    if (Object.keys(observerId).length > 0) {
+      setObserver(room, ...Object.keys(observerId), socket);
+      closeModel();
+    } else setObserver(room, null, socket);
   },
   ({ room, loadCheckedItems }) =>
-    (_.has(room, 'settings') && room.settings.observer && room.settings.observer.id
-      ? loadCheckedItems(Object.assign([], { [room.settings.observer.id]: true }))
+    (_.has(room, 'settings') && room.settings.observer && room.settings.observer.info
+      ? loadCheckedItems(Object.assign([], { [room.settings.observer.info.id]: true }))
       : null),
   {
     singleCheck: true,

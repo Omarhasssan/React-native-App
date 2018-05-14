@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-// import io from 'socket.io-client/dist/socket.io';
 import firebase from './config/firebase';
 
 import { connect } from 'react-redux';
@@ -24,7 +23,7 @@ const middleware = createReactNavigationReduxMiddleware('root', state => state.n
 const addListener = createReduxBoundAddListener('root');
 class App extends Component {
   state = {
-    dataLoaded: false,
+    dataLoaded: true,
   };
 
   componentDidMount() {
@@ -34,12 +33,6 @@ class App extends Component {
     this.props.loadTeams();
     // load Rooms
     this.props.getRooms();
-    /*
-    *LISTEN TO TEAM REQUEST STATUS 
-    *WHEN IT CHANGES TO ACCEPTED 
-    *ADD USER TO TARGET TEAM
-    */
-    this.props.listenToTeamRequestStatus();
   }
   componentWillReceiveProps(nextProps) {
     nextProps.teams && nextProps.rooms ? this.setState({ dataLoaded: true }) : null;
@@ -52,6 +45,7 @@ class App extends Component {
     const { dispatch, nav, teams } = this.props;
     const { dataLoaded } = this.state;
     if (!dataLoaded) return <Spinner />;
+
     return (
       dataLoaded && (
         <Screens
@@ -82,9 +76,7 @@ const mapDispatchToProps = dispatch => ({
   getRooms() {
     dispatch(getRooms());
   },
-  listenToTeamRequestStatus() {
-    dispatch(listenToTeamRequestStatus());
-  },
+
   dispatch,
 });
 

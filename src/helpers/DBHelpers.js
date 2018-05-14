@@ -1,5 +1,6 @@
 import firebase from '../config/firebase';
 import { validateSignUpForm } from './FormValidation';
+import { database } from 'firebase';
 /*eslint-disable */
 var _ = require('lodash');
 
@@ -26,8 +27,33 @@ export const DBHelpers = {
   onRequestStatusChanged,
   getRoomById,
   addObservingRequest,
+  removeObservingRequest,
+  getObservingRequest,
+  onTeamHasNewPlayer,
+  onUserHasTeam,
+  onUserHasMatchesToObserve,
+  onRoomObserverStatusChanged,
 };
+function removeObservingRequest(reqId) {
+  firebase
+    .database()
+    .ref(`${'ObservingRequests'}/${reqId}`)
+    .remove();
+}
 
+function getObservingRequest(roomId, userId) {
+  return new Promise((resolve, reject) => {
+    firebase
+      .database()
+      .ref('ObservingRequests')
+      .once('value', snapshot => {
+        const reqs = snapshot.toJSON();
+        for (i in reqs) {
+          if (reqs[i].roomId == roomId && reqs[i].playerId == userId) return resolve(reqs[i]);
+        }
+      });
+  });
+}
 function getUserRequest(userId) {
   let arr = { teamRequests: [], observingRequests: [] };
   return new Promise((resolve, reject) => {
@@ -43,6 +69,7 @@ function getUserRequest(userId) {
             newReq.status = reqs[index].status;
             newReq.type = 'joinTeam';
             newReq.player = await getUserById(reqs[index].playerId);
+
             newReq.id = reqs[index].id;
             arr.teamRequests.push(newReq);
           }
@@ -89,14 +116,31 @@ function getRoomById(roomId) {
       .ref(`${'Rooms'}/${roomId}`)
       .once('value', async snapshot => {
         const room = snapshot.toJSON();
-        room.teamOwner = await getTeamById(room.teamOwner);
+        let newroom = {};
+
+        newroom.teamOwner = await getTeamById(room.teamOwner);
+        newroom.name = room.name;
+        newroom.id = room.id;
+
         if (room.joinedTeam) {
-          room.joinedTeam = await getTeamById(room.joinedTeam);
+          newroom.joinedTeam = await getTeamById(room.joinedTeam);
         }
+
         if (room.settings && _.has(room.settings, 'observer')) {
-          room.settings.observer = await getUserById(room.settings.observer.id);
+          newroom.settings = { observer: { info: {}, status: '' } };
+          newroom.settings.observer.info = await getUserById(room.settings.observer.id);
+          newroom.settings.observer.status = room.settings.observer.status;
         }
-        resolve(room);
+
+        if (room.settings && _.has(room.settings, 'date')) {
+          newroom.settings = { ...newroom.settings, date: '' };
+          newroom.settings.date = room.settings.date;
+        }
+        if (room.settings && _.has(room.settings, 'location')) {
+          newroom.settings = { ...newroom.settings, location: '' };
+          newroom.settings.location = room.settings.location;
+        }
+        resolve(newroom);
       });
   });
 }
@@ -109,15 +153,33 @@ async function getRooms() {
       .ref('Rooms')
       .once('value', async snapshot => {
         let rooms = snapshot.toJSON();
-        for (indx in rooms) {
-          rooms[indx].teamOwner = await getTeamById(rooms[indx].teamOwner);
+        for (const indx in rooms) {
+          let newroom = {};
+          newroom.teamOwner = await getTeamById(rooms[indx].teamOwner);
+          newroom.name = rooms[indx].name;
+          newroom.id = rooms[indx].id;
+
           if (rooms[indx].joinedTeam) {
-            rooms[indx].joinedTeam = await getTeamById(rooms[indx].joinedTeam);
+            newroom.joinedTeam = await getTeamById(rooms[indx].joinedTeam);
           }
           if (rooms[indx].settings && _.has(rooms[indx].settings, 'observer')) {
-            rooms[indx].settings.observer = await getUserById(rooms[indx].settings.observer.id);
+            newroom.settings = { observer: { info: {}, status: '' } };
+            newroom.settings.observer.info = await getUserById(rooms[indx].settings.observer.id);
+
+            newroom.settings.observer.status = rooms[indx].settings.observer.status;
           }
-          arr.push(rooms[indx]);
+
+          if (rooms[indx].settings && _.has(rooms[indx].settings, 'date')) {
+            newroom.settings = { ...newroom.settings, date: '' };
+            newroom.settings.date = rooms[indx].settings.date;
+          }
+
+          if (rooms[indx].settings && _.has(rooms[indx].settings, 'location')) {
+            newroom.settings = { ...newroom.settings, location: '' };
+            newroom.settings.location = rooms[indx].settings.location;
+          }
+
+          arr.push(newroom);
         }
         resolve(arr);
       });
@@ -158,6 +220,102 @@ function onRequestStatusChanged() {
       });
   });
 }
+async function onTeamHasNewPlayer() {
+  let teams = await getTeams();
+  let teamsLen = teams.length;
+  let cnt = 0;
+  let first = true;
+  return new Promise((resolve, reject) => {
+    firebase
+      .database()
+      .ref('teams')
+      .on('child_added', team => {
+        cnt++;
+        if (cnt >= teamsLen) first = false;
+        team = team.toJSON();
+        firebase
+          .database()
+          .ref(`${'teams'}/${team.id}/${'players'}`)
+          .on('child_added', async playerId => {
+            if (!first) {
+              updatedTeam.id = team.id;
+              updateTeam.player = await getUserById(playerId);
+              resolve(updateTeam);
+            }
+          });
+      });
+  });
+}
+function onRoomObserverStatusChanged() {
+  let first = true;
+  return new Promise((resolve, reject) => {
+    firebase
+      .database()
+      .ref('Rooms')
+      .on('child_added', room => {
+        console.log('room added');
+        room = room.toJSON();
+        firebase
+          .database()
+          .ref(`${'Rooms'}/${room.id}/${'settings'}/${'observer'}/${'status'}`)
+          .on('value', async status => {
+            console.log('roomObserver status changed');
+            // should return req status and roomId
+            if (first) first = false;
+            else {
+              console.log('not first');
+              let updatedRoom = await getRoomById(room.id);
+              resolve(updatedRoom);
+              first = false;
+            }
+          });
+      });
+  });
+}
+async function onUserHasTeam(userId) {
+  let first = true;
+  let done = false;
+
+  return new Promise((resolve, reject) => {
+    firebase
+      .database()
+      .ref(`${'users'}/${userId}`)
+      .on('value', async snap => {
+        if (first) {
+          first = false;
+        } else {
+          let user = snap.toJSON();
+          if (user.teamId && !done) {
+            let updatedUser = {};
+            updatedUser.team = await getTeamById(user.teamId);
+            done = true;
+            resolve(updatedUser);
+          }
+        }
+      });
+  });
+}
+function onUserHasMatchesToObserve(userId) {
+  return new Promise((resolve, reject) => {
+    return firebase
+      .database()
+      .ref('MatchesToObserve')
+      .on('child_added', async snapshot => {
+        // have roomId , playerId
+        let match = {};
+        const data = snapshot.toJSON();
+        if (userId == data.observerId) {
+          const room = await getRoomById(data.roomId);
+          match.firstTeam = room.teamOwner;
+          if(room.joinedTeam)
+          match.secondTeam = room.joinedTeam;
+          if (room.settings.data) match.date = room.settings.date;
+          if (room.settings.location) match.location = room.settings.location;
+          resolve(match);
+        }
+      });
+  });
+}
 function addTeamRequest(Request) {
   let req = { ...Request };
   const requestsRef = firebase
@@ -165,7 +323,7 @@ function addTeamRequest(Request) {
     .ref('TeamRequests')
     .push();
   req.id = requestsRef.key;
-  requestsRef.set(req).then;
+  return requestsRef.set(req).then(() => Promise.resolve(req.id));
 }
 function addObservingRequest(Request) {
   let req = { ...Request };
@@ -174,7 +332,7 @@ function addObservingRequest(Request) {
     .ref('ObservingRequests')
     .push();
   req.id = requestsRef.key;
-  requestsRef.set(req).then;
+  return requestsRef.set(req).then(() => Promise.resolve(req.id));
 }
 function addRoom(room) {
   const roomRef = firebase
@@ -237,8 +395,14 @@ function getTeamById(teamId) {
     return firebase
       .database()
       .ref(`${'teams'}/${teamId}`)
-      .once('value', snapshot => {
-        return resolve(snapshot.toJSON());
+      .once('value', async snapshot => {
+        const team = snapshot.toJSON();
+        if (team.players) {
+          for (const index in team.players) {
+            team.players[index] = await getUserById(team.players[index]);
+          }
+        }
+        return resolve(team);
       });
   });
 }
@@ -247,7 +411,7 @@ function getUserById(userId) {
     return firebase
       .database()
       .ref(`${'users'}/${userId}`)
-      .once('value', snapshot => {
+      .once('value', async snapshot => {
         return resolve(snapshot.toJSON());
       });
   });
@@ -276,7 +440,6 @@ function getRequestByteamId(teamId) {
   });
 }
 function updateRequest(requestId, reqType) {
-  console.log('req', reqType);
   if (reqType == 'joinTeam')
     return firebase
       .database()
@@ -306,7 +469,6 @@ function saveUser(user) {
         }),
     )
     .catch(errMsg => {
-      console.log('errMsg', errMsg);
       return Promise.reject(errMsg);
     });
 }

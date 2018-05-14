@@ -29,10 +29,7 @@ export const Login = user => (dispatch) => {
         type: 'LOGIN_SUCCESS',
         user,
       });
-      // join rooms-channel
-      dispatch({
-        type: 'JOIN_ROOMS_CHANNEL',
-      });
+
       // should save to async storage ?
       AsyncStorage.setItem('@UserId', user.id).then(() => console.log('user saved'));
     })
@@ -54,24 +51,26 @@ export const checkIfWeKnowThisUserBefore = () => (dispatch) => {
           id: user.id,
         });
         if (user.teamId) {
-          user.team = await DBHelpers.getTeamById(user.teamId);
+          const team = await DBHelpers.getTeamById(user.teamId);
           dispatch({
             type: 'CREATE_ROOM_BY_TEAM_ID',
             id: user.teamId,
           });
+          dispatch({
+            type: 'SET_CURNT_TEAM',
+            team,
+          });
         }
 
         if (user.roomId) {
-          user.room = await DBHelpers.getRoomById(user.roomId);
-
+          const room = await DBHelpers.getRoomById(user.roomId);
           dispatch({
             type: 'CREATE_ROOM_BY_ROOM_ID',
-            id: user.room.id,
+            id: user.roomId,
           });
-
           dispatch({
             type: 'SET_CREATED_ROOM',
-            room: user.room,
+            room,
           });
         }
         dispatch({

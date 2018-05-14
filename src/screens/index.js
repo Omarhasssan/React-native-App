@@ -12,13 +12,21 @@ import CreateRoom from '../containers/CreateRoom';
 import Room from '../containers/Room';
 import TabNavigator from '../containers/TabNavigator';
 import AddObserver from '../containers/AddObserver';
+import SetLocation from '../containers/SetLocation';
+import Tst from '../containers/Tst';
 
 const Screens = StackNavigator({
+  // tst: {
+  //   screen: Tst,
+  // },
   Login: {
     screen: Auth,
     navigationOptions: {
       title: 'Login',
     },
+  },
+  SetLocation: {
+    screen: SetLocation,
   },
   CreateTeamStepOne: {
     screen: AddPlayers,

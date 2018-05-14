@@ -4,7 +4,7 @@ import { TabNavigator } from 'react-navigation'; // Version can be specified in 
 import CreateRoom from './CreateRoom';
 import Rooms from './Rooms';
 import withCheckUserHaveRoom from '../hocs/withCheckUserHaveRoom';
-import { joinRoom } from '../actions';
+import { joinRoom, setJoinedRoom } from '../actions';
 
 const Tabs = TabNavigator({
   createdRoom: { screen: withCheckUserHaveRoom(CreateRoom) },
@@ -13,14 +13,18 @@ const Tabs = TabNavigator({
 
 const TabNav = props => <Tabs screenProps={props} />;
 
-const mapStateToProps = ({ roomsReducer, auth, socket }) => ({
+const mapStateToProps = ({
+  roomsReducer, auth, socket, teamsReducer,
+}) => ({
   rooms: roomsReducer.rooms,
   room: roomsReducer.createdRoom,
   user: auth.user,
+  team: teamsReducer.curntTeam,
   socket,
 });
 const mapDispatchToProps = dispatch => ({
   joinRoom(room, user, socket) {
+    dispatch(setJoinedRoom(room));
     dispatch(joinRoom(room, user, socket));
   },
 });

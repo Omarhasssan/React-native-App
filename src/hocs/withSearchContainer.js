@@ -31,7 +31,6 @@ export default (withSearchContainer = (
     };
     static navigationOptions({ navigation }) {
       if (navigation.state.params) {
-        console.log('a', navigation.state.params.prps.onSetTeamPlayers);
         return {
           headerRight: renderHeaderRight(
             navigation.state.params.checkedItems,
@@ -41,23 +40,27 @@ export default (withSearchContainer = (
         };
       }
     }
-    componentWillMount() {
+    componentDidMount() {
       const { navigation, clearCheckedItems } = this.props;
+      console.log('did id didid i');
       loadCheckedItems(this.props);
       this.setState({ loading: true });
       dispatchGetData(this.props);
     }
     componentWillReceiveProps(nextProps) {
+      console.log('withSearchContainer RCCCC', nextProps.checkedItems.loaded);
       if (
-        Object.keys(nextProps.checkedItems).length !==
-          Object.keys(this.props.checkedItems).length ||
-        !this.isEqual(nextProps.checkedItems, this.props.checkedItems)
+        !nextProps.checkedItems.loaded &&
+        (Object.keys(nextProps.checkedItems.items).length !==
+          Object.keys(this.props.checkedItems.items).length ||
+          !this.isEqual(nextProps.checkedItems.items, this.props.checkedItems.items))
       ) {
-        this.updateCheckedItems(nextProps.checkedItems);
-        setCheckedItems(nextProps.checkedItems, this.props);
+        console.log('withSearchContainer innnnn');
+        this.updateCheckedItems(nextProps.checkedItems.items);
+        setCheckedItems(nextProps.checkedItems.items, this.props);
       }
-      if (data(nextProps).length) {
-        this.setState({ data: nextProps.players });
+      if (data(nextProps).length > 0) {
+        this.setState({ data: data(nextProps) });
         this.setState({ loading: false });
       }
     }
@@ -77,6 +80,9 @@ export default (withSearchContainer = (
           prps: this.props,
         });
     }
+    componentWillUnmount() {
+      console.log('uuunnnnnnmounttt');
+    }
 
     render() {
       const { data, text, loading } = this.state;
@@ -87,14 +93,15 @@ export default (withSearchContainer = (
       if (text.length) {
         this.filteredData = data.filter(d => d.name.includes(text));
       } else this.filteredData = data;
-      for (var k in checkedItems) this.selectedData.push(data.filter(d => d.id == k)[0]);
+      if (data)
+        for (var k in checkedItems.items) this.selectedData.push(data.filter(d => d.id == k)[0]);
       return (
         <View style={{ flex: 1 }}>
           <Search onChangeText={text => this.setState({ text })} />
           <SelectedData
             selectedData={this.selectedData}
             onRemove={key => removeCheckedItem(key)}
-            checkedItems={checkedItems}
+            checkedItems={checkedItems.items}
           />
           <View style={{ height: `${100}%` }}>
             <SearchResults
@@ -105,7 +112,7 @@ export default (withSearchContainer = (
                   addCheckedItem(key);
                 } else addCheckedItem(key);
               }}
-              checkedItems={checkedItems}
+              checkedItems={checkedItems.items}
               data={this.filteredData}
             />
           </View>

@@ -16,6 +16,7 @@ class CreateOrJoinTeam extends Component {
       socket,
       user,
       navigation,
+      team,
     } = nextProps;
     if (this.props.teamName !== nextProps.teamName) {
       if (teamPlayers && teamName) {
@@ -66,10 +67,13 @@ const mapDispatchToProps = dispatch => ({
     dispatch(createTeamWithSendingRequests(user, teamName, teamPlayers, socket));
   },
 });
-const mapStateToProps = ({ auth, team, socket }) => ({
+const mapStateToProps = ({
+  auth, team, teamsReducer, socket,
+}) => ({
   user: auth.user,
   teamPlayers: team.players,
   teamName: team.name,
+  team: teamsReducer.curntTeam,
   socket,
 });
 export default connect(mapStateToProps, mapDispatchToProps)(withCheckUserHaveTeam(CreateOrJoinTeam));

@@ -11,11 +11,11 @@ export default (Observer = props => (
   <View style={[styles.container]}>
     <View
       style={{
-        flex: 1,
         alignItems: 'center',
+        flex: 1,
       }}
     >
-      {(props.observer && <Player player={props.observer} />) ||
+      {(props.observer && <Player player={props.observer.info} />) ||
         (!props.roomOwner && (
           <View style={{ backgroundColor: 'white', width: 50 }}>
             <Text style={{ fontSize: 6, fontWeight: 'bold' }}>
@@ -61,5 +61,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 20,
   },
 });
