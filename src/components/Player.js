@@ -2,12 +2,12 @@ import React from 'react';
 import { Text, Image, View, StyleSheet } from 'react-native';
 
 export default (Player = props => (
-  <View>
+  <View style={props.containerStyle}>
     <Image
       style={styles.userImg}
       source={(props.player.imgUri && { uri: props.player.imgUri }) || require('../imges/user.png')}
     />
-    <View style={{ width: `${100}%`, alignItems: 'center', padding: 5 }}>
+    <View style={{ alignItems: 'center', padding: 5 }}>
       <Text style={{ fontSize: 8 }}>{props.player.name}</Text>
     </View>
   </View>

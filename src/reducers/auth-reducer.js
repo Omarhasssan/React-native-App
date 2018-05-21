@@ -8,11 +8,20 @@ const intialState = {
     teamId: '-L8U6moS8EIZn-d33_cO',
   },
 };
-export default function (state = {}, action) {
+export default function (
+  state = {
+    users: {},
+    curntUser: {},
+    isFetching: false,
+    msg: '',
+  },
+  action,
+) {
   switch (action.type) {
     case 'SIGNUP_REQUEST':
     case 'LOGIN_REQUEST':
     case 'LOGOUT_REQUEST':
+      return;
       return { isFetching: true };
     case 'SIGNUP_SUCCESS':
     case 'LOGIN_SUCCESS':

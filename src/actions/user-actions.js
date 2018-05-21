@@ -1,4 +1,5 @@
 import { DBHelpers } from '../helpers';
+import firebase from '../config/firebase';
 /*eslint-disable */
 
 export const updateUserRoleToCaptain = user => {
@@ -12,23 +13,55 @@ export const updateUserTeam = (userId, teamId) => dispatch => {
   DBHelpers.updateUser(`users/${userId}/teamId`, teamId);
 };
 export const onUserHasTeam = userId => dispatch => {
-  DBHelpers.onUserHasTeam(userId).then(user => {
-    dispatch({
-      type: 'UPDATE_CURRENT_USER',
-      payload: { type: 'teamId', value: user.team.id },
+  let first = true;
+  let done = false;
+
+  firebase
+    .database()
+    .ref(`${'users'}/${userId}`)
+    .on('value', async snap => {
+      if (first) {
+        first = false;
+      } else {
+        let user = snap.toJSON();
+        if (user.teamId && !done) {
+          let updatedUser = {};
+          updatedUser.team = await DBHelpers.getTeamById(user.teamId);
+          done = true;
+          dispatch({
+            type: 'UPDATE_CURRENT_USER',
+            payload: { type: 'teamId', value: user.team.id },
+          });
+
+          dispatch({
+            type: 'SET_CURNT_TEAM',
+            team: user.team,
+          });
+        }
+      }
     });
-    dispatch({
-      type: 'SET_CURNT_TEAM',
-      team: user.team,
-    });
-  });
 };
 export const onUserHasMatchesToObserve = userId => dispatch => {
-  DBHelpers.onUserHasMatchesToObserve(userId).then(match => {
-    dispatch({
-      type: 'SET_OBSERVING_MATCH',
-      match,
-    });
+  return new Promise((resolve, reject) => {
+    return firebase
+      .database()
+      .ref('MatchesToObserve')
+      .on('child_added', async snapshot => {
+        // have roomId , playerId
+        let match = {};
+        const data = snapshot.toJSON();
+        if (userId == data.observerId) {
+          const room = await DBHelpers.getRoomById(data.roomId);
+          match.firstTeam = room.teamOwner;
+          if (room.joinedTeam) match.secondTeam = room.joinedTeam;
+          if (room.settings.data) match.date = room.settings.date;
+          if (room.settings.location) match.location = room.settings.location;
+          dispatch({
+            type: 'SET_OBSERVING_MATCH',
+            match,
+          });
+        }
+      });
   });
 };
 export const updateUserRoom = (user, room) => dispatch => {
@@ -50,3 +83,57 @@ export const getPlayers = () => dispatch =>
       users,
     });
   });
+
+export const onUserRecordsHasChanged = userId => async dispatch => {
+  /*
+  *records changed
+  *update him if he is curntUser
+  *given TeamId UPDATE him in teamReducer
+  */
+  let first = true;
+  let users = await DBHelpers.getUsers();
+  const usersLen = Object.keys(users).length;
+  let cnt = 0;
+  firebase
+    .database()
+    .ref(`${'users'}`)
+    .on('child_added', data => {
+      cnt++;
+      const user = data.toJSON();
+      firebase
+        .database()
+        .ref(`${'users'}/${user.id}/${'records'}`)
+        .on('value', data => {
+          const updatedRecord = data;
+          // need teamId , userId , TYPE , VALUE
+          // update in team
+          return updatedRecord.ref
+            .once('value', data => {
+              const userRecord = data.toJSON();
+              dispatch({
+                type: 'UPDATE_PLAYER',
+                payload: {
+                  teamId: user.teamId,
+                  userId: user.id,
+                  type: 'records',
+                  value: userRecord,
+                },
+              });
+              // update curntUser
+              if (userId == user.id && !first)
+                dispatch({
+                  type: 'UPDATE_CURRENT_USER',
+                  payload: { type: 'records', value: userRecord },
+                });
+            })
+            .then(onfulfilled => {
+              if (cnt == usersLen) first = false;
+            });
+        });
+    });
+};
+export const listenToUserChanges = userId => dispatch => {
+  // dispatch(onUserHasMatchesToObserve(userId));
+  //dispatch(onUserHasTeam(userId));
+  dispatch(onUserRecordsHasChanged(userId));
+};

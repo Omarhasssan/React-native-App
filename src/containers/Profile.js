@@ -9,6 +9,7 @@ import {
   onTeamHasNewPlayer,
   onUserHasTeam,
   onUserHasMatchesToObserve,
+  listenToUserChanges,
 } from '../actions';
 import Tabs from '../components/Tabs';
 import Top from '../components/ProfileTop';
@@ -17,7 +18,7 @@ import Invitations from './Invitations';
 import CreateOrJoinTeam from './CreateOrJoinTeam';
 import AddObserver from './AddObserver';
 import withModel from '../hocs/withModel';
-// import MatchesToObserve from './MatchesToObserve';
+import MatchesToObserve from './MatchesToObserve';
 const modelWithStyle = withModel(
   { justifyContent: 'flex-start', width: `${90}%` },
   ({ closeModel }) => closeModel(),
@@ -26,29 +27,30 @@ const mapDispatchToProps = dispatch => ({
   closeModel() {
     dispatch(hideModel());
   },
-  listenToRoomChanges(user, socket) {
-    dispatch(listenToRoomChanges(user, socket));
+
+  listenToUserChanges(userId) {
+    dispatch(listenToUserChanges(userId));
   },
   onTeamHasNewPlayer() {
     dispatch(onTeamHasNewPlayer());
   },
-  onUserHasTeam(userId) {
-    dispatch(onUserHasTeam(userId));
-  },
   getTeams() {
     dispatch(getTeams());
   },
-  onUserHasMatchesToObserve(userId) {
-    dispatch(onUserHasMatchesToObserve(userId));
+  listenToRoomChanges(user, socket) {
+    dispatch(listenToRoomChanges(user, socket));
   },
 });
 const ObserverWithModel = connect(null, mapDispatchToProps)(modelWithStyle(AddObserver));
 class Profile extends Component {
   state = {
-    activeTab: 'CreateOrJoinRoom',
+    activeTab: 'Info',
   };
   componentWillMount() {
     console.log('profile will fff');
+  }
+  componentWillReceiveProps(nextProps) {
+    console.log('profile rc');
   }
   componentDidMount() {
     const {
@@ -59,20 +61,19 @@ class Profile extends Component {
       getTeams,
       onUserHasMatchesToObserve,
       user,
+      listenToUserChanges,
     } = this.props;
-    //listen to roomChanges in socket
     listenToRoomChanges(user, socket);
-    //listen to teamPlayersChanges in DB
+    listenToUserChanges(user.id);
+    //onUserHasTeam(user.id);
     onTeamHasNewPlayer();
-    //listen to userChanges in DB
-    onUserHasTeam(user.id);
-
-    onUserHasMatchesToObserve(user.id);
+    //onUserHasMatchesToObserve(user.id);
   }
 
   render() {
     const { activeTab } = this.state;
     const { navigation, user, showObserverModel, observingMatches } = this.props;
+
     let defaultTabs = ['Team', 'Invitations', 'Info'];
     let captainTabs,
       observerTabs = [];
@@ -95,8 +96,11 @@ class Profile extends Component {
         <View style={{ flex: 1 }}>
           {(activeTab == 'Team' && <CreateOrJoinTeam navigation={navigation} />) ||
             (activeTab == 'Invitations' && <Invitations />) ||
-            (activeTab == 'Info' && <Text>player goals , matches played </Text>) ||
-            (activeTab == 'CreateOrJoinRoom' && <TabNavigator stackNavigation={navigation} />)}
+            (activeTab == 'Info' && <Text> {user.records.wins} </Text>) ||
+            (activeTab == 'CreateOrJoinRoom' && <TabNavigator stackNavigation={navigation} />) ||
+            (activeTab == 'MatchesToObserve' && (
+              <MatchesToObserve observingMatches={observingMatches} />
+            ))}
         </View>
       </View>
     );

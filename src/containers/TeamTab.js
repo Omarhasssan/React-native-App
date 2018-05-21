@@ -2,25 +2,18 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Text, View, Image, StyleSheet, FlatList, ScrollView } from 'react-native';
 import Player from '../components/Player';
-
-class Team extends Component {
+class TeamTab extends Component {
   state = {
     teamInfoTab: false,
     teamPlayersTab: false,
     teamNextMatchesTab: false,
     joinTeamRequestsTab: false,
   };
-  componentWillReceiveProps(nextProps) {
-    console.log('team is ', nextProps.team);
-  }
-  componentWillUnmount() {
-    console.log('team unmounted');
-  }
 
   render() {
     const { user, team } = this.props;
     const { teamInfoTab, teamNextMatchesTab, teamPlayersTab, joinTeamRequestsTab } = this.state;
-    console.log('tm', team);
+    // console.log('tm', team);
     return (
       <View>
         <Btn
@@ -65,9 +58,9 @@ class Team extends Component {
         {teamPlayersTab && (
           <ScrollView contentContainerStyle={{ backgroundColor: 'white', height: `${100}%` }}>
             <FlatList
-              data={team.players}
+              data={Object.keys(team.players)}
               keyExtractor={(item, index) => index}
-              renderItem={({ item }) => <Player player={item} />}
+              renderItem={({ item }) => <Player player={team.players[item]} />}
             />
           </ScrollView>
         )}
@@ -100,4 +93,5 @@ const mapStateToProps = ({ auth, socket }) => ({
   user: auth.user,
   socket,
 });
-export default connect(mapStateToProps)(Team);
+
+export default connect(mapStateToProps)(TeamTab);

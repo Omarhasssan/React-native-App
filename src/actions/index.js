@@ -5,3 +5,4 @@ export * from './request-actions';
 export * from './team-actions';
 export * from './room-actions';
 export * from './model-actions';
+export * from './observer-actions';

@@ -1,6 +1,7 @@
 import { DBHelpers } from '../helpers';
 import { updateUserRoom } from './user-actions';
 import { saveAndSendObservingRequest, removeObservingRequest } from './request-actions';
+import firebase from '../config/firebase';
 
 export const createRoom = (user, Name, socket) => (dispatch) => {
   // save room to database admin of el room and room details
@@ -97,10 +98,28 @@ export const listenToRoomChanges = (user, socket) => (dispatch) => {
       });
     }
   });
-
-  DBHelpers.onRoomObserverStatusChanged().then((updatedRoom) => {
-    dispatch(updateRoom(updatedRoom, 'settings', updatedRoom.settings, socket));
-  });
+  let first = true;
+  firebase
+    .database()
+    .ref('Rooms')
+    .on('child_added', (room) => {
+      room = room.toJSON();
+      firebase
+        .database()
+        .ref(`${'Rooms'}/${room.id}/${'settings'}/${'observer'}/${'status'}`)
+        .on('value', async (status) => {
+          // should return req status and roomId
+          if (first) first = false;
+          else {
+            const updatedRoom = await DBHelpers.getRoomById(room.id);
+            dispatch(updateRoom(updatedRoom, 'settings', updatedRoom.settings, socket));
+            first = false;
+          }
+        });
+    });
+  // DBHelpers.onRoomObserverStatusChanged().then((updatedRoom) => {
+  //   dispatch(updateRoom(updatedRoom, 'settings', updatedRoom.settings, socket));
+  // });
 };
 
 export const setRoomDate = (room, date, socket) => (dispatch) => {

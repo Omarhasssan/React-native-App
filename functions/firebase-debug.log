@@ -1,0 +1,35 @@
+[debug] [2018-05-18T01:53:03.631Z] ----------------------------------------------------------------------
+[debug] [2018-05-18T01:53:03.636Z] Command:       /usr/local/bin/node /usr/local/bin/firebase functions:shell
+[debug] [2018-05-18T01:53:03.637Z] CLI Version:   3.18.4
+[debug] [2018-05-18T01:53:03.637Z] Platform:      darwin
+[debug] [2018-05-18T01:53:03.637Z] Node Version:  v6.11.5
+[debug] [2018-05-18T01:53:03.733Z] Time:          Fri May 18 2018 03:53:03 GMT+0200 (EET)
+[debug] [2018-05-18T01:53:03.734Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-05-18T01:53:03.877Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-05-18T01:53:03.877Z] > authorizing via signed-in user
+[debug] [2018-05-18T01:53:03.882Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/squad-builder  
+  
+ Fri May 18 2018 03:53:03 GMT+0200 (EET)
+[debug] [2018-05-18T01:53:05.118Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-18T01:53:05.120Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/squad-builder/tokens  
+  
+ Fri May 18 2018 03:53:05 GMT+0200 (EET)
+[debug] [2018-05-18T01:53:06.238Z] <<< HTTP RESPONSE 200
+[info] i  functions: Preparing to emulate functions.
+[debug] [2018-05-18T01:53:16.213Z] Fetching environment
+[debug] [2018-05-18T01:53:16.234Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/squad-builder  
+  
+ Fri May 18 2018 03:53:16 GMT+0200 (EET)
+[debug] [2018-05-18T01:53:19.227Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-18T01:53:19.228Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/411287222096:getServerAppConfig  
+  
+ Fri May 18 2018 03:53:19 GMT+0200 (EET)
+[debug] [2018-05-18T01:53:28.288Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-18T01:53:28.289Z] Starting @google-cloud/functions-emulator
+[debug] [2018-05-18T01:53:31.079Z] Parsing function triggers
+[debug] [2018-05-18T01:53:46.077Z] Deploying functions locally
+[debug] [2018-05-18T01:53:46.080Z] Deploying functions locally
+[info] ✔  functions: addUserToTeam
+[info] ✔  functions: onChangingObservingStatus
+[info] ✔  functions: req

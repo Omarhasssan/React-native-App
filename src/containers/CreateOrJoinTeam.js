@@ -9,6 +9,7 @@ import Btn from '../components/Btn';
 class CreateOrJoinTeam extends Component {
   componentWillReceiveProps(nextProps) {
     // if team_players and team_name then disptch save team
+    console.log('rccccccc');
     const {
       createTeamWithSendingRequests,
       teamPlayers,

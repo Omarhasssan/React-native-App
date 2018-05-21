@@ -1,6 +1,5 @@
 import firebase from '../config/firebase';
 import { validateSignUpForm } from './FormValidation';
-import { database } from 'firebase';
 /*eslint-disable */
 var _ = require('lodash');
 
@@ -230,17 +229,24 @@ async function onTeamHasNewPlayer() {
       .database()
       .ref('teams')
       .on('child_added', team => {
+        
         cnt++;
         if (cnt >= teamsLen) first = false;
         team = team.toJSON();
-        firebase
+        console.log('team_chiled_added', team.name);
+
+         return firebase
           .database()
           .ref(`${'teams'}/${team.id}/${'players'}`)
           .on('child_added', async playerId => {
+            let updatedTeam = {};
             if (!first) {
+              console.log('player_chiled_added', playerId,'teamName',team.name);
               updatedTeam.id = team.id;
-              updateTeam.player = await getUserById(playerId);
-              resolve(updateTeam);
+              updatedTeam.player = await getUserById(playerId.toJSON());
+              console.log('after await',updatedTeam.player);
+              resolve(updatedTeam);
+              console.log('after resolve');
             }
           });
       });
@@ -307,11 +313,11 @@ function onUserHasMatchesToObserve(userId) {
         if (userId == data.observerId) {
           const room = await getRoomById(data.roomId);
           match.firstTeam = room.teamOwner;
-          if(room.joinedTeam)
-          match.secondTeam = room.joinedTeam;
+          if (room.joinedTeam) match.secondTeam = room.joinedTeam;
           if (room.settings.data) match.date = room.settings.date;
           if (room.settings.location) match.location = room.settings.location;
           resolve(match);
+          
         }
       });
   });
