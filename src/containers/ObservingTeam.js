@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Text, View, Image, StyleSheet, TouchableOpacity, Button } from 'react-native';
-import Player from '../components/Player';
+import PlayerInfo from '../components/Info';
 import Counter from './Counter';
 
 export default class ObservingTeam extends Component {
@@ -52,7 +52,11 @@ export default class ObservingTeam extends Component {
               >
                 <Text>{++id}-</Text>
                 <View style={{ marginLeft: 5, marginRight: 5, flexShrink: 1 }}>
-                  <Player containerStyle={{ flexDirection: 'row' }} player={players[playerId]} />
+                  <PlayerInfo
+                    containerStyle={{ flexDirection: 'row' }}
+                    name={players[playerId].name}
+                    imgUri={players[playerId].imgUri}
+                  />
                 </View>
               </View>
 

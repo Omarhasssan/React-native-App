@@ -84,56 +84,46 @@ export const getPlayers = () => dispatch =>
     });
   });
 
-export const onUserRecordsHasChanged = userId => async dispatch => {
-  /*
-  *records changed
-  *update him if he is curntUser
-  *given TeamId UPDATE him in teamReducer
-  */
-  let first = true;
-  let users = await DBHelpers.getUsers();
-  const usersLen = Object.keys(users).length;
-  let cnt = 0;
-  firebase
-    .database()
-    .ref(`${'users'}`)
-    .on('child_added', data => {
-      cnt++;
-      const user = data.toJSON();
-      firebase
-        .database()
-        .ref(`${'users'}/${user.id}/${'records'}`)
-        .on('value', data => {
-          const updatedRecord = data;
-          // need teamId , userId , TYPE , VALUE
-          // update in team
-          return updatedRecord.ref
-            .once('value', data => {
-              const userRecord = data.toJSON();
-              dispatch({
-                type: 'UPDATE_PLAYER',
-                payload: {
-                  teamId: user.teamId,
-                  userId: user.id,
-                  type: 'records',
-                  value: userRecord,
-                },
-              });
-              // update curntUser
-              if (userId == user.id && !first)
-                dispatch({
-                  type: 'UPDATE_CURRENT_USER',
-                  payload: { type: 'records', value: userRecord },
-                });
-            })
-            .then(onfulfilled => {
-              if (cnt == usersLen) first = false;
-            });
-        });
-    });
-};
+// export const onUserRecordsHasChanged = userId => async dispatch => {
+//   /*
+//   *records changed
+//   *update him if he is curntUser
+//   *given TeamId UPDATE him in teamReducer
+//   */
+//   console.log('fn fn function');
+//   let first = true;
+//   firebase
+//     .database()
+//     .ref(`${'users'}/${userId}/${'records'}`)
+//     .on('value', data => {
+//       const updatedRecord = data.toJSON();
+//       if (first) first = false;
+//       else {
+//         // need teamId , userId , TYPE , VALUE
+//         // update in team
+//         // update user in teamObeject
+//         data.ref.parent.once('value', user => {
+//           user = user.toJSON();
+//           dispatch({
+//             type: 'UPDATE_PLAYER',
+//             payload: {
+//               teamId: user.teamId,
+//               userId: userId,
+//               type: 'records',
+//               value: updatedRecord,
+//             },
+//           });
+//           // update curntUser
+//           dispatch({
+//             type: 'UPDATE_CURRENT_USER',
+//             payload: { type: 'records', value: updatedRecord },
+//           });
+//         });
+//       }
+//     });
+// };
 export const listenToUserChanges = userId => dispatch => {
-  // dispatch(onUserHasMatchesToObserve(userId));
-  //dispatch(onUserHasTeam(userId));
-  dispatch(onUserRecordsHasChanged(userId));
+  dispatch(onUserHasMatchesToObserve(userId));
+  dispatch(onUserHasTeam(userId));
+  //dispatch(onUserRecordsHasChanged(userId));
 };

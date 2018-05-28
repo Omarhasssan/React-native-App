@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import withSearchContainer from '../hocs/withSearchContainer';
 import { getPlayers } from '../actions';
-import Player from './Player';
+import PlayerInfo from './Info';
 import Btn from './Btn';
 
 export default (Observer = props => (
@@ -15,7 +15,9 @@ export default (Observer = props => (
         flex: 1,
       }}
     >
-      {(props.observer && <Player player={props.observer.info} />) ||
+      {(props.observer && (
+        <PlayerInfo imgUri={props.observer.info.imgUri} name={props.observer.info.name} />
+      )) ||
         (!props.roomOwner && (
           <View style={{ backgroundColor: 'white', width: 50 }}>
             <Text style={{ fontSize: 6, fontWeight: 'bold' }}>

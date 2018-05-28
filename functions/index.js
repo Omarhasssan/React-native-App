@@ -10,13 +10,13 @@ const config = functions.config();
 admin.initializeApp(config.firebase);
 
 const app = express();
-function setResult(teamId, result, value) {
+function setResult(teamId, records) {
   admin
     .database()
-    .ref(`${'teams'}/${teamId}/${'records'}/${result}`)
-    .set(value);
+    .ref(`${'teams'}/${teamId}/${'records'}`)
+    .set(records);
 }
-app.post('/tst', (req, res) => {
+app.post('/submitMatchObservation', (req, res) => {
   /*
   * forevery player in two teams update his goals in db and increment gamesPlayed BY one
   * update team win,lose,draw,gamePlayed,numOfGoals *both teams*
@@ -35,26 +35,19 @@ app.post('/tst', (req, res) => {
       .database()
       .ref(`${'users'}/${playerDetails.id}`)
       .once('value', data => {
-        console.log('id', playerDetails.id);
         const player = data.toJSON();
         const playerGoals =
-          player.records && player.records.goals
-            ? parseInt(player.records.goals) + parseInt(playerDetails.goals)
-            : playerDetails.goals;
+          parseInt(player.records.goals) + parseInt(playerDetails.goals);
 
-        const playerGamesPlayed =
-          player.records && player.records.gamesPlayed
-            ? parseInt(player.records.gamesPlayed) + 1
-            : 1;
+        const playerGamesPlayed = parseInt(player.records.gamesPlayed) + 1;
+        const playerRecords = {
+          goals: playerGoals,
+          gamesPlayed: playerGamesPlayed
+        };
         admin
           .database()
-          .ref(`${'users'}/${playerDetails.id}/${'records'}/${'goals'}`)
-          .set(playerGoals);
-
-        admin
-          .database()
-          .ref(`${'users'}/${player.id}/${'records'}/${'gamesPlayed'}`)
-          .set(playerGamesPlayed);
+          .ref(`${'users'}/${playerDetails.id}/${'records'}`)
+          .set(playerRecords);
       });
   });
   // for teams
@@ -64,15 +57,12 @@ app.post('/tst', (req, res) => {
     .once('value', data => {
       const fTeam = data.toJSON();
       const fTeamGoals =
-        fTeam.records && fTeam.records.goals
-          ? parseInt(fTeam.records.goals) + parseInt(firstTeam.goals)
-          : firstTeam.goals;
-      const fTeamGamesPlayed =
-        fTeam.records && fTeam.records.gamesPlayed
-          ? fTeam.records.gamesPlayed + 1
-          : 1;
-      setResult(firstTeam.id, 'goals', fTeamGoals);
-      setResult(firstTeam.id, 'gamesPlayed', fTeamGamesPlayed);
+        parseInt(fTeam.records.goals) + parseInt(firstTeam.goals);
+      const fTeamGamesPlayed = fTeam.records.gamesPlayed + 1;
+      let firstTeamRecords = {};
+      Object.assign(firstTeamRecords, fTeam.records);
+      firstTeamRecords.goals = fTeamGoals;
+      firstTeamRecords.gamesPlayed = fTeamGamesPlayed;
 
       return admin
         .database()
@@ -80,33 +70,30 @@ app.post('/tst', (req, res) => {
         .once('value', data2 => {
           const sTeam = data2.toJSON();
           const sTeamGoals =
-            sTeam.records && sTeam.records.goals
-              ? parseInt(sTeam.records.goals) + parseInt(secondTeam.goals)
-              : secondTeam.goals;
-          const sTeamGamesPlayed =
-            sTeam.records && sTeam.records.gamesPlayed
-              ? sTeam.records.gamesPlayed + 1
-              : 1;
-          setResult(secondTeam.id, 'goals', sTeamGoals);
-          setResult(secondTeam.id, 'gamesPlayed', sTeamGamesPlayed);
+            parseInt(sTeam.records.goals) + parseInt(secondTeam.goals);
+
+          const sTeamGamesPlayed = sTeam.records.gamesPlayed + 1;
+
+          let secondTeamRecords = {};
+          Object.assign(secondTeamRecords, sTeam.records);
+          secondTeamRecords.goals = sTeamGoals;
+          secondTeamRecords.gamesPlayed = sTeamGamesPlayed;
 
           if (firstTeam.goals > secondTeam.goals) {
-            setResult(firstTeam.id, 'wins', fTeam.wins ? fTeam.wins + 1 : 1);
-            setResult(
-              secondTeam.id,
-              'loses',
-              sTeam.loses ? sTeam.loses + 1 : 1
-            );
+            firstTeamRecords.wins = fTeam.records.wins + 1;
+            secondTeamRecords.wins = sTeam.records.loses + 1;
+            setResult(firstTeam.id, firstTeamRecords);
+            setResult(secondTeam.id, secondTeamRecords);
           } else if (firstTeam.goals < secondTeam.goals) {
-            setResult(firstTeam.id, 'loses', fTeam.loses ? fTeam.loses + 1 : 1);
-            setResult(secondTeam.id, 'wins', sTeam.wins ? sTeam.wins + 1 : 1);
+            firstTeamRecords.wins = fTeam.records.loses + 1;
+            secondTeamRecords.wins = sTeam.records.wins + 1;
+            setResult(firstTeam.id, firstTeamRecords);
+            setResult(secondTeam.id, secondTeamRecords);
           } else {
-            setResult(
-              secondTeam.id,
-              'draws',
-              sTeam.draws ? sTeam.draws + 1 : 1
-            );
-            setResult(firstTeam.id, 'draws', fTeam.draws ? fTeam.draws + 1 : 1);
+            firstTeamRecords.wins = fTeam.records.draws + 1;
+            secondTeamRecords.wins = sTeam.records.draws + 1;
+            setResult(firstTeam.id, firstTeamRecords);
+            setResult(secondTeam.id, secondTeamRecords);
           }
         });
     });

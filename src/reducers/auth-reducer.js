@@ -10,10 +10,7 @@ const intialState = {
 };
 export default function (
   state = {
-    users: {},
-    curntUser: {},
-    isFetching: false,
-    msg: '',
+    
   },
   action,
 ) {
@@ -21,7 +18,6 @@ export default function (
     case 'SIGNUP_REQUEST':
     case 'LOGIN_REQUEST':
     case 'LOGOUT_REQUEST':
-      return;
       return { isFetching: true };
     case 'SIGNUP_SUCCESS':
     case 'LOGIN_SUCCESS':

@@ -5,17 +5,18 @@ export default (withModel = (style, closeModel) => WrappedComponent =>
   class extends Component {
     render() {
       const { closeModel } = this.props;
-      const { justifyContent, width, height } = style;
       return (
         <View
-          style={{
-            width: `${100}%`,
-            height: `${100}%`,
-            position: 'absolute',
-            zIndex: 1,
-            alignItems: 'center',
-            justifyContent,
-          }}
+          style={[
+            style,
+            {
+              width: `${100}%`,
+              height: `${100}%`,
+              position: 'absolute',
+              zIndex: 1,
+              alignItems: 'center',
+            },
+          ]}
         >
           <TouchableOpacity
             onPress={() => closeModel(this.props)}
@@ -27,7 +28,7 @@ export default (withModel = (style, closeModel) => WrappedComponent =>
               opacity: 0.2,
             }}
           />
-          <View style={[styles.modelContainer, { width, height }]}>
+          <View style={styles.modelContainer}>
             <WrappedComponent {...this.props} />
           </View>
         </View>
@@ -37,7 +38,7 @@ export default (withModel = (style, closeModel) => WrappedComponent =>
 const styles = StyleSheet.create({
   modelContainer: {
     width: `${90}%`,
-    height: 'auto',
+    height: `${50}%`,
     borderWidth: 1,
     borderColor: 'transparent',
     borderRadius: 10,
@@ -45,4 +46,3 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
 });
-

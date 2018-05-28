@@ -33,3 +33,54 @@
 [info] ✔  functions: addUserToTeam
 [info] ✔  functions: onChangingObservingStatus
 [info] ✔  functions: req
+[debug] [2018-05-26T23:34:48.260Z] ----------------------------------------------------------------------
+[debug] [2018-05-26T23:34:48.265Z] Command:       /usr/local/bin/node /usr/local/bin/firebase functions:shell
+[debug] [2018-05-26T23:34:48.266Z] CLI Version:   3.18.4
+[debug] [2018-05-26T23:34:48.266Z] Platform:      darwin
+[debug] [2018-05-26T23:34:48.266Z] Node Version:  v6.11.5
+[debug] [2018-05-26T23:34:48.267Z] Time:          Sun May 27 2018 01:34:48 GMT+0200 (EET)
+[debug] [2018-05-26T23:34:48.267Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-05-26T23:34:48.348Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-05-26T23:34:48.348Z] > authorizing via signed-in user
+[debug] [2018-05-26T23:34:48.352Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2018-05-26T23:34:48.352Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ { refresh_token: '1/wJtLJUXiZhqkoxCtszihWBYSFY_YCeqKX3-QRVExcVc',
+  client_id: '563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com',
+  client_secret: 'j9iVZfS8kkCEFUPaAeJV0sAi',
+  grant_type: 'refresh_token',
+  scope: 'email https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/cloudplatformprojects.readonly https://www.googleapis.com/auth/firebase openid' } 
+ Sun May 27 2018 01:34:48 GMT+0200 (EET)
+[debug] [2018-05-26T23:34:49.808Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-26T23:34:49.999Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/squad-builder  
+  
+ Sun May 27 2018 01:34:49 GMT+0200 (EET)
+[debug] [2018-05-26T23:34:51.229Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-26T23:34:51.231Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/squad-builder/tokens  
+  
+ Sun May 27 2018 01:34:51 GMT+0200 (EET)
+[debug] [2018-05-26T23:34:51.948Z] <<< HTTP RESPONSE 200
+[info] i  functions: Preparing to emulate functions.
+[debug] [2018-05-26T23:35:01.738Z] Fetching environment
+[debug] [2018-05-26T23:35:01.784Z] >>> HTTP REQUEST GET https://cloudresourcemanager.googleapis.com/v1/projects/squad-builder  
+  
+ Sun May 27 2018 01:35:01 GMT+0200 (EET)
+[debug] [2018-05-26T23:35:02.968Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-26T23:35:02.969Z] >>> HTTP REQUEST GET https://mobilesdk-pa.googleapis.com/v1/projects/411287222096:getServerAppConfig  
+  
+ Sun May 27 2018 01:35:02 GMT+0200 (EET)
+[debug] [2018-05-26T23:35:03.928Z] <<< HTTP RESPONSE 200
+[debug] [2018-05-26T23:35:03.929Z] Starting @google-cloud/functions-emulator
+[debug] [2018-05-26T23:35:11.551Z] Parsing function triggers
+[debug] [2018-05-26T23:35:16.710Z] Deploying functions locally
+[debug] [2018-05-26T23:35:16.711Z] Deploying functions locally
+[info] ✔  functions: req
+[info] ✔  functions: addUserToTeam
+[info] ✔  functions: onChangingObservingStatus
+[debug] [2018-05-27T13:07:52.912Z] TypeError: Cannot read property 'setRawMode' of null
+    at ReadStream.setRawMode (tty.js:38:15)
+    at REPLServer.Interface._setRawMode (readline.js:193:16)
+    at REPLServer.Interface.close (readline.js:316:10)
+    at process.nextTick (repl.js:684:31)
+    at _combinedTickCallback (internal/process/next_tick.js:73:7)
+    at process._tickDomainCallback (internal/process/next_tick.js:128:9)

@@ -22,3 +22,10 @@ export const loadCheckedItems = checkedItems => dispatch => {
 export const setObserver = observerId => dispatch => {
   DBHelpers.getUserById(observerId).then(observer => dispatch({ type: 'SET_OBSERVER', observer }));
 };
+
+export const setOpenedTeamDetails = teamRecords => dispatch => {
+  dispatch({
+    type: 'SET_CURNT_TEAM_DETAILS',
+    teamRecords,
+  });
+};

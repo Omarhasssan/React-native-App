@@ -3,13 +3,14 @@ import { AsyncStorage } from 'react-native';
 
 export const Register = user => (dispatch) => {
   dispatch({ type: 'SIGNUP_REQUEST' });
-  return DBHelpers.saveUser(user)
-    .then((user) => {
+  const userObj = { ...user, records: { gamesPlayed: 0, goals: 0 } };
+  return DBHelpers.saveUser(userObj)
+    .then((returnedUser) => {
       dispatch({
         type: 'SIGNUP_SUCCESS',
-        user,
+        returnedUser,
       });
-      AsyncStorage.setItem('@UserId', user.id).then(() => console.log('user saved'));
+      AsyncStorage.setItem('@UserId', returnedUser.id).then(() => console.log('user saved'));
     })
     .catch((err) => {
       dispatch({ type: 'SIGNUP_FAILURE', err });

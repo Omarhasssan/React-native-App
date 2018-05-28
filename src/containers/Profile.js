@@ -19,15 +19,10 @@ import CreateOrJoinTeam from './CreateOrJoinTeam';
 import AddObserver from './AddObserver';
 import withModel from '../hocs/withModel';
 import MatchesToObserve from './MatchesToObserve';
-const modelWithStyle = withModel(
-  { justifyContent: 'flex-start', width: `${90}%` },
-  ({ closeModel }) => closeModel(),
-);
-const mapDispatchToProps = dispatch => ({
-  closeModel() {
-    dispatch(hideModel());
-  },
+import ObserverWithModel from './ObserverWithModel';
+import TeamDetailsWithModel from './TeamDetailsWithModel';
 
+const mapDispatchToProps = dispatch => ({
   listenToUserChanges(userId) {
     dispatch(listenToUserChanges(userId));
   },
@@ -41,17 +36,11 @@ const mapDispatchToProps = dispatch => ({
     dispatch(listenToRoomChanges(user, socket));
   },
 });
-const ObserverWithModel = connect(null, mapDispatchToProps)(modelWithStyle(AddObserver));
 class Profile extends Component {
   state = {
-    activeTab: 'Info',
+    activeTab: 'CreateOrJoinRoom',
   };
-  componentWillMount() {
-    console.log('profile will fff');
-  }
-  componentWillReceiveProps(nextProps) {
-    console.log('profile rc');
-  }
+
   componentDidMount() {
     const {
       socket,
@@ -65,14 +54,18 @@ class Profile extends Component {
     } = this.props;
     listenToRoomChanges(user, socket);
     listenToUserChanges(user.id);
-    //onUserHasTeam(user.id);
     onTeamHasNewPlayer();
-    //onUserHasMatchesToObserve(user.id);
   }
 
   render() {
     const { activeTab } = this.state;
-    const { navigation, user, showObserverModel, observingMatches } = this.props;
+    const {
+      navigation,
+      user,
+      showTeamDetailsModel,
+      showObserverModel,
+      observingMatches,
+    } = this.props;
 
     let defaultTabs = ['Team', 'Invitations', 'Info'];
     let captainTabs,
@@ -84,6 +77,7 @@ class Profile extends Component {
     return (
       <View style={styles.container}>
         {showObserverModel && <ObserverWithModel />}
+
         <Top
           setActive={tabName => {
             this.setState({ activeTab: tabName });
@@ -113,10 +107,11 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStateToProps = ({ auth, socket, showObserverModel, observingMatches }) => ({
+const mapStateToProps = ({ auth, socket, model, observingMatches }) => ({
   user: auth.user,
   socket,
-  showObserverModel: showObserverModel,
+  showObserverModel: model.showObserver,
+  showTeamDetailsModel: model.showTeamDetails,
   observingMatches,
 });
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);

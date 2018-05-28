@@ -11,7 +11,10 @@ export const getTeams = () => dispatch => {
   });
 };
 export const createTeamWithSendingRequests = (user, teamName, playersId, socket) => dispatch => {
-  let team = { name: teamName };
+  let team = {
+    name: teamName,
+    records: { wins: 0, losses: 0, draws: 0, gamesPlayed: 0, goals: 0 },
+  };
   DBHelpers.addTeam(team);
   dispatch({
     type: 'ADD_TEAM',

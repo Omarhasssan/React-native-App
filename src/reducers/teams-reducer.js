@@ -44,6 +44,7 @@ export default function (state = { teams: [], curntTeam: {} }, action) {
             : state.curntTeam,
       };
     case 'UPDATE_PLAYER':
+    console.log(" in UPDATE_PLAYER ")
       return {
         ...state,
         teams: updatePlayer(

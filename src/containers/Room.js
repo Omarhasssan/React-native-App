@@ -3,17 +3,20 @@ import { connect } from 'react-redux';
 import { Text, View, Image, StyleSheet } from 'react-native';
 import {
   leaveRoom,
-  showModel,
+  showObserverModel,
+  showTeamDetailsModel,
   getRoom,
   joinRoom,
   setJoinedRoom,
   setRoomLocation,
   setRoomDate,
+  setOpenedTeamDetails,
 } from '../actions';
-import Teams from '../components/Teams';
 import Observer from '../components/Observer';
 import SetDateTime from './SetDateTime';
 import openMap from 'react-native-open-maps';
+import TeamInfo from '../components/Info';
+import TeamDetailsWithModel from './TeamDetailsWithModel';
 var _ = require('lodash');
 class Room extends Component {
   state = {
@@ -61,14 +64,80 @@ class Room extends Component {
       setRoomLocation,
       roomsReducer,
       stackNavigation,
+      setOpenedTeamDetails,
+      showTeamDetailsModel,
+      showTeamDetails,
     } = this.props;
+
     let navigate;
     if (type == 'createdRoom') navigate = stackNavigation.navigate;
     const location =
       room.settings && _.has(room.settings, 'location') ? room.settings.location : null;
+    console.log('s', show);
     return (
-      <View style={{ flex: 1 }}>
-        <Teams roomOwner={room.teamOwner} joinedTeam={room.joinedTeam} />
+      <View style={{ height: `${100}%` }}>
+        {/* <Teams roomOwner={room.teamOwner} joinedTeam={room.joinedTeam} /> */}
+        {showTeamDetails && <TeamDetailsWithModel />}
+
+        <View
+          style={{
+            alignSelf: 'center',
+            width: `${50}%`,
+            height: `${40}%`,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            //backgroundColor: 'green',
+          }}
+        >
+          <View>
+            <TeamInfo
+              userImgStyle={{ width: 40, height: 40 }}
+              name={room.teamOwner && room.teamOwner.name}
+            />
+            {type != 'createdRoom' && (
+              <Btn
+                txtStyle={{ fontStyle: 'bold', fontSize: 6, color: 'white' }}
+                containerStyle={{
+                  padding: 3,
+                  width: 'auto',
+                  height: 13,
+                  backgroundColor: '#1da1f2',
+                  alignItems: 'center',
+                }}
+                txt={'Team Details'}
+                onPress={() => {
+                  setOpenedTeamDetails(room.teamOwner ? room.teamOwner.records : null);
+                  showTeamDetailsModel();
+                }}
+              />
+            )}
+          </View>
+          <View>
+            <TeamInfo
+              userImgStyle={{ width: 40, height: 40 }}
+              name={room.joinedTeam && room.joinedTeam.name}
+            />
+            {type != 'joinedRoom' && (
+              <Btn
+                txtStyle={{ fontStyle: 'bold', fontSize: 6, color: 'white' }}
+                containerStyle={{
+                  padding: 3,
+                  width: 'auto',
+                  height: 13,
+                  backgroundColor: '#1da1f2',
+                  alignItems: 'center',
+                }}
+                txt={'Team Details'}
+                onPress={() => {
+                  setOpenedTeamDetails(room.joinedTeam ? room.joinedTeam.records : null);
+                  showTeamDetailsModel();
+                }}
+              />
+            )}
+          </View>
+        </View>
         <View
           style={{
             backgroundColor: '#edf1f7',
@@ -185,14 +254,21 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
-const mapStateToProps = ({ auth, socket, roomsReducer, teamsReducer }) => ({
+const mapStateToProps = ({ auth, socket, roomsReducer, teamsReducer, model }) => ({
   team: teamsReducer.curntTeam,
   socket,
   roomsReducer,
+  showTeamDetails: model.showTeamDetails,
 });
 const mapDispatchToProps = dispatch => ({
   showObserverModel() {
-    dispatch(showModel());
+    dispatch(showObserverModel());
+  },
+  setOpenedTeamDetails(teamRecords) {
+    dispatch(setOpenedTeamDetails(teamRecords));
+  },
+  showTeamDetailsModel() {
+    dispatch(showTeamDetailsModel());
   },
   setRoomDate(room, date, socket) {
     dispatch(setRoomDate(room, date, socket));

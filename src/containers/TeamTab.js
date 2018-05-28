@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Text, View, Image, StyleSheet, FlatList, ScrollView } from 'react-native';
-import Player from '../components/Player';
+import PlayerInfo from '../components/Info';
 class TeamTab extends Component {
   state = {
     teamInfoTab: false,
@@ -13,7 +13,6 @@ class TeamTab extends Component {
   render() {
     const { user, team } = this.props;
     const { teamInfoTab, teamNextMatchesTab, teamPlayersTab, joinTeamRequestsTab } = this.state;
-    // console.log('tm', team);
     return (
       <View>
         <Btn
@@ -60,7 +59,9 @@ class TeamTab extends Component {
             <FlatList
               data={Object.keys(team.players)}
               keyExtractor={(item, index) => index}
-              renderItem={({ item }) => <Player player={team.players[item]} />}
+              renderItem={({ item }) => (
+                <PlayerInfo name={team.players[item].name} imgUri={team.players[item].imgUri} />
+              )}
             />
           </ScrollView>
         )}
@@ -89,8 +90,7 @@ class TeamTab extends Component {
   }
 }
 
-const mapStateToProps = ({ auth, socket }) => ({
-  user: auth.user,
+const mapStateToProps = ({ socket }) => ({
   socket,
 });
 
