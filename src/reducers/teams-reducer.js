@@ -1,3 +1,30 @@
+function sortMatchesByDate(matches) {
+  matches.sort((match1, match2) => {
+    if (match1.date.year != match2.date.year) return match1.date.year - match2.date.year;
+    if (match1.date.month != match2.date.month) return match1.date.month - match2.date.month;
+    if (match1.date.day != match2.date.day) return match1.date.day - match2.date.day;
+    if (match1.date.time != match2.date.time) {
+      if (match1.date.time.hours != match2.date.time.hours) {
+        return match1.date.time.hours - match2.date.time.hours;
+      }
+      if (match1.date.time.minutes != match2.date.time.minutes) {
+        return match1.date.time.minutes - match2.date.time.minutes;
+      }
+    }
+  });
+  return matches;
+}
+function addMatch(teams, teamId, updatedMatches) {
+  const x = teams.map((team) => {
+    if (team.id === teamId) {
+      const updatedTeam = team;
+      updatedTeam.matches = updatedMatches;
+      updatedTeam.matches = sortMatchesByDate(team.matches);
+      return updatedTeam.matches;
+    }
+  });
+  return x;
+}
 function updateTeamPlayers(teams, teamId, player) {
   return teams.map((team) => {
     if (team.id === teamId) {
@@ -44,7 +71,6 @@ export default function (state = { teams: [], curntTeam: {} }, action) {
             : state.curntTeam,
       };
     case 'UPDATE_PLAYER':
-    console.log(" in UPDATE_PLAYER ")
       return {
         ...state,
         teams: updatePlayer(
@@ -64,6 +90,22 @@ export default function (state = { teams: [], curntTeam: {} }, action) {
             action.payload.value,
           )[0],
         },
+      };
+    case 'SET_TEAM_MATCHES':
+      return {
+        ...state,
+        teams: [],
+        curntTeam:
+          action.payload.teamId === state.curntTeam.id
+            ? {
+              ...state.curntTeam,
+              matches: addMatch(
+                [state.curntTeam],
+                action.payload.teamId,
+                action.payload.updatedMatches,
+              )[0],
+            }
+            : state.curntTeam,
       };
     case 'SET_CURNT_TEAM':
       return { ...state, curntTeam: action.team };

@@ -67,3 +67,26 @@ export const setTeamName = teamName => dispatch => {
 export const setTeamPlayers = teamPlayers => dispatch => {
   dispatch({ type: 'SET_TEAM_PLAYERS', teamPlayers });
 };
+
+export const onTeamHasMatch = socket => dispatch => {
+  console.log('in onTeamHasMatch');
+  socket.on('teamHasMatch', data => {
+    console.log('in socket , team has match');
+    dispatch({
+      type: 'SET_TEAM_MATCHES',
+      payload: { teamId: data.teamId, updatedMatches: data.updatedMatches },
+    });
+  });
+};
+
+export const setTeamMatch = (match, team, socket) => dispatch => {
+  team.matches.push(match);
+  //console.log('tmMatches', team.matches);
+  socket.emit('teamHasMatch', { updatedMatches: team.matches, teamId: team.id });
+  DBHelpers.addMatchToTeam(team.id, match.id);
+};
+
+export const listenToTeamChanges = socket => dispatch => {
+  dispatch(onTeamHasNewPlayer());
+  dispatch(onTeamHasMatch(socket));
+};

@@ -1,13 +1,10 @@
- req('/submitMatchObservation', {
+ req('/setRoomMatch', {
     method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-        matchDetails:{
-        firstTeam: { id: '-LBMJfWR9q71vW0ExNCV', goals: '3', playersGoals: {0:{id:"-L8TyAXqmrK_vf5h-0NH",goals:'2'}} },
-        secondTeam: { id: '-LBaS03vjE4v0y0WV8VS', goals: '2', playersGoals: {0:{id:"-L8U1vG1mWTIdJeV1TTt",goals:'1'}} },
-    }
+        firstTeam:'-LBMJfWR9q71vW0ExNCV',secondTeam:'-LBMJfWR9q71vW0ExNCV'
     }),
   })

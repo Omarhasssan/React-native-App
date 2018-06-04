@@ -7,8 +7,8 @@ import withCheckUserHaveRoom from '../hocs/withCheckUserHaveRoom';
 import { joinRoom, setJoinedRoom, listenToRoomChanges } from '../actions';
 
 const Tabs = TabNavigator({
-  createdRoom: { screen: withCheckUserHaveRoom(CreateRoom) },
   JoinRoom: { screen: Rooms },
+  createdRoom: { screen: withCheckUserHaveRoom(CreateRoom) },
 });
 
 class TabNav extends Component {

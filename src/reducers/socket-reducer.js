@@ -5,7 +5,7 @@ export default function (state = socket, action) {
   switch (action.type) {
     case 'CREATE_ROOM_BY_USER_ID': {
       console.log('CREATE_ROOM_BY_USER_ID');
-      socket = io.connect('http://f3ed49af.ngrok.io');
+      socket = io.connect('http://9c157952.ngrok.io');
       socket.emit('roomByUserId', { id: action.id });
       return socket;
     }

@@ -9,5 +9,4 @@ export const submitMatchObservation = matchDetails => (dispatch) => {
   }).then((res) => {
     console.log('res');
   });
-  // console.log('mtchDe', matchDetails);
 };

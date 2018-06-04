@@ -29,8 +29,6 @@ class App extends Component {
   componentDidMount() {
     //  check if user is registered before load his data
     this.props.checkIfWeKnowThisUserBefore();
-    // load teams
-    this.props.loadTeams();
     // load Rooms
     this.props.getRooms();
   }

@@ -1,0 +1,152 @@
+import firebase from '../config/firebase';
+/*eslint-disable */
+
+var _ = require('lodash');
+import { matchesService, usersService } from '../Service';
+export const teamsService = {
+  getTeams,
+  onTeamHasNewPlayer,
+  addTeam,
+  getTeamPlayers,
+  updateTeamPlayers,
+  updatedTeam,
+  getTeamMatches,
+  addMatchToTeam,
+  getTeamById,
+};
+
+async function getTeams() {
+  let arr = [],
+    res;
+  return new Promise((resolve, reject) => {
+    firebase
+      .database()
+      .ref('teams')
+      .once('value', async snapshot => {
+        let teams = snapshot.toJSON();
+        for (indx in teams) {
+          if (teams[indx].players) {
+            for (i in teams[indx].players) {
+              teams[indx].players[i] = await usersService.getUserById(teams[indx].players[i]);
+            }
+            teams[indx].players = Object.values(teams[indx].players);
+          }
+          arr.push(teams[indx]);
+        }
+        resolve(arr);
+      });
+  });
+}
+async function onTeamHasNewPlayer() {
+  let teams = await getTeams();
+  let teamsLen = teams.length;
+  let cnt = 0;
+  let first = true;
+  return new Promise((resolve, reject) => {
+    firebase
+      .database()
+      .ref('teams')
+      .on('child_added', team => {
+        cnt++;
+        if (cnt >= teamsLen) first = false;
+        team = team.toJSON();
+        console.log('team_chiled_added', team.name);
+
+        return firebase
+          .database()
+          .ref(`${'teams'}/${team.id}/${'players'}`)
+          .on('child_added', async playerId => {
+            let updatedTeam = {};
+            if (!first) {
+              console.log('player_chiled_added', playerId, 'teamName', team.name);
+              updatedTeam.id = team.id;
+              updatedTeam.player = await usersService.getUserById(playerId.toJSON());
+              console.log('after await', updatedTeam.player);
+              resolve(updatedTeam);
+              console.log('after resolve');
+            }
+          });
+      });
+  });
+}
+function addTeam(team) {
+  const teamsRef = firebase
+    .database()
+    .ref('teams')
+    .push();
+  team.id = teamsRef.key;
+  teamsRef.set(team);
+}
+function getTeamPlayers(teamId) {
+  let arr = [];
+  return new Promise((resolve, reject) => {
+    return firebase
+      .database()
+      .ref(`${'teams'}/${teamId}/${'players'}`)
+      .once('value', snapshot => {
+        if (snapshot.toJSON() != null) return resolve(Object.values(snapshot.toJSON()));
+        return resolve([]);
+      });
+  });
+}
+function updateTeamPlayers(teamId, playerId) {
+  return getTeamPlayers(teamId).then(teamPlayers => {
+    teamPlayers.push(playerId);
+    firebase
+      .database()
+      .ref(`${'teams'}/${teamId}/${'players'}`)
+      .set(teamPlayers);
+  });
+}
+function updateTeam(route, value) {
+  return firebase
+    .database()
+    .ref(route)
+    .set(value);
+}
+function getTeamMatches(teamId) {
+  return new Promise((resolve, reject) => {
+    return firebase
+      .database()
+      .ref(`${'teams'}/${teamId}/${'matches'}`)
+      .once('value', snapshot => {
+        const matches = snapshot.toJSON();
+
+        return resolve(matches || []);
+      });
+    resolve([]);
+  });
+}
+async function addMatchToTeam(teamId, matchId) {
+  const matches = await getTeamMatches(teamId);
+  firebase
+    .database()
+    .ref(`${'teams'}/${teamId}/${'matches'}/${Object.keys(matches).length || 0}`)
+    .set(matchId);
+}
+function getTeamById(teamId) {
+  const withoutMatches = arguments[1] == 'withoutTeamMatches' ? true : false;
+  return new Promise((resolve, reject) => {
+    return firebase
+      .database()
+      .ref(`${'teams'}/${teamId}`)
+      .once('value', async snapshot => {
+        const team = snapshot.toJSON();
+        let teamObj = { players: {}, matches: [] };
+        teamObj.id = team.id;
+        teamObj.name = team.name;
+        teamObj.records = team.records;
+
+        for (const index in team.players) {
+          teamObj.players[index] = await usersService.getUserById(team.players[index]);
+        }
+
+        if (!withoutMatches)
+          for (const index in team.matches) {
+            const match = await matchesService.getMatchById(team.matches[index], teamId);
+            teamObj.matches.push(match);
+          }
+        return resolve(teamObj);
+      });
+  });
+}

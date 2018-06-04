@@ -16,9 +16,9 @@ import SetLocation from '../containers/SetLocation';
 import Tst from '../containers/Tst';
 
 const Screens = StackNavigator({
-  // tst: {
-  //   screen: Tst,
-  // },
+  tst: {
+    screen: Tst,
+  },
   Login: {
     screen: Auth,
     navigationOptions: {

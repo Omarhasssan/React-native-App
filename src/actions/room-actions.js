@@ -1,7 +1,8 @@
-import { DBHelpers } from '../helpers';
+import { DBHelpers, convertDateToYMDH } from '../helpers';
 import { updateUserRoom } from './user-actions';
 import { saveAndSendObservingRequest, removeObservingRequest } from './request-actions';
 import firebase from '../config/firebase';
+import { setTeamMatch } from './team-actions';
 
 export const createRoom = (user, Name, socket) => (dispatch) => {
   // save room to database admin of el room and room details
@@ -9,7 +10,7 @@ export const createRoom = (user, Name, socket) => (dispatch) => {
   const room = {};
   room.teamOwner = user.teamId;
   room.name = Name;
-  room.settings = {};
+  room.settings = { OwnerReady: false, GuestReady: false };
   DBHelpers.addRoom(room);
   // console.log('usr', user);
   DBHelpers.getTeamById(user.teamId).then((team) => {
@@ -164,4 +165,39 @@ export const setRoomObserver = (room, observerId, socket) => (dispatch) => {
     updateRoomDB(`Rooms/${room.id}/settings/observer`, null);
     dispatch(updateRoom(room, 'settings', { ...room.settings, observer: {} }, socket));
   }
+};
+export const setOwnerReady = (room, val, socket) => (dispatch) => {
+  dispatch(updateRoom(room, 'settings', { ...room.settings, OwnerReady: val }, socket));
+};
+export const setGuestReady = (room, val, socket) => (dispatch) => {
+  dispatch(updateRoom(room, 'settings', { ...room.settings, GuestReady: val }, socket));
+};
+export const setRoomMatch = (room, socket) => (dispatch) => {
+  const dateObj = convertDateToYMDH(room.settings.date);
+  const matchSettings = { ...room.settings };
+  const homeTeamMatch = { oponnentTeam: room.joinedTeam, date: dateObj, ...matchSettings.settings };
+  const awayTeamMatch = { oponnentTeam: room.teamOwner, date: dateObj, ...matchSettings.settings };
+  const matchDB = {
+    homeTeam: room.teamOwner.id,
+    awayTeam: room.joinedTeam.id,
+    date: dateObj,
+    location: room.settings.location,
+    observer: room.settings.observer.info.id,
+  };
+
+  fetch('https://us-central1-squad-builder.cloudfunctions.net/req/setRoomMatch', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(matchDB),
+  }).then((res) => {
+    res.json().then((data) => {
+      homeTeamMatch.id = data.matchId;
+      awayTeamMatch.id = data.matchId;
+      dispatch(setTeamMatch(homeTeamMatch, room.teamOwner, socket));
+      //  dispatch(setTeamMatch(awayTeamMatch, room.joinedTeam, socket));
+    });
+  });
 };

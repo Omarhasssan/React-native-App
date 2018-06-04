@@ -1,18 +1,22 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Text, View, Image, StyleSheet, FlatList, ScrollView } from 'react-native';
+import { Text, View, Image, StyleSheet, FlatList, ScrollView, Button } from 'react-native';
 import PlayerInfo from '../components/Info';
+import openMap from 'react-native-open-maps';
+import Btn from '../components/Btn';
+
 class TeamTab extends Component {
   state = {
     teamInfoTab: false,
     teamPlayersTab: false,
-    teamNextMatchesTab: false,
+    teamNextMatchesTab: true,
     joinTeamRequestsTab: false,
   };
 
   render() {
     const { user, team } = this.props;
     const { teamInfoTab, teamNextMatchesTab, teamPlayersTab, joinTeamRequestsTab } = this.state;
+    // for (const indx in team.matches) console.log(team.matches[indx].date);
     return (
       <View>
         <Btn
@@ -70,7 +74,7 @@ class TeamTab extends Component {
             <Image
               style={{ width: 20, height: 20 }}
               source={
-                (teamInfoTab && require('../imges/uparrow.png')) ||
+                (teamNextMatchesTab && require('../imges/uparrow.png')) ||
                 require('../imges/downarrow.png')
               }
             />
@@ -84,7 +88,33 @@ class TeamTab extends Component {
           }}
           onPress={() => this.setState({ teamNextMatchesTab: !teamNextMatchesTab })}
         />
-        {teamNextMatchesTab && <Text>TEAM NEXT MATCHES</Text>}
+        {teamNextMatchesTab &&
+          team.matches &&
+          team.matches.map(match => (
+            <View>
+              <Text>
+                DATE: {match.date.year} : {match.date.month} : {match.date.day} :
+                {match.date.time.hours} : {match.date.time.minutes}
+              </Text>
+              <Btn
+                txtStyle={{ fontStyle: 'bold', fontSize: 6, color: 'white' }}
+                containerStyle={{
+                  padding: 3,
+                  width: 'auto',
+                  backgroundColor: '#1da1f2',
+                  alignItems: 'center',
+                }}
+                onPress={() =>
+                  openMap({
+                    latitude: match.location.latitude,
+                    longitude: match.location.longitude,
+                  })
+                }
+                txt={'Click To Open Location in Maps'}
+              />
+              <Text>Opponent Team : {match.opponentTeam.name}</Text>
+            </View>
+          ))}
       </View>
     );
   }

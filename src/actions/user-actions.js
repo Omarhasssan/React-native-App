@@ -37,6 +37,10 @@ export const onUserHasTeam = userId => dispatch => {
             type: 'SET_CURNT_TEAM',
             team: user.team,
           });
+          dispatch({
+            type: 'CREATE_ROOM_BY_TEAM_ID',
+            id: user.team.id,
+          });
         }
       }
     });

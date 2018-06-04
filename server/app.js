@@ -23,6 +23,9 @@ io.on('connection', (socket) => {
   socket.on('roomByRoomId', (data) => {
     socket.join(data.id);
   });
+  socket.on('roomByTeamId', (data) => {
+    socket.join(data.id);
+  });
   socket.on('setCurntRoom', (data) => {
     io.sockets.in(data.roomId).emit('getCurntRoom', data.roomId);
   });
@@ -37,7 +40,7 @@ io.on('connection', (socket) => {
     socket.join('roomsChannel');
   });
   socket.on('roomUpdated', (data) => {
-    console.log("in roomuPDATED++++++++++")
+    console.log('in roomuPDATED++++++++++');
     // this for all joined in roomsChannel
     io.sockets.in('roomsChannel').emit('updateRooms', data.updatedRoom);
     // this is   for target room
@@ -45,5 +48,13 @@ io.on('connection', (socket) => {
   });
   socket.on('addRoom', (data) => {
     io.sockets.in('roomsChannel').emit('roomAdded', data.addedRoom);
+  });
+
+  socket.on('teamHasMatch', (data) => {
+    console.log('in socket server');
+
+    io.sockets
+      .in(data.teamId)
+      .emit('teamHasMatch', { teamId: data.teamId, updatedMatches: data.updatedMatches });
   });
 });

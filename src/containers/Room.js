@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Text, View, Image, StyleSheet } from 'react-native';
+import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import {
   leaveRoom,
   showObserverModel,
@@ -11,12 +11,17 @@ import {
   setRoomLocation,
   setRoomDate,
   setOpenedTeamDetails,
+  setOwnerReady,
+  setGuestReady,
+  setRoomMatch,
 } from '../actions';
 import Observer from '../components/Observer';
 import SetDateTime from './SetDateTime';
 import openMap from 'react-native-open-maps';
 import TeamInfo from '../components/Info';
 import TeamDetailsWithModel from './TeamDetailsWithModel';
+import Ready from './CheckBox';
+import TopShadow from '../components/TopShadow';
 var _ = require('lodash');
 class Room extends Component {
   state = {
@@ -55,7 +60,7 @@ class Room extends Component {
     if (type == 'joinedRoom') leaveRoom(room, socket);
   }
   render() {
-    const { date, room, type } = this.state;
+    const { date, room, type, OwnerReady, GuestReady } = this.state;
     const {
       style,
       showObserverModel,
@@ -67,82 +72,114 @@ class Room extends Component {
       setOpenedTeamDetails,
       showTeamDetailsModel,
       showTeamDetails,
+      setOwnerReady,
+      setGuestReady,
+      setRoomMatch,
     } = this.props;
 
     let navigate;
     if (type == 'createdRoom') navigate = stackNavigation.navigate;
     const location =
       room.settings && _.has(room.settings, 'location') ? room.settings.location : null;
-    console.log('s', show);
     return (
-      <View style={{ height: `${100}%` }}>
+      <View style={{ flex: 1 }}>
         {/* <Teams roomOwner={room.teamOwner} joinedTeam={room.joinedTeam} /> */}
         {showTeamDetails && <TeamDetailsWithModel />}
 
         <View
           style={{
             alignSelf: 'center',
-            width: `${50}%`,
-            height: `${40}%`,
+            width: `${70}%`,
             flexDirection: 'row',
             justifyContent: 'center',
-            justifyContent: 'space-between',
-            alignItems: 'center',
             //backgroundColor: 'green',
+            paddingTop: 20,
           }}
         >
-          <View>
+          <View
+            style={{
+              //backgroundColor: 'white',
+              flex: 1,
+              alignItems: 'center',
+            }}
+          >
             <TeamInfo
               userImgStyle={{ width: 40, height: 40 }}
               name={room.teamOwner && room.teamOwner.name}
             />
-            {type != 'createdRoom' && (
-              <Btn
-                txtStyle={{ fontStyle: 'bold', fontSize: 6, color: 'white' }}
-                containerStyle={{
-                  padding: 3,
-                  width: 'auto',
-                  height: 13,
-                  backgroundColor: '#1da1f2',
-                  alignItems: 'center',
-                }}
-                txt={'Team Details'}
-                onPress={() => {
-                  setOpenedTeamDetails(room.teamOwner ? room.teamOwner.records : null);
-                  showTeamDetailsModel();
-                }}
-              />
+            <View style={{ marginBottom: 15, alignItems: 'center' }}>
+              {type != 'createdRoom' && (
+                <Btn
+                  txtStyle={{ fontStyle: 'bold', fontSize: 6, color: 'white' }}
+                  containerStyle={{
+                    padding: 3,
+                    width: 'auto',
+
+                    backgroundColor: '#1da1f2',
+                    position: 'absolute',
+                  }}
+                  txt={'Team Details'}
+                  onPress={() => {
+                    setOpenedTeamDetails(room.teamOwner ? room.teamOwner.records : null);
+                    showTeamDetailsModel();
+                  }}
+                />
+              )}
+            </View>
+
+            {type == 'createdRoom' && (
+              <Ready txt={'Ready'} setCheck={val => setOwnerReady(room, val, socket)} />
             )}
+            {type != 'createdRoom' &&
+              room.settings &&
+              room.settings.OwnerReady == true && <Text style={{ fontSize: 30 }}>READY</Text>}
           </View>
-          <View>
+
+          {/* <TopShadow containerStyle={{ height: `${100}%`, width: `${100}%` }} /> */}
+          <View
+            style={{
+              // backgroundColor: 'white',
+              flex: 1,
+              alignItems: 'center',
+            }}
+          >
             <TeamInfo
               userImgStyle={{ width: 40, height: 40 }}
               name={room.joinedTeam && room.joinedTeam.name}
             />
-            {type != 'joinedRoom' && (
-              <Btn
-                txtStyle={{ fontStyle: 'bold', fontSize: 6, color: 'white' }}
-                containerStyle={{
-                  padding: 3,
-                  width: 'auto',
-                  height: 13,
-                  backgroundColor: '#1da1f2',
-                  alignItems: 'center',
-                }}
-                txt={'Team Details'}
-                onPress={() => {
-                  setOpenedTeamDetails(room.joinedTeam ? room.joinedTeam.records : null);
-                  showTeamDetailsModel();
-                }}
-              />
+            <View style={{ marginBottom: 15, alignItems: 'center' }}>
+              {type != 'joinedRoom' && (
+                <Btn
+                  txtStyle={{ fontStyle: 'bold', fontSize: 6, color: 'white' }}
+                  containerStyle={{
+                    padding: 3,
+                    width: 'auto',
+                    height: 13,
+                    backgroundColor: '#1da1f2',
+                    position: 'absolute',
+                  }}
+                  txt={'Team Details'}
+                  onPress={() => {
+                    setOpenedTeamDetails(room.joinedTeam ? room.joinedTeam.records : null);
+                    showTeamDetailsModel();
+                  }}
+                />
+              )}
+            </View>
+            {type == 'joinedRoom' && (
+              <Ready txt={'Ready'} setCheck={val => setGuestReady(room, val, socket)} />
             )}
+            {type != 'joinedRoom' &&
+              room.settings &&
+              room.settings.GuestReady == true && <Text style={{ fontSize: 30 }}>READY</Text>}
           </View>
         </View>
+
         <View
           style={{
             backgroundColor: '#edf1f7',
             flex: 1,
-
+            //backgroundColor: 'yellow',
             alignItems: 'center',
           }}
         >
@@ -239,6 +276,16 @@ class Room extends Component {
                 </View>
               </View>
             </View>
+            <Btn
+              txtStyle={{ fontStyle: 'bold', fontSize: 15, color: 'white' }}
+              containerStyle={{
+                width: `${60}%`,
+                alignItems: 'center',
+                backgroundColor: '#1da1f2',
+              }}
+              txt={'Set Match !'}
+              onPress={() => setRoomMatch(room, socket)}
+            />
           </View>
         </View>
       </View>
@@ -251,7 +298,10 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     width: `${70}%`,
     flex: 1,
-    padding: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });
 const mapStateToProps = ({ auth, socket, roomsReducer, teamsReducer, model }) => ({
@@ -278,6 +328,15 @@ const mapDispatchToProps = dispatch => ({
   },
   leaveRoom(room, socket) {
     dispatch(leaveRoom(room, socket));
+  },
+  setOwnerReady(room, val, socket) {
+    dispatch(setOwnerReady(room, val, socket));
+  },
+  setGuestReady(room, val, socket) {
+    dispatch(setGuestReady(room, val, socket));
+  },
+  setRoomMatch(room, socket) {
+    dispatch(setRoomMatch(room, socket));
   },
 });
 export default connect(mapStateToProps, mapDispatchToProps)(Room);

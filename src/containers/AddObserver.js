@@ -12,7 +12,7 @@ import {
   clearCheckedItems,
   loadCheckedItems,
   setRoomObserver,
-  hideModel,
+  hideObserverModel,
 } from '../actions';
 
 const _ = require('lodash');
@@ -45,7 +45,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(setRoomObserver(room, observerId, socket));
   },
   closeModel() {
-    dispatch(hideModel());
+    dispatch(hideObserverModel());
   },
 });
 

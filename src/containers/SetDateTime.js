@@ -11,7 +11,7 @@ export default (DateTimePickerTester = (props) => {
         flexDirection: 'row',
         // height: 20,
         alignItems: 'center',
-        marginBottom: 20,
+        // marginBottom: 20,
       }}
     >
       <View

@@ -4,6 +4,7 @@ export default function (state = { name: '', players: [] }, action) {
       return { ...state, name: action.teamName };
     case 'SET_TEAM_PLAYERS':
       return { ...state, players: action.teamPlayers };
+
     default:
       return state;
   }

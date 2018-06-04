@@ -16,8 +16,19 @@ function setResult(teamId, records) {
     .ref(`${'teams'}/${teamId}/${'records'}`)
     .set(records);
 }
+app.post('/setRoomMatch', (req, res) => {
+  const match = req.body;
+  const matchesRef = admin
+    .database()
+    .ref('Matches')
+    .push();
+  match.id = matchesRef.key;
+  console.log('id', match.id);
+  matchesRef.set(match);
+  res.json({ matchId: match.id });
+});
 app.post('/submitMatchObservation', (req, res) => {
-  /*
+  /*  
   * forevery player in two teams update his goals in db and increment gamesPlayed BY one
   * update team win,lose,draw,gamePlayed,numOfGoals *both teams*
   * delete from matchesToObserve

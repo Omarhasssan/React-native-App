@@ -10,6 +10,7 @@ import {
   onUserHasTeam,
   onUserHasMatchesToObserve,
   listenToUserChanges,
+  listenToTeamChanges,
 } from '../actions';
 import Tabs from '../components/Tabs';
 import Top from '../components/ProfileTop';
@@ -26,11 +27,8 @@ const mapDispatchToProps = dispatch => ({
   listenToUserChanges(userId) {
     dispatch(listenToUserChanges(userId));
   },
-  onTeamHasNewPlayer() {
-    dispatch(onTeamHasNewPlayer());
-  },
-  getTeams() {
-    dispatch(getTeams());
+  listenToTeamChanges(socket) {
+    dispatch(listenToTeamChanges(socket));
   },
   listenToRoomChanges(user, socket) {
     dispatch(listenToRoomChanges(user, socket));
@@ -47,14 +45,14 @@ class Profile extends Component {
       listenToRoomChanges,
       onUserHasTeam,
       onTeamHasNewPlayer,
-      getTeams,
       onUserHasMatchesToObserve,
       user,
       listenToUserChanges,
+      listenToTeamChanges,
     } = this.props;
     listenToRoomChanges(user, socket);
     listenToUserChanges(user.id);
-    onTeamHasNewPlayer();
+    listenToTeamChanges(socket);
   }
 
   render() {
