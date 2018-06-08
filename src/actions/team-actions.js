@@ -1,12 +1,11 @@
-import { DBHelpers } from '../helpers';
-import { updateUserTeam, updateUserRoleToCaptain } from './user-actions';
-import { sendJoiningTeamRequest } from '.';
 import firebase from '../config/firebase';
+import { sendJoiningTeamRequest, updateUserTeam, updateUserRoleToCaptain } from '.';
+import { teamsService, usersService } from '../Service';
 /*eslint-disable */
 
 // implement getTeams
 export const getTeams = () => dispatch => {
-  DBHelpers.getTeams().then(teams => {
+  teamsService.getTeams().then(teams => {
     dispatch({ type: 'TEAMS', teams });
   });
 };
@@ -34,7 +33,7 @@ export const getTeam = teamId => dispatch => {
 };
 
 export const onTeamHasNewPlayer = () => async dispatch => {
-  let teams = await DBHelpers.getTeams();
+  let teams = await teamsService.getTeams();
   let teamsLen = teams.length;
   let cnt = 0;
   let first = true;
@@ -51,7 +50,7 @@ export const onTeamHasNewPlayer = () => async dispatch => {
         .on('child_added', async playerId => {
           let updatedTeam = {};
           if (!first) {
-            const player = await DBHelpers.getUserById(playerId.toJSON());
+            const player = await usersService.getUserById(playerId.toJSON());
             dispatch({
               type: 'UPDATE_TEAM_PLAYERS',
               payload: { teamId: team.id, player: player },
@@ -83,7 +82,7 @@ export const setTeamMatch = (match, team, socket) => dispatch => {
   team.matches.push(match);
   //console.log('tmMatches', team.matches);
   socket.emit('teamHasMatch', { updatedMatches: team.matches, teamId: team.id });
-  DBHelpers.addMatchToTeam(team.id, match.id);
+  teamsService.addMatchToTeam(team.id, match.id);
 };
 
 export const listenToTeamChanges = socket => dispatch => {

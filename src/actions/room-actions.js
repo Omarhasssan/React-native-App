@@ -1,8 +1,12 @@
-import { DBHelpers, convertDateToYMDH } from '../helpers';
-import { updateUserRoom } from './user-actions';
-import { saveAndSendObservingRequest, removeObservingRequest } from './request-actions';
+import { convertDateToYMDH } from '../helpers';
+import {
+  saveAndSendObservingRequest,
+  setTeamMatch,
+  removeObservingRequest,
+  updateUserRoom,
+} from '.';
 import firebase from '../config/firebase';
-import { setTeamMatch } from './team-actions';
+import { usersService, roomsService, teamsService } from '../Service';
 
 export const createRoom = (user, Name, socket) => (dispatch) => {
   // save room to database admin of el room and room details
@@ -11,9 +15,9 @@ export const createRoom = (user, Name, socket) => (dispatch) => {
   room.teamOwner = user.teamId;
   room.name = Name;
   room.settings = { OwnerReady: false, GuestReady: false };
-  DBHelpers.addRoom(room);
+  roomsService.addRoom(room);
   // console.log('usr', user);
-  DBHelpers.getTeamById(user.teamId).then((team) => {
+  teamsService.getTeamById(user.teamId).then((team) => {
     const Room = { ...room, teamOwner: team };
     dispatch({
       type: 'CREATE_ROOM_BY_ROOM_ID',
@@ -28,13 +32,13 @@ export const createRoom = (user, Name, socket) => (dispatch) => {
   });
 };
 export const getRooms = () => (dispatch) => {
-  DBHelpers.getRooms().then((rooms) => {
+  roomsService.getRooms().then((rooms) => {
     dispatch({ type: 'ROOMS', rooms });
   });
 };
 
 export const updateRoomDB = (route, value) => {
-  DBHelpers.updateRoom(route, value);
+  roomsService.updateRoom(route, value);
 };
 export const setJoinedRoom = room => (dispatch) => {
   dispatch({
@@ -112,7 +116,7 @@ export const listenToRoomChanges = (user, socket) => (dispatch) => {
           // should return req status and roomId
           if (first) first = false;
           else {
-            const updatedRoom = await DBHelpers.getRoomById(room.id);
+            const updatedRoom = await roomsService.getRoomById(room.id);
             dispatch(updateRoom(updatedRoom, 'settings', updatedRoom.settings, socket));
             first = false;
           }
@@ -152,7 +156,7 @@ export const setRoomObserver = (room, observerId, socket) => (dispatch) => {
       dispatch(removeObservingRequest(room.id, room.settings.observer.info.id, socket));
     }
     dispatch(saveAndSendObservingRequest(room, observerId, socket));
-    DBHelpers.getUserById(observerId).then((user) => {
+    usersService.getUserById(observerId).then((user) => {
       dispatch(updateRoom(
         room,
         'settings',

@@ -1,10 +1,10 @@
-import { DBHelpers } from '../helpers';
+import { teamsService, usersService } from '../Service';
 /*eslint-disable */
 
 export const getJoinedTeam = socket => dispatch => {
   socket.on('userJoined', teamId => {
     console.log(teamId, 'joind room');
-    DBHelpers.getTeamById(teamId).then(team => dispatch({ type: 'JOINED_TEAM', team: team }));
+    teamsService.getTeamById(teamId).then(team => dispatch({ type: 'JOINED_TEAM', team: team }));
   });
 };
 export const addCheckedItem = key => dispatch => {
@@ -20,7 +20,9 @@ export const loadCheckedItems = checkedItems => dispatch => {
   dispatch({ type: 'LOAD_CHECKED_ITEMS', checkedItems: checkedItems });
 };
 export const setObserver = observerId => dispatch => {
-  DBHelpers.getUserById(observerId).then(observer => dispatch({ type: 'SET_OBSERVER', observer }));
+  usersService
+    .getUserById(observerId)
+    .then(observer => dispatch({ type: 'SET_OBSERVER', observer }));
 };
 
 export const setOpenedTeamDetails = teamRecords => dispatch => {

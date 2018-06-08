@@ -5,7 +5,7 @@ import { roomsService, teamsService } from '../Service';
 
 const _ = require('lodash');
 
-export const userService = {
+export const usersService = {
   saveUser,
   checkUserFound,
   findByName,

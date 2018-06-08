@@ -1,16 +1,16 @@
-import { DBHelpers } from '../helpers';
+import { usersService, teamsService, roomsService } from '../Service';
 import firebase from '../config/firebase';
 /*eslint-disable */
 
 export const updateUserRoleToCaptain = user => {
-  DBHelpers.updateUser(`users/${user.id}/role`, 'CAPTAIN');
+  usersService.updateUser(`users/${user.id}/role`, 'CAPTAIN');
   return {
     type: 'UPDATE_CURRENT_USER',
     payload: { type: 'role', value: 'CAPTAIN' },
   };
 };
 export const updateUserTeam = (userId, teamId) => dispatch => {
-  DBHelpers.updateUser(`users/${userId}/teamId`, teamId);
+  usersService.updateUser(`users/${userId}/teamId`, teamId);
 };
 export const onUserHasTeam = userId => dispatch => {
   let first = true;
@@ -26,7 +26,7 @@ export const onUserHasTeam = userId => dispatch => {
         let user = snap.toJSON();
         if (user.teamId && !done) {
           let updatedUser = {};
-          updatedUser.team = await DBHelpers.getTeamById(user.teamId);
+          updatedUser.team = await teamsService.getTeamById(user.teamId);
           done = true;
           dispatch({
             type: 'UPDATE_CURRENT_USER',
@@ -55,7 +55,7 @@ export const onUserHasMatchesToObserve = userId => dispatch => {
         let match = {};
         const data = snapshot.toJSON();
         if (userId == data.observerId) {
-          const room = await DBHelpers.getRoomById(data.roomId);
+          const room = await roomsService.getRoomById(data.roomId);
           match.firstTeam = room.teamOwner;
           if (room.joinedTeam) match.secondTeam = room.joinedTeam;
           if (room.settings.data) match.date = room.settings.date;
@@ -69,7 +69,7 @@ export const onUserHasMatchesToObserve = userId => dispatch => {
   });
 };
 export const updateUserRoom = (user, room) => dispatch => {
-  DBHelpers.updateUser(`users/${user.id}/roomId`, room.id);
+  usersService.updateUser(`users/${user.id}/roomId`, room.id);
   dispatch({
     type: 'UPDATE_CURRENT_USER',
     payload: { type: 'roomId', value: room.id },
@@ -81,7 +81,7 @@ export const updateUserRoom = (user, room) => dispatch => {
 };
 
 export const getPlayers = () => dispatch =>
-  DBHelpers.getUsers().then(users => {
+  usersService.getUsers().then(users => {
     dispatch({
       type: 'GET_USERS',
       users,

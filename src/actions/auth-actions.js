@@ -1,10 +1,11 @@
-import { DBHelpers } from '../helpers';
+import { usersService, teamsService, roomsService } from '../Service';
 import { AsyncStorage } from 'react-native';
 
 export const Register = user => (dispatch) => {
   dispatch({ type: 'SIGNUP_REQUEST' });
   const userObj = { ...user, records: { gamesPlayed: 0, goals: 0 } };
-  return DBHelpers.saveUser(userObj)
+  return usersService
+    .saveUser(userObj)
     .then((returnedUser) => {
       dispatch({
         type: 'SIGNUP_SUCCESS',
@@ -19,7 +20,8 @@ export const Register = user => (dispatch) => {
 
 export const Login = user => (dispatch) => {
   dispatch({ type: 'LOGIN_REQUEST' });
-  return DBHelpers.checkUserFound(user)
+  return usersService
+    .checkUserFound(user)
     .then((user) => {
       // MAKE A SOCKET ROOM FOR USER
       dispatch({
@@ -46,13 +48,13 @@ export const checkIfWeKnowThisUserBefore = () => (dispatch) => {
 
   AsyncStorage.getItem('@UserId').then((userId) => {
     if (userId != null) {
-      DBHelpers.getUserById(userId).then(async (user) => {
+      usersService.getUserById(userId).then(async (user) => {
         dispatch({
           type: 'CREATE_ROOM_BY_USER_ID',
           id: user.id,
         });
         if (user.teamId) {
-          const team = await DBHelpers.getTeamById(user.teamId);
+          const team = await teamsService.getTeamById(user.teamId);
           dispatch({
             type: 'CREATE_ROOM_BY_TEAM_ID',
             id: user.teamId,
@@ -64,7 +66,7 @@ export const checkIfWeKnowThisUserBefore = () => (dispatch) => {
         }
 
         if (user.roomId) {
-          const room = await DBHelpers.getRoomById(user.roomId);
+          const room = await roomsService.getRoomById(user.roomId);
           dispatch({
             type: 'CREATE_ROOM_BY_ROOM_ID',
             id: user.roomId,
