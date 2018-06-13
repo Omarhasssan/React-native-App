@@ -1,28 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Text, View, Image, StyleSheet, TouchableOpacity, Button } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 import {
-  hideModel,
   listenToRoomChanges,
-  onAcceptJoiningTeamRequest,
-  getTeams,
-  onTeamHasNewPlayer,
-  onUserHasTeam,
-  onUserHasMatchesToObserve,
   listenToUserChanges,
   listenToTeamChanges,
+  listenToNotifications,
 } from '../actions';
-import Tabs from '../components/Tabs';
 import Top from '../components/ProfileTop';
 import TabNavigator from './TabNavigator';
 import Invitations from './Invitations';
 import CreateOrJoinTeam from './CreateOrJoinTeam';
-import AddObserver from './AddObserver';
-import withModel from '../hocs/withModel';
 import MatchesToObserve from './MatchesToObserve';
 import ObserverWithModel from './ObserverWithModel';
-import TeamDetailsWithModel from './TeamDetailsWithModel';
-
 const mapDispatchToProps = dispatch => ({
   listenToUserChanges(userId) {
     dispatch(listenToUserChanges(userId));
@@ -33,45 +23,59 @@ const mapDispatchToProps = dispatch => ({
   listenToRoomChanges(user, socket) {
     dispatch(listenToRoomChanges(user, socket));
   },
+  listenToNotifications(socket) {
+    dispatch(listenToNotifications(socket));
+  },
 });
 class Profile extends Component {
   state = {
     activeTab: 'CreateOrJoinRoom',
   };
+  handleTabs() {
+    const { user, observingMatches, notifications } = this.props;
 
+    let defaultTabs = [
+      {
+        tabName: 'Team',
+        tabNotifications: notifications.team.total == 0 ? null : notifications.team.total,
+      },
+      {
+        tabName: 'Invitations',
+        tabNotifications:
+          notifications.invitations.total == 0 ? null : notifications.invitations.total,
+      },
+      {
+        tabName: 'Info',
+      },
+    ];
+    let captainTabs,
+      observerTabs = [];
+    if (user.role == 'CAPTAIN') captainTabs = [{ tabName: 'CreateOrJoinRoom' }];
+    if (observingMatches.length) {
+      observerTabs = [{ tabName: 'MatchesToObserve' }];
+    }
+    return { defaultTabs, captainTabs, observerTabs };
+  }
   componentDidMount() {
     const {
       socket,
       listenToRoomChanges,
-      onUserHasTeam,
-      onTeamHasNewPlayer,
-      onUserHasMatchesToObserve,
       user,
       listenToUserChanges,
       listenToTeamChanges,
+      listenToNotifications,
     } = this.props;
     listenToRoomChanges(user, socket);
     listenToUserChanges(user.id);
     listenToTeamChanges(socket);
+    listenToNotifications(socket);
   }
 
   render() {
     const { activeTab } = this.state;
-    const {
-      navigation,
-      user,
-      showTeamDetailsModel,
-      showObserverModel,
-      observingMatches,
-    } = this.props;
+    const { navigation, user, showObserverModel, observingMatches, notifications } = this.props;
+    const { defaultTabs, captainTabs, observerTabs } = this.handleTabs();
 
-    let defaultTabs = ['Team', 'Invitations', 'Info'];
-    let captainTabs,
-      observerTabs = [];
-    if (user.role == 'CAPTAIN') captainTabs = ['CreateOrJoinRoom'];
-    if (observingMatches.length) {
-      observerTabs = ['MatchesToObserve'];
-    }
     return (
       <View style={styles.container}>
         {showObserverModel && <ObserverWithModel />}
@@ -87,7 +91,9 @@ class Profile extends Component {
 
         <View style={{ flex: 1 }}>
           {(activeTab == 'Team' && <CreateOrJoinTeam navigation={navigation} />) ||
-            (activeTab == 'Invitations' && <Invitations />) ||
+            (activeTab == 'Invitations' && (
+              <Invitations notifications={notifications.invitations} />
+            )) ||
             (activeTab == 'Info' && <Text> {user.records.wins} </Text>) ||
             (activeTab == 'CreateOrJoinRoom' && <TabNavigator stackNavigation={navigation} />) ||
             (activeTab == 'MatchesToObserve' && (
@@ -105,11 +111,12 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStateToProps = ({ auth, socket, model, observingMatches }) => ({
+const mapStateToProps = ({ auth, socket, model, observingMatches, notifications }) => ({
   user: auth.user,
   socket,
   showObserverModel: model.showObserver,
   showTeamDetailsModel: model.showTeamDetails,
   observingMatches,
+  notifications,
 });
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);

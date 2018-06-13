@@ -37,18 +37,13 @@ function saveUser(user) {
 function findByName(name, tableName) {
   return new Promise((resolve, reject) =>
     firebase
-      .auth()
-      .signInAnonymously()
-      .then(() => {
-        firebase
-          .database()
-          .ref(tableName)
-          .on('value', snapshot => {
-            snapshot.forEach(data => {
-              if (data.toJSON().name == name) return resolve(data.toJSON());
-            });
-            return reject();
-          });
+      .database()
+      .ref(tableName)
+      .on('value', snapshot => {
+        snapshot.forEach(data => {
+          if (data.toJSON().name == name) return resolve(data.toJSON());
+        });
+        return reject();
       }),
   );
 }
@@ -69,7 +64,9 @@ function getUserById(userId) {
     firebase
       .database()
       .ref(`${'users'}/${userId}`)
-      .once('value', async snapshot => resolve(snapshot.toJSON())),
+      .once('value', async snapshot => {
+        resolve(snapshot.toJSON());
+      }),
   );
 }
 function updateUser(route, value) {

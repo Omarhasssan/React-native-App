@@ -1,6 +1,6 @@
 /*eslint-disable */
-import { updateUser, getTeamById, updateTeam } from '.';
 import { usersService, observingRequestsService, requestsService } from '../Service';
+import { sendObservingNotification } from '.';
 export const sendJoiningTeamRequest = (team, playersId, socket) => dispatch => {
   playersId.map(async playerId => {
     const DBRequest = {
@@ -39,7 +39,7 @@ export const saveAndSendObservingRequest = (room, observerId, socket) => dispatc
     status: 'PENDING',
   };
 
-  DBHelpers.addObservingRequest(DBRequest).then(reqId => {
+  observingRequestsService.addObservingRequest(DBRequest).then(reqId => {
     const Request = {
       id: reqId,
       status: 'PENDING',
@@ -48,6 +48,8 @@ export const saveAndSendObservingRequest = (room, observerId, socket) => dispatc
     };
     socket.emit('sendRequest', { userId: observerId, request: Request });
   });
+
+  dispatch(sendObservingNotification(observerId, 'observingNotification'));
 };
 export const getUserRequest = (socket, user) => dispatch => {
   //from database

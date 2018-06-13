@@ -1,10 +1,11 @@
- req('/setRoomMatch', {
+ req('/sendNotification', {
     method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-        firstTeam:'-LBMJfWR9q71vW0ExNCV',secondTeam:'-LBMJfWR9q71vW0ExNCV'
+      userId:'-L8U1vG1mWTIdJeV1TTt',
+      notificationType:'observingNotification'
     }),
   })

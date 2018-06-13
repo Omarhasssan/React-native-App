@@ -6,10 +6,10 @@ import { teamsService, usersService } from '../Service';
 
 export const roomsService = {
   addRoom,
-  updatedRoom,
   onRoomObserverStatusChanged,
   getRoomById,
   getRooms,
+  updateRoom,
 };
 
 function addRoom(room) {
@@ -54,7 +54,7 @@ function onRoomObserverStatusChanged() {
   });
 }
 async function getRoomDetails(room) {
-  const newroom = {};
+  let newroom = { settings: {} };
   newroom.teamOwner = await teamsService.getTeamById(room.teamOwner);
   newroom.name = room.name;
   newroom.id = room.id;
@@ -87,23 +87,23 @@ function getRoomById(roomId) {
       .ref(`${'Rooms'}/${roomId}`)
       .once('value', async snapshot => {
         const room = snapshot.toJSON();
-        const newroom = getRoomDetails(room);
+
+        const newroom = await getRoomDetails(room);
         resolve(newroom);
       });
   });
 }
 async function getRooms() {
-  let arr = [],
-    res;
+  let arr = [];
   return new Promise((resolve, reject) => {
     firebase
       .database()
       .ref('Rooms')
       .once('value', async snapshot => {
         const rooms = snapshot.toJSON();
+
         for (const indx in rooms) {
-          const newroom = {};
-          newroom = getRoomDetails(rooms[indx]);
+          const newroom = await getRoomDetails(rooms[indx]);
           arr.push(newroom);
         }
         resolve(arr);

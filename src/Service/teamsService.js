@@ -1,18 +1,19 @@
-import firebase from '../config/firebase';
 /*eslint-disable */
-
-var _ = require('lodash');
+import firebase from '../config/firebase';
 import { matchesService, usersService } from '../Service';
+
+const _ = require('lodash');
+
 export const teamsService = {
   getTeams,
   onTeamHasNewPlayer,
   addTeam,
   getTeamPlayers,
   updateTeamPlayers,
-  updatedTeam,
   getTeamMatches,
   addMatchToTeam,
   getTeamById,
+  updateTeam,
 };
 
 async function getTeams() {
@@ -23,7 +24,7 @@ async function getTeams() {
       .database()
       .ref('teams')
       .once('value', async snapshot => {
-        let teams = snapshot.toJSON();
+        const teams = snapshot.toJSON();
         for (indx in teams) {
           if (teams[indx].players) {
             for (i in teams[indx].players) {
@@ -38,8 +39,8 @@ async function getTeams() {
   });
 }
 async function onTeamHasNewPlayer() {
-  let teams = await getTeams();
-  let teamsLen = teams.length;
+  const teams = await getTeams();
+  const teamsLen = teams.length;
   let cnt = 0;
   let first = true;
   return new Promise((resolve, reject) => {
@@ -56,7 +57,7 @@ async function onTeamHasNewPlayer() {
           .database()
           .ref(`${'teams'}/${team.id}/${'players'}`)
           .on('child_added', async playerId => {
-            let updatedTeam = {};
+            const updatedTeam = {};
             if (!first) {
               console.log('player_chiled_added', playerId, 'teamName', team.name);
               updatedTeam.id = team.id;
@@ -78,16 +79,16 @@ function addTeam(team) {
   teamsRef.set(team);
 }
 function getTeamPlayers(teamId) {
-  let arr = [];
-  return new Promise((resolve, reject) => {
-    return firebase
+  const arr = [];
+  return new Promise((resolve, reject) =>
+    firebase
       .database()
       .ref(`${'teams'}/${teamId}/${'players'}`)
       .once('value', snapshot => {
         if (snapshot.toJSON() != null) return resolve(Object.values(snapshot.toJSON()));
         return resolve([]);
-      });
-  });
+      }),
+  );
 }
 function updateTeamPlayers(teamId, playerId) {
   return getTeamPlayers(teamId).then(teamPlayers => {
@@ -125,14 +126,14 @@ async function addMatchToTeam(teamId, matchId) {
     .set(matchId);
 }
 function getTeamById(teamId) {
-  const withoutMatches = arguments[1] == 'withoutTeamMatches' ? true : false;
+  const withoutMatches = arguments[1] == 'withoutTeamMatches';
   return new Promise((resolve, reject) => {
-    return firebase
+    firebase
       .database()
       .ref(`${'teams'}/${teamId}`)
       .once('value', async snapshot => {
         const team = snapshot.toJSON();
-        let teamObj = { players: {}, matches: [] };
+        const teamObj = { players: {}, matches: [] };
         teamObj.id = team.id;
         teamObj.name = team.name;
         teamObj.records = team.records;
@@ -141,12 +142,13 @@ function getTeamById(teamId) {
           teamObj.players[index] = await usersService.getUserById(team.players[index]);
         }
 
-        if (!withoutMatches)
+        if (!withoutMatches) {
           for (const index in team.matches) {
             const match = await matchesService.getMatchById(team.matches[index], teamId);
             teamObj.matches.push(match);
           }
-        return resolve(teamObj);
+        }
+        resolve(teamObj);
       });
   });
 }

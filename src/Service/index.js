@@ -5,3 +5,5 @@ export * from './matchesService';
 export * from './observingRequestsService';
 export * from './requestsService';
 export * from './teamRequestsService';
+export * from './observingMatchesService';
+export * from './notificationsService';

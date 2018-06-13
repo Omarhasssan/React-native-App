@@ -6,3 +6,5 @@ export * from './team-actions';
 export * from './room-actions';
 export * from './model-actions';
 export * from './observer-actions';
+export * from './notifications-actions';
+export * from './sendNotification-actions';

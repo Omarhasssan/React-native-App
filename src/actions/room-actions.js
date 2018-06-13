@@ -7,6 +7,7 @@ import {
 } from '.';
 import firebase from '../config/firebase';
 import { usersService, roomsService, teamsService } from '../Service';
+import { matchesService } from '../../functions/dist/server/Service/matchesService';
 
 export const createRoom = (user, Name, socket) => (dispatch) => {
   // save room to database admin of el room and room details
@@ -188,20 +189,10 @@ export const setRoomMatch = (room, socket) => (dispatch) => {
     location: room.settings.location,
     observer: room.settings.observer.info.id,
   };
-
-  fetch('https://us-central1-squad-builder.cloudfunctions.net/req/setRoomMatch', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(matchDB),
-  }).then((res) => {
-    res.json().then((data) => {
-      homeTeamMatch.id = data.matchId;
-      awayTeamMatch.id = data.matchId;
-      dispatch(setTeamMatch(homeTeamMatch, room.teamOwner, socket));
-      //  dispatch(setTeamMatch(awayTeamMatch, room.joinedTeam, socket));
-    });
+  matchesService.addMatch(matchDB).then((matchId) => {
+    homeTeamMatch.id = matchId;
+    awayTeamMatch.id = matchId;
+    dispatch(setTeamMatch(homeTeamMatch, room.teamOwner, socket));
+    dispatch(setTeamMatch(awayTeamMatch, room.joinedTeam, socket));
   });
 };

@@ -5,8 +5,7 @@ var _ = require('lodash');
 import { teamsService, usersService, roomsService } from '../Service';
 export const requestsService = {
   getUserRequest,
-  getObservingRequest,
-  addObservingRequest,
+  updateRequest,
 };
 
 function getUserRequest(userId) {

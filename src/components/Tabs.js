@@ -11,15 +11,22 @@ export default class Tabs extends Component {
         {tabs.map((tab, i) => (
           <TouchableOpacity
             style={
-              tab == activeTab
+              tab.tabName == activeTab
                 ? [styles.tab, styles.activeTab]
                 : i == tabs.length - 1
                   ? [styles.tab, { borderRightWidth: 0 }]
                   : styles.tab
             }
-            onPress={() => setActive(tab)}
+            onPress={() => setActive(tab.tabName)}
           >
-            <Text style={{ fontSize: 8 }}>{tab}</Text>
+            <Text style={{ fontSize: 8 }}>{tab.tabName}</Text>
+            {tab.tabNotifications && (
+              <View style={styles.notificationCnt}>
+                <Text style={{ fontSize: 8, color: 'white' }}>
+                  {tab.tabNotifications && tab.tabNotifications}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         ))}
       </View>
@@ -41,6 +48,17 @@ const styles = StyleSheet.create({
   activeTab: {
     backgroundColor: '#1da1f2',
     color: 'white',
+  },
+  notificationCnt: {
+    backgroundColor: 'red',
+    borderRadius: 7,
+    position: 'absolute',
+    width: 15,
+    height: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    top: -5,
+    right: 0,
   },
   tab: {
     backgroundColor: 'white',

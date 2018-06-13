@@ -10,3 +10,21 @@ export const convertDateToYMDH = (date) => {
   dateObj.time.minutes = parseInt(dateSplited[2].split(' ')[1].split(':')[1]);
   return dateObj;
 };
+export const handleNotificationRoute = (notificationType, userId) => {
+  let route = `Notifications/${userId}`;
+
+  switch (notificationType) {
+    case 'observingNotification':
+      route += '/invitations/observing';
+      break;
+    case 'joiningTeamNotification':
+      route += '/invitations/joiningTeam';
+      break;
+    case 'nextMatchesNotification':
+      route += '/team/nextMatches';
+      break;
+    default:
+      break;
+  }
+  return route;
+};

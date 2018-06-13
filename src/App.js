@@ -23,14 +23,14 @@ const middleware = createReactNavigationReduxMiddleware('root', state => state.n
 const addListener = createReduxBoundAddListener('root');
 class App extends Component {
   state = {
-    dataLoaded: true,
+    dataLoaded: false,
   };
 
   componentDidMount() {
     //  check if user is registered before load his data
     this.props.checkIfWeKnowThisUserBefore();
-    // load Rooms
     this.props.getRooms();
+    this.props.getTeams();
   }
   componentWillReceiveProps(nextProps) {
     nextProps.teams && nextProps.rooms ? this.setState({ dataLoaded: true }) : null;
@@ -68,7 +68,7 @@ const mapDispatchToProps = dispatch => ({
   checkIfWeKnowThisUserBefore() {
     dispatch(checkIfWeKnowThisUserBefore());
   },
-  loadTeams() {
+  getTeams() {
     dispatch(getTeams());
   },
   getRooms() {

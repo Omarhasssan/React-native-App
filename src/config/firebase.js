@@ -9,6 +9,5 @@ const config = {
   storageBucket: 'squad-builder.appspot.com',
   messagingSenderId: '411287222096',
 };
-
 firebase.initializeApp(config);
 export default firebase;

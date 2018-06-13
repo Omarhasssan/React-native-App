@@ -4,7 +4,15 @@ var _ = require('lodash');
 import { teamsService, usersService } from '../Service';
 export const matchesService = {
   getMatchById,
+  addMatch,
 };
+function addMatch(match) {
+  const matchRef = firebase
+    .database()
+    .ref('Matches')
+    .push();
+  matchRef.set(match).then(() => Promise.resolve(matchRef.key));
+}
 function getMatchById(matchId, teamId) {
   return new Promise((resolve, reject) => {
     firebase

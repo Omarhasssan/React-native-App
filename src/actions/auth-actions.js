@@ -1,4 +1,4 @@
-import { usersService, teamsService, roomsService } from '../Service';
+import { usersService, teamsService, roomsService, notificationsService } from '../Service';
 import { AsyncStorage } from 'react-native';
 
 export const Register = user => (dispatch) => {
@@ -18,6 +18,44 @@ export const Register = user => (dispatch) => {
     });
 };
 
+export const getUserData = user => async (dispatch) => {
+  if (user.teamId) {
+    const team = await teamsService.getTeamById(user.teamId);
+    dispatch({
+      type: 'CREATE_ROOM_BY_TEAM_ID',
+      id: user.teamId,
+    });
+    console.log('CREATE_ROOM_BY_TEAM_ID');
+
+    dispatch({
+      type: 'SET_CURNT_TEAM',
+      team,
+    });
+    console.log('SET_CURNT_TEAM');
+  }
+
+  if (user.roomId) {
+    const room = await roomsService.getRoomById(user.roomId);
+    dispatch({
+      type: 'CREATE_ROOM_BY_ROOM_ID',
+      id: user.roomId,
+    });
+    dispatch({
+      type: 'SET_CREATED_ROOM',
+      room,
+    });
+  }
+
+  notificationsService.getUserNotifications(user.id).then((notifications) => {
+    if (notifications) {
+      dispatch({
+        type: 'LOAD_USER_NOTIFICATIONS',
+        notifications: notifications.val(),
+      });
+    }
+  });
+};
+
 export const Login = user => (dispatch) => {
   dispatch({ type: 'LOGIN_REQUEST' });
   return usersService
@@ -28,11 +66,11 @@ export const Login = user => (dispatch) => {
         type: 'CREATE_ROOM_BY_USER_ID',
         id: user.id,
       });
+      dispatch(getUserData(user));
       dispatch({
         type: 'LOGIN_SUCCESS',
         user,
       });
-
       // should save to async storage ?
       AsyncStorage.setItem('@UserId', user.id).then(() => console.log('user saved'));
     })
@@ -45,7 +83,6 @@ export const clearError = () => (dispatch) => {
 };
 export const checkIfWeKnowThisUserBefore = () => (dispatch) => {
   // AsyncStorage.removeItem('@UserId');
-
   AsyncStorage.getItem('@UserId').then((userId) => {
     if (userId != null) {
       usersService.getUserById(userId).then(async (user) => {
@@ -53,29 +90,8 @@ export const checkIfWeKnowThisUserBefore = () => (dispatch) => {
           type: 'CREATE_ROOM_BY_USER_ID',
           id: user.id,
         });
-        if (user.teamId) {
-          const team = await teamsService.getTeamById(user.teamId);
-          dispatch({
-            type: 'CREATE_ROOM_BY_TEAM_ID',
-            id: user.teamId,
-          });
-          dispatch({
-            type: 'SET_CURNT_TEAM',
-            team,
-          });
-        }
-
-        if (user.roomId) {
-          const room = await roomsService.getRoomById(user.roomId);
-          dispatch({
-            type: 'CREATE_ROOM_BY_ROOM_ID',
-            id: user.roomId,
-          });
-          dispatch({
-            type: 'SET_CREATED_ROOM',
-            room,
-          });
-        }
+        console.log('CREATE_ROOM_BY_USER_ID');
+        dispatch(getUserData(user));
         dispatch({
           type: 'LOGIN_SUCCESS',
           user,

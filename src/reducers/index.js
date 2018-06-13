@@ -11,6 +11,7 @@ import model from './Model-reducer';
 import checkedItems from './checkedItems-reducer';
 import observingMatches from './observingMatches-reducer';
 import teamRecords from './teamDetails-reducer';
+import notifications from './notifications-reducer';
 
 const rootReducer = combineReducers({
   auth,
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   checkedItems,
   observingMatches,
   teamRecords,
+  notifications,
 });
 
 export default rootReducer;

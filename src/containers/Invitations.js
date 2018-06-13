@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Text, View, Image, StyleSheet, ScrollView, FlatList } from 'react-native';
-import { getUserRequest, acceptRequest } from '../actions';
+import { getUserRequest, acceptRequest, removeObservingNotifications } from '../actions';
 import Invitation from '../components/Invitation';
 import Btn from '../components/Btn';
 import List from '../components/List';
@@ -16,23 +16,35 @@ class Invitations extends Component {
   }
 
   render() {
-    const { user, userInvitations, onAccept, socket } = this.props;
+    const {
+      user,
+      userInvitations,
+      onAccept,
+      notifications,
+      removeObservingNotifications,
+    } = this.props;
     const { observingTab, joiningTeamsTab } = this.state;
     return (
       <View>
         <Btn
           renderAfterIcon={
-            <Image
-              style={{ width: 20, height: 20 }}
-              source={
-                (observingTab && require('../imges/uparrow.png')) ||
-                require('../imges/downarrow.png')
-              }
-            />
+            <View style={{ flexDirection: 'row' }}>
+              <Text>{notifications.observing}</Text>
+              <Image
+                style={{ width: 20, height: 20 }}
+                source={
+                  (observingTab && require('../imges/uparrow.png')) ||
+                  require('../imges/downarrow.png')
+                }
+              />
+            </View>
           }
           txt="Observing"
           containerStyle={[{ marginTop: 5, marginBottom: 5 }, styles.tabContainer]}
-          onPress={() => this.setState({ observingTab: !observingTab })}
+          onPress={() => {
+            removeObservingNotifications(user.id);
+            this.setState({ observingTab: !observingTab });
+          }}
         />
         {observingTab && (
           <List
@@ -50,13 +62,16 @@ class Invitations extends Component {
 
         <Btn
           renderAfterIcon={
-            <Image
-              style={{ width: 20, height: 20 }}
-              source={
-                (joiningTeamsTab && require('../imges/uparrow.png')) ||
-                require('../imges/downarrow.png')
-              }
-            />
+            <View style={{ flexDirection: 'row' }}>
+              <Text>{notifications.joiningTeam}</Text>
+              <Image
+                style={{ width: 20, height: 20 }}
+                source={
+                  (observingTab && require('../imges/uparrow.png')) ||
+                  require('../imges/downarrow.png')
+                }
+              />
+            </View>
           }
           txt="joiningTeams"
           containerStyle={styles.tabContainer}
@@ -88,6 +103,9 @@ const mapDispatchToProps = dispatch => ({
   },
   onAccept(inv) {
     dispatch(acceptRequest(inv));
+  },
+  removeObservingNotifications(userId) {
+    dispatch(removeObservingNotifications(userId));
   },
 });
 const styles = StyleSheet.create({
