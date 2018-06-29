@@ -1,7 +1,7 @@
 import { usersService, teamsService, roomsService } from '../Service';
 import firebase from '../config/firebase';
 /*eslint-disable */
-
+let singleton = { onUserHasTeam: null };
 export const updateUserRoleToCaptain = user => {
   usersService.updateUser(`users/${user.id}/role`, 'CAPTAIN');
   return {
@@ -12,38 +12,33 @@ export const updateUserRoleToCaptain = user => {
 export const updateUserTeam = (userId, teamId) => dispatch => {
   usersService.updateUser(`users/${userId}/teamId`, teamId);
 };
-export const onUserHasTeam = userId => dispatch => {
-  let first = true;
-  let done = false;
-
-  firebase
-    .database()
-    .ref(`${'users'}/${userId}`)
-    .on('value', async snap => {
-      if (first) {
-        first = false;
-      } else {
-        let user = snap.toJSON();
-        if (user.teamId && !done) {
-          let updatedUser = {};
-          updatedUser.team = await teamsService.getTeamById(user.teamId);
-          done = true;
+export const onUserHasTeam = userId => (dispatch, getState) => {
+  const userTeam = getState().teamsReducer.curntTeam;
+  if (!singleton.onUserHasTeam) {
+    singleton.onUserHasTeam = true;
+    firebase
+      .database()
+      .ref(`${'users'}/${userId}/${'teamId'}`)
+      .on('value', async snap => {
+        if (!userTeam.id) {
+          let teamId = snap.val();
+          const team = await teamsService.getTeamById(teamId);
           dispatch({
             type: 'UPDATE_CURRENT_USER',
-            payload: { type: 'teamId', value: user.team.id },
+            payload: { type: 'teamId', value: teamId },
           });
 
           dispatch({
             type: 'SET_CURNT_TEAM',
-            team: user.team,
+            team: team,
           });
           dispatch({
             type: 'CREATE_ROOM_BY_TEAM_ID',
-            id: user.team.id,
+            id: teamId,
           });
         }
-      }
-    });
+      });
+  }
 };
 export const onUserHasMatchesToObserve = userId => dispatch => {
   return new Promise((resolve, reject) => {

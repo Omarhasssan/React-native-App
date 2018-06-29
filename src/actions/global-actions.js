@@ -1,12 +1,7 @@
 import { teamsService, usersService } from '../Service';
 /*eslint-disable */
 
-export const getJoinedTeam = socket => dispatch => {
-  socket.on('userJoined', teamId => {
-    console.log(teamId, 'joind room');
-    teamsService.getTeamById(teamId).then(team => dispatch({ type: 'JOINED_TEAM', team: team }));
-  });
-};
+export const getJoinedTeam = () => dispatch => {};
 export const addCheckedItem = key => dispatch => {
   dispatch({ type: 'ADD_CHECKED_ITEM', key: key });
 };

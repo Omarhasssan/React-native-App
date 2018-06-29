@@ -14,24 +14,20 @@ export const usersService = {
   onUserHasMatchesToObserve,
   onUserHasTeam,
   getUsers,
+  getUserNotificationToken,
 };
 
 function saveUser(user) {
   return validateSignUpForm(user)
-    .then(() =>
-      firebase
-        .auth()
-        .signInAnonymously()
-        .then(() => {
-          const userRef = firebase
-            .database()
-            .ref('users')
-            .push();
-          user.id = userRef.key;
-          userRef.set(user);
-          return Promise.resolve(user);
-        }),
-    )
+    .then(() => {
+      const userRef = firebase
+        .database()
+        .ref('users')
+        .push();
+      user.id = userRef.key;
+      userRef.set(user);
+      return Promise.resolve(user);
+    })
     .catch(errMsg => Promise.reject(errMsg));
 }
 function findByName(name, tableName) {
@@ -40,6 +36,7 @@ function findByName(name, tableName) {
       .database()
       .ref(tableName)
       .on('value', snapshot => {
+
         snapshot.forEach(data => {
           if (data.toJSON().name == name) return resolve(data.toJSON());
         });
@@ -60,6 +57,8 @@ function checkUserFound(user) {
 }
 
 function getUserById(userId) {
+  const withoutMatches = arguments[1] == 'withoutTeamMatches';
+
   return new Promise((resolve, reject) =>
     firebase
       .database()
@@ -74,6 +73,12 @@ function updateUser(route, value) {
     .database()
     .ref(route)
     .set(value);
+}
+function getUserNotificationToken(userId) {
+  return firebase
+    .database()
+    .ref(`users/${userId}/notificationToken`)
+    .once('value');
 }
 function onUserHasMatchesToObserve(userId) {
   return new Promise((resolve, reject) =>

@@ -2,26 +2,23 @@ import React, { Component } from 'react';
 import { Text, View, Image } from 'react-native';
 import { connect } from 'react-redux';
 
-import withCheckUserHaveTeam from '../hocs/withCheckUserHaveTeam';
-import { createTeamWithSendingRequests, getTeams } from '../actions';
+import { createTeamWithSendingRequests } from '../actions';
 import Btn from '../components/Btn';
 
 class CreateOrJoinTeam extends Component {
   componentWillReceiveProps(nextProps) {
     // if team_players and team_name then disptch save team
-    console.log('rccccccc');
     const {
       createTeamWithSendingRequests,
       teamPlayers,
       teamName,
-      socket,
       user,
       navigation,
       team,
     } = nextProps;
     if (this.props.teamName !== nextProps.teamName) {
       if (teamPlayers && teamName) {
-        createTeamWithSendingRequests(user, teamName, teamPlayers, socket);
+        createTeamWithSendingRequests(user, teamName, teamPlayers);
         navigation.navigate('Profile');
       }
     }
@@ -49,14 +46,18 @@ class CreateOrJoinTeam extends Component {
             onPress={() => navigation.navigate('CreateTeamStepOne')}
             containerStyle={{ alignItems: 'center' }}
             txtStyle={{ color: 'gray', marginTop: 3 }}
-            renderBeforeIcon={<Image source={require('../imges/create.png')} />}
+            renderBeforeIcon={
+              <Image style={{ width: 60, height: 60 }} source={require('../imges/create.png')} />
+            }
           />
           <Btn
             txt="Join Team"
             onPress={() => navigation.navigate('JoinTeam')}
             containerStyle={{ alignItems: 'center' }}
             txtStyle={{ color: 'gray', marginTop: 3 }}
-            renderBeforeIcon={<Image source={require('../imges/join.png')} />}
+            renderBeforeIcon={
+              <Image style={{ width: 60, height: 60 }} source={require('../imges/join.png')} />
+            }
           />
         </View>
       </View>
@@ -64,17 +65,13 @@ class CreateOrJoinTeam extends Component {
   }
 }
 const mapDispatchToProps = dispatch => ({
-  createTeamWithSendingRequests(user, teamName, teamPlayers, socket) {
-    dispatch(createTeamWithSendingRequests(user, teamName, teamPlayers, socket));
+  createTeamWithSendingRequests(user, teamName, teamPlayers) {
+    dispatch(createTeamWithSendingRequests(user, teamName, teamPlayers));
   },
 });
-const mapStateToProps = ({
-  auth, team, teamsReducer, socket,
-}) => ({
+const mapStateToProps = ({ auth, team }) => ({
   user: auth.user,
   teamPlayers: team.players,
   teamName: team.name,
-  team: teamsReducer.curntTeam,
-  socket,
 });
-export default connect(mapStateToProps, mapDispatchToProps)(withCheckUserHaveTeam(CreateOrJoinTeam));
+export default connect(mapStateToProps, mapDispatchToProps)(CreateOrJoinTeam);

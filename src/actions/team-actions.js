@@ -9,24 +9,22 @@ export const getTeams = () => dispatch => {
     dispatch({ type: 'TEAMS', teams });
   });
 };
-export const createTeamWithSendingRequests = (user, teamName, playersId, socket) => dispatch => {
-  let team = {
+export const createTeamWithSendingRequests = (user, teamName, playersId) => async dispatch => {
+  const team = {
     name: teamName,
     records: { wins: 0, losses: 0, draws: 0, gamesPlayed: 0, goals: 0 },
+    ownerId: user.id,
   };
-  DBHelpers.addTeam(team);
+
+  const teamId = await teamsService.addTeam(team);
+  team.id = teamId;
   dispatch({
     type: 'ADD_TEAM',
     team,
   });
-  dispatch({
-    type: 'CREATE_ROOM_BY_TEAM_ID',
-    id: team.id,
-  });
-
   dispatch(updateUserTeam(user.id, team.id));
   dispatch(updateUserRoleToCaptain(user));
-  dispatch(sendJoiningTeamRequest(team, playersId, socket));
+  dispatch(sendJoiningTeamRequest(team, playersId));
 };
 export const getTeam = teamId => dispatch => {
   dispatch({ type: 'GET_TEAM', teamId });
@@ -67,25 +65,18 @@ export const setTeamPlayers = teamPlayers => dispatch => {
   dispatch({ type: 'SET_TEAM_PLAYERS', teamPlayers });
 };
 
-export const onTeamHasMatch = socket => dispatch => {
+export const onTeamHasMatch = () => dispatch => {
   console.log('in onTeamHasMatch');
-  socket.on('teamHasMatch', data => {
-    console.log('in socket , team has match');
-    dispatch({
-      type: 'SET_TEAM_MATCHES',
-      payload: { teamId: data.teamId, updatedMatches: data.updatedMatches },
-    });
-  });
 };
 
-export const setTeamMatch = (match, team, socket) => dispatch => {
+export const setTeamMatch = (match, team) => dispatch => {
   team.matches.push(match);
   //console.log('tmMatches', team.matches);
-  socket.emit('teamHasMatch', { updatedMatches: team.matches, teamId: team.id });
+  //dispatch(notifyTeamPlayersWithNextMatch())
   teamsService.addMatchToTeam(team.id, match.id);
 };
 
-export const listenToTeamChanges = socket => dispatch => {
+export const listenToTeamChanges = () => dispatch => {
   dispatch(onTeamHasNewPlayer());
-  dispatch(onTeamHasMatch(socket));
+  dispatch(onTeamHasMatch());
 };

@@ -1,6 +1,12 @@
 module.exports = {
-  extends: 'airbnb',
-  rules: {
-    'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
   },
-};
+  "ecmaFeatures": {
+    "modules": true,
+    "jsx": true
+  }
+}

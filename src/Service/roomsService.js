@@ -34,17 +34,14 @@ function onRoomObserverStatusChanged() {
       .database()
       .ref('Rooms')
       .on('child_added', room => {
-        console.log('room added');
         room = room.toJSON();
         firebase
           .database()
           .ref(`${'Rooms'}/${room.id}/${'settings'}/${'observer'}/${'status'}`)
           .on('value', async status => {
-            console.log('roomObserver status changed');
             // should return req status and roomId
             if (first) first = false;
             else {
-              console.log('not first');
               const updatedRoom = await getRoomById(room.id);
               resolve(updatedRoom);
               first = false;
