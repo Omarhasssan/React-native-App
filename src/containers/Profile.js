@@ -13,23 +13,26 @@ import Invitations from './Invitations';
 import CreateOrJoinTeam from './CreateOrJoinTeam';
 import MatchesToObserve from './MatchesToObserve';
 import ObserverWithModel from './ObserverWithModel';
+import withCheckUserHaveTeam from '../hocs/withCheckUserHaveTeam';
+import TeamTab from './TeamTab';
 const mapDispatchToProps = dispatch => ({
   listenToUserChanges(userId) {
     dispatch(listenToUserChanges(userId));
   },
-  listenToTeamChanges(socket) {
-    dispatch(listenToTeamChanges(socket));
+  listenToTeamChanges() {
+    dispatch(listenToTeamChanges());
   },
-  listenToRoomChanges(user, socket) {
-    dispatch(listenToRoomChanges(user, socket));
+  listenToRoomChanges(user) {
+    dispatch(listenToRoomChanges(user));
   },
-  listenToNotifications(socket) {
-    dispatch(listenToNotifications(socket));
+  listenToNotifications() {
+    dispatch(listenToNotifications());
   },
 });
 class Profile extends Component {
   state = {
-    activeTab: 'CreateOrJoinRoom',
+    activeTab:
+      this.props.activeTab || (this.props.role == 'CAPTAIN' && 'CreateOrJoinRoom') || 'Team',
   };
   handleTabs() {
     const { user, observingMatches, notifications } = this.props;
@@ -48,32 +51,43 @@ class Profile extends Component {
         tabName: 'Info',
       },
     ];
-    let captainTabs,
-      observerTabs = [];
+    let captainTabs = [];
+    let observerTabs = [];
     if (user.role == 'CAPTAIN') captainTabs = [{ tabName: 'CreateOrJoinRoom' }];
     if (observingMatches.length) {
       observerTabs = [{ tabName: 'MatchesToObserve' }];
     }
     return { defaultTabs, captainTabs, observerTabs };
   }
+
   componentDidMount() {
     const {
-      socket,
       listenToRoomChanges,
       user,
       listenToUserChanges,
       listenToTeamChanges,
       listenToNotifications,
     } = this.props;
-    listenToRoomChanges(user, socket);
+    listenToRoomChanges(user);
     listenToUserChanges(user.id);
-    listenToTeamChanges(socket);
-    listenToNotifications(socket);
+    listenToTeamChanges();
+    listenToNotifications();
+  }
+  componentWillReceiveProps(nextProps) {
+    const { activeTab } = nextProps;
+    if (activeTab != this.props.activeTab) this.setState({ activeTab: activeTab });
   }
 
   render() {
     const { activeTab } = this.state;
-    const { navigation, user, showObserverModel, observingMatches, notifications } = this.props;
+    const {
+      navigation,
+      team,
+      user,
+      showObserverModel,
+      observingMatches,
+      notifications,
+    } = this.props;
     const { defaultTabs, captainTabs, observerTabs } = this.handleTabs();
 
     return (
@@ -90,7 +104,7 @@ class Profile extends Component {
         />
 
         <View style={{ flex: 1 }}>
-          {(activeTab == 'Team' && <CreateOrJoinTeam navigation={navigation} />) ||
+          {(activeTab == 'Team' && <TeamTab navigation={navigation} />) ||
             (activeTab == 'Invitations' && (
               <Invitations notifications={notifications.invitations} />
             )) ||
@@ -111,12 +125,18 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStateToProps = ({ auth, socket, model, observingMatches, notifications }) => ({
+const mapStateToProps = ({
+  auth,
+  model,
+  observingMatches,
+  notifications,
+  notificationHandler,
+}) => ({
   user: auth.user,
-  socket,
   showObserverModel: model.showObserver,
   showTeamDetailsModel: model.showTeamDetails,
   observingMatches,
   notifications,
+  activeTab: notificationHandler.screenProps.activeTab,
 });
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);

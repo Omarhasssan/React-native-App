@@ -17,13 +17,10 @@ import {
 
 const _ = require('lodash');
 
-const mapStateToProps = ({
-  players, checkedItems, roomsReducer, socket,
-}) => ({
+const mapStateToProps = ({ players, checkedItems, roomsReducer }) => ({
   players,
   checkedItems,
   room: roomsReducer.createdRoom,
-  socket,
 });
 const mapDispatchToProps = dispatch => ({
   onGetPlayers() {
@@ -41,8 +38,8 @@ const mapDispatchToProps = dispatch => ({
   clearCheckedItems() {
     dispatch(clearCheckedItems());
   },
-  setObserver(room, observerId, socket) {
-    dispatch(setRoomObserver(room, observerId, socket));
+  setObserver(room, observerId) {
+    dispatch(setRoomObserver(room, observerId));
   },
   closeModel() {
     dispatch(hideObserverModel());
@@ -53,13 +50,11 @@ export default connect(mapStateToProps, mapDispatchToProps)(withSearchContainer(
   ({ onGetPlayers }) => onGetPlayers(),
   ({ players }) => players,
   null,
-  (observerId, {
-    room, setObserver, socket, closeModel,
-  }) => {
+  (observerId, { room, setObserver, closeModel }) => {
     if (Object.keys(observerId).length > 0) {
-      setObserver(room, ...Object.keys(observerId), socket);
+      setObserver(room, ...Object.keys(observerId));
       closeModel();
-    } else setObserver(room, null, socket);
+    } else setObserver(room, null);
   },
   ({ room, loadCheckedItems }) =>
     (_.has(room, 'settings') && room.settings.observer && room.settings.observer.info

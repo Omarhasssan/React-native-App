@@ -8,3 +8,4 @@ export * from './model-actions';
 export * from './observer-actions';
 export * from './notifications-actions';
 export * from './sendNotification-actions';
+export * from './notificationHandler-actions';

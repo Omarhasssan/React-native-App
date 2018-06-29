@@ -108,6 +108,7 @@ export default function (state = { teams: [], curntTeam: {} }, action) {
             : state.curntTeam,
       };
     case 'SET_CURNT_TEAM':
+      console.log('SET_CURNT_TEAM');
       return { ...state, curntTeam: action.team };
     default:
       return state;

@@ -1,0 +1,6 @@
+addUserToTeam(
+    {
+        before: {playerId:'-LEzoSiGsv0TXlSDFxvI',teamId:'-LFkhhYGNkcCnJDhpIgP',status:'pending'},
+        after: {playerId:'-LEzoSiGsv0TXlSDFxvI',teamId:'-LFkhhYGNkcCnJDhpIgP',status:'ac'}
+    }
+)

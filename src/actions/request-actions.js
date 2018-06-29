@@ -1,7 +1,16 @@
 /*eslint-disable */
-import { usersService, observingRequestsService, requestsService } from '../Service';
+import {
+  usersService,
+  observingRequestsService,
+  requestsService,
+  teamRequestsService,
+} from '../Service';
 import { sendObservingNotification } from '.';
-export const sendJoiningTeamRequest = (team, playersId, socket) => dispatch => {
+import {
+  sendNormalJoiningTeamNotification,
+  sendOfflineJoiningTeamNotification,
+} from './sendNotification-actions';
+export const sendJoiningTeamRequest = (team, playersId) => dispatch => {
   playersId.map(async playerId => {
     const DBRequest = {
       teamId: team.id,
@@ -9,7 +18,7 @@ export const sendJoiningTeamRequest = (team, playersId, socket) => dispatch => {
       status: 'PENDING',
     };
 
-    DBHelpers.addTeamRequest(DBRequest).then(async reqId => {
+    teamRequestsService.addTeamRequest(DBRequest).then(async reqId => {
       const req = {
         id: reqId,
         type: 'joinTeam',
@@ -17,22 +26,19 @@ export const sendJoiningTeamRequest = (team, playersId, socket) => dispatch => {
         player: await usersService.getUserById(playerId),
         status: 'PENDING',
       };
-      dispatch(socket.emit('sendRequest', { userId: playerId, request: req }));
     });
+    dispatch(sendNormalJoiningTeamNotification(playerId));
   });
+  // dispatch(sendOfflineJoiningTeamNotification(playersId))
 };
-export const removeObservingRequest = (roomId, observerId, socket) => dispatch => {
-  // get requestId given roomId and observerId then remove it from db and send reqId with socket to update userReducer
+export const removeObservingRequest = (roomId, observerId) => dispatch => {
   observingRequestsService.getObservingRequest(roomId, observerId).then(req => {
     observingRequestsService.removeObservingRequest(req.id);
-    socket.emit('removeRequest', {
-      userId: observerId,
-      request: { id: req.id, type: 'observing' },
-    });
+   
   });
 };
 
-export const saveAndSendObservingRequest = (room, observerId, socket) => dispatch => {
+export const saveAndSendObservingRequest = (room, observerId) => dispatch => {
   const DBRequest = {
     playerId: observerId,
     roomId: room.id,
@@ -46,12 +52,12 @@ export const saveAndSendObservingRequest = (room, observerId, socket) => dispatc
       room: room,
       playerId: observerId,
     };
-    socket.emit('sendRequest', { userId: observerId, request: Request });
   });
 
-  dispatch(sendObservingNotification(observerId, 'observingNotification'));
+  dispatch(sendObservingNotification(observerId));
 };
-export const getUserRequest = (socket, user) => dispatch => {
+export const getUserRequest = ( user) => dispatch => {
+  console.log('=> getUserRequests');
   //from database
   requestsService.getUserRequest(user.id).then(userRequests => {
     dispatch({
@@ -61,31 +67,12 @@ export const getUserRequest = (socket, user) => dispatch => {
   });
 
   // realtime
-  socket.on('removeRequest', request => {
-    if (request.type == 'observing') {
-      dispatch({
-        type: 'REMOVE_OBSERVING_REQUEST',
-        requestId: request.id,
-      });
-    }
-  });
-  socket.on('requests', request => {
-    if (request.type == 'joinTeam')
-      dispatch({
-        type: 'ADD_TEAM_REQUEST',
-        request: request,
-      });
-    else
-      dispatch({
-        type: 'ADD_OBSERVING_REQUEST',
-        request: request,
-      });
-  });
+  
+  
 };
 
-export const acceptRequest = (request, socket) => dispatch => {
-  //DBHelpers.updateRequest(request.id, request.type);
-  console.log('req', request);
+export const acceptRequest = (request) => dispatch => {
+  requestsService.updateRequest(request.id, request.type);
   if (request.type == 'joinTeam')
     dispatch({
       type: 'ACCEPT_TEAM_REQUEST',

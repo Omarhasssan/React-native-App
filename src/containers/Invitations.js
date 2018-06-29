@@ -1,20 +1,25 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Text, View, Image, StyleSheet, ScrollView, FlatList } from 'react-native';
-import { getUserRequest, acceptRequest, removeObservingNotifications } from '../actions';
+import {
+  acceptRequest,
+  removeObservingNotifications,
+  removeJoiningTeamNotifications,
+} from '../actions';
 import Invitation from '../components/Invitation';
 import Btn from '../components/Btn';
 import List from '../components/List';
 
 class Invitations extends Component {
   state = {
-    observingTab: false,
+    observingTab: this.props.observingTab || false,
     joiningTeamsTab: false,
   };
-  componentDidMount() {
-    this.props.getUserInvitations(this.props.socket, this.props.user);
-  }
 
+  componentWillReceiveProps(nextProps) {
+    const { observingTab } = nextProps;
+    if (observingTab != this.props.observingTab) this.setState({ observingTab: observingTab });
+  }
   render() {
     const {
       user,
@@ -42,7 +47,7 @@ class Invitations extends Component {
           txt="Observing"
           containerStyle={[{ marginTop: 5, marginBottom: 5 }, styles.tabContainer]}
           onPress={() => {
-            removeObservingNotifications(user.id);
+            removeObservingNotifications();
             this.setState({ observingTab: !observingTab });
           }}
         />
@@ -75,7 +80,10 @@ class Invitations extends Component {
           }
           txt="joiningTeams"
           containerStyle={styles.tabContainer}
-          onPress={() => this.setState({ joiningTeamsTab: !joiningTeamsTab })}
+          onPress={() => {
+            removeObservingNotifications();
+            this.setState({ joiningTeamsTab: !joiningTeamsTab });
+          }}
         />
         {joiningTeamsTab && (
           <List
@@ -91,21 +99,21 @@ class Invitations extends Component {
   }
 }
 
-const mapStateToProps = ({ auth, userInvitations, socket }) => ({
+const mapStateToProps = ({ auth, userInvitations, notificationHandler }) => ({
   user: auth.user,
   userInvitations,
-  socket,
+  observingTab: notificationHandler.screenProps.observingTab,
 });
 
 const mapDispatchToProps = dispatch => ({
-  getUserInvitations(socket, user) {
-    dispatch(getUserRequest(socket, user));
-  },
   onAccept(inv) {
     dispatch(acceptRequest(inv));
   },
-  removeObservingNotifications(userId) {
-    dispatch(removeObservingNotifications(userId));
+  removeObservingNotifications() {
+    dispatch(removeObservingNotifications());
+  },
+  removeJoiningTeamNotifications() {
+    dispatch(removeJoiningTeamNotifications());
   },
 });
 const styles = StyleSheet.create({

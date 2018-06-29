@@ -1,29 +1,20 @@
 import React, { Component } from 'react';
-import firebase from './config/firebase';
 
 import { connect } from 'react-redux';
-import { StyleSheet, Text, View } from 'react-native';
 import Screens from './screens';
-import {
-  createReduxBoundAddListener,
-  createReactNavigationReduxMiddleware,
-} from 'react-navigation-redux-helpers';
-import { StackNavigator, addNavigationHelpers } from 'react-navigation';
 import { Provider } from 'react-redux';
 import configureStore from './store/configureStore';
 import {
   checkIfWeKnowThisUserBefore,
   getTeams,
-  listenToTeamRequestStatus,
   getRooms,
+  handleNotificationClick,
 } from '../src/actions';
 import Spinner from './components/Spinner';
-import { DBHelpers } from '../src/helpers';
-const middleware = createReactNavigationReduxMiddleware('root', state => state.nav);
-const addListener = createReduxBoundAddListener('root');
+import withHandleNotification from './hocs/withHandleNotification';
 class App extends Component {
   state = {
-    dataLoaded: false,
+    dataLoaded: true,
   };
 
   componentDidMount() {
@@ -32,36 +23,28 @@ class App extends Component {
     this.props.getRooms();
     this.props.getTeams();
   }
+
   componentWillReceiveProps(nextProps) {
-    nextProps.teams && nextProps.rooms ? this.setState({ dataLoaded: true }) : null;
+    nextProps.rooms && nextProps.teams ? this.setState({ dataLoaded: true }) : null;
   }
   componentWillUnmount() {
     console.log('app unmount');
   }
   render() {
-    console.disableYellowBox = true;
-    const { dispatch, nav, teams } = this.props;
+    //console.disableYellowBox = true;
+    const { navigation } = this.props;
     const { dataLoaded } = this.state;
     if (!dataLoaded) return <Spinner />;
-
-    return (
-      dataLoaded && (
-        <Screens
-          navigation={addNavigationHelpers({
-            dispatch,
-            state: nav,
-            addListener,
-          })}
-        />
-      )
-    );
+    return dataLoaded && <Screens navigation={navigation} />;
   }
 }
 
-const mapStateToProps = ({ nav, teamsReducer, roomsReducer }) => ({
+const mapStateToProps = ({ nav, teamsReducer, roomsReducer, notificationHandler, auth }) => ({
   nav,
   teams: teamsReducer,
   rooms: roomsReducer.rooms,
+  notificationHandler,
+  user: auth.user,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -74,11 +57,15 @@ const mapDispatchToProps = dispatch => ({
   getRooms() {
     dispatch(getRooms());
   },
+  onNotificationClick(notification) {
+    console.log('onNotificationClick');
+    dispatch(handleNotificationClick(notification));
+  },
 
   dispatch,
 });
 
-const AppWithNavigation = connect(mapStateToProps, mapDispatchToProps)(App);
+const AppWithNavigation = connect(mapStateToProps, mapDispatchToProps)(withHandleNotification(App));
 export default () => (
   <Provider store={configureStore()}>
     <AppWithNavigation />
