@@ -19,10 +19,6 @@ admin.initializeApp(config.firebase);
 var express = require('express');
 
 const app = express();
-const server = require('http').Server(app);
-const io = require('socket.io')(server);
-
-server.listen(9460);
 
 function updateTeamRecordDB(teamId, records) {
   teamsService.updateTeam(`teams/${teamId}/records`, records);
@@ -30,6 +26,10 @@ function updateTeamRecordDB(teamId, records) {
 
 app.post('/sendNotification', (req, res) => {
   const { userId, notificationType, updatedNotifications } = req.body;
+<<<<<<< HEAD
+=======
+  io.sockets.in(userId).emit('joiningTeamNotification', 'alo');
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
   notificationsService.updateNotifications(
     `Notifications/${userId}`,
     updatedNotifications
@@ -137,7 +137,6 @@ app.post('/acceptObservingRoom', (req, res) => {
   // observingMatchesService.addObservingMatch(observingRoom);
   res.send(200);
 });
-
 exports.req = functions.https.onRequest(app);
 
 /*
@@ -155,11 +154,16 @@ exports.addUserToTeam = functions.database
       const teamId = req.val().teamId;
 
       return db
+<<<<<<< HEAD
         .ref(`${'teams'}/${teamId}/${'players'}`)
+=======
+        .ref(`${'teams'}/${teamId}/${'playersId'}`)
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
         .once('value', snapshot => {
           let players = snapshot.toJSON() || {};
           const sz = Object.keys(players).length;
           players[sz] = playerId;
+<<<<<<< HEAD
           db.ref(`${'teams'}/${teamId}/${'players'}`).set(players);
           db.ref(`${'users'}/${playerId}/${'teamId'}`).set(teamId);
         });
@@ -242,3 +246,27 @@ io.on('connection', socket => {
   //   io.sockets.in(userId).emit(notificationType);
   // });
 });
+=======
+          db.ref(`${'teams'}/${teamId}/${'playersId'}`).set(players);
+          db.ref(`${'users'}/${playerId}/${'teamId'}`).set(teamId);
+        });
+    });
+  });
+/*
+* trigger function for observerRequest
+* whenever status turned to 'accepted'
+* 1-update status to AC to his observing Room giving roomId
+*/
+exports.onChangingObservingStatus = functions.database
+  .ref('/ObservingRequests/{reqId}/status')
+  .onUpdate(event => {
+    const roomId = event.after.val().roomId;
+
+    const reqStatus = event.after.val().status;
+    return admin
+      .database()
+      .ref(`${'Rooms'}/${roomId}/${'settings'}/${'observer'}/${'status'}`)
+      .set(reqStatus);
+  });
+
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d

@@ -12,6 +12,7 @@ import {
 import PlayerInfo from '../components/Info';
 import openMap from 'react-native-open-maps';
 import Btn from '../components/Btn';
+import withCheckUserHaveTeam from '../hocs/withCheckUserHaveTeam';
 
 class TeamTab extends Component {
   state = {
@@ -110,8 +111,8 @@ class TeamTab extends Component {
             this.setState({ teamNextMatchesTab: !teamNextMatchesTab })
           }
         />
-        {teamNextMatchesTab &&
-          team.matches &&
+        {(teamNextMatchesTab &&
+          team.matches.length &&
           team.matches.map(match => (
             <View>
               <Text>
@@ -137,14 +138,15 @@ class TeamTab extends Component {
               />
               <Text>Opponent Team : {match.opponentTeam.name}</Text>
             </View>
-          ))}
+          ))) ||
+          null}
       </View>
     );
   }
 }
 
-const mapStateToProps = ({ socket }) => ({
-  socket,
+const mapStateToProps = ({ teamsReducer }) => ({
+  team: teamsReducer.curntTeam,
 });
 
-export default connect(mapStateToProps)(TeamTab);
+export default connect(mapStateToProps)(withCheckUserHaveTeam(TeamTab));

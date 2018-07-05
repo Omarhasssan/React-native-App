@@ -17,8 +17,8 @@ export const teamsService = {
 };
 
 async function getTeams() {
-  let arr = [],
-    res;
+  let arr = [];
+
   return new Promise((resolve, reject) => {
     firebase
       .database()
@@ -36,6 +36,7 @@ async function getTeams() {
           }
           arr.push(teams[indx]);
         }
+
         resolve(arr);
       });
   });
@@ -53,7 +54,6 @@ async function onTeamHasNewPlayer() {
         cnt++;
         if (cnt >= teamsLen) first = false;
         team = team.toJSON();
-        console.log('team_chiled_added', team.name);
 
         return firebase
           .database()
@@ -61,6 +61,7 @@ async function onTeamHasNewPlayer() {
           .on('child_added', async playerId => {
             const updatedTeam = {};
             if (!first) {
+<<<<<<< HEAD
               console.log(
                 'player_chiled_added',
                 playerId,
@@ -72,8 +73,11 @@ async function onTeamHasNewPlayer() {
                 playerId.toJSON()
               );
               console.log('after await', updatedTeam.player);
+=======
+              updatedTeam.id = team.id;
+              updatedTeam.player = await usersService.getUserById(playerId.toJSON());
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
               resolve(updatedTeam);
-              console.log('after resolve');
             }
           });
       });
@@ -149,12 +153,19 @@ function getTeamById(teamId) {
         teamObj.id = team.id;
         teamObj.name = team.name;
         teamObj.records = team.records;
+<<<<<<< HEAD
         if (team.players)
           for (const index in team.players) {
             teamObj.players[index] = await usersService.getUserById(
               team.players[index]
             );
           }
+=======
+
+        for (const index in team.playersId) {
+          teamObj.players[index] = await usersService.getUserById(team.playersId[index]);
+        }
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
 
         if (!withoutMatches) {
           for (const index in team.matches) {

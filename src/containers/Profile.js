@@ -13,26 +13,32 @@ import Invitations from './Invitations';
 import CreateOrJoinTeam from './CreateOrJoinTeam';
 import MatchesToObserve from './MatchesToObserve';
 import ObserverWithModel from './ObserverWithModel';
+import withCheckUserHaveTeam from '../hocs/withCheckUserHaveTeam';
+import TeamTab from './TeamTab';
 const mapDispatchToProps = dispatch => ({
   listenToUserChanges(userId) {
     dispatch(listenToUserChanges(userId));
   },
-  listenToTeamChanges(socket) {
-    dispatch(listenToTeamChanges(socket));
+  listenToTeamChanges() {
+    dispatch(listenToTeamChanges());
   },
-  listenToRoomChanges(user, socket) {
-    dispatch(listenToRoomChanges(user, socket));
+  listenToRoomChanges(user) {
+    dispatch(listenToRoomChanges(user));
   },
-  listenToNotifications(socket) {
-    dispatch(listenToNotifications(socket));
+  listenToNotifications() {
+    dispatch(listenToNotifications());
   },
 });
 class Profile extends Component {
   state = {
     activeTab:
+<<<<<<< HEAD
       this.props.activeTab ||
       (this.props.role == 'CAPTAIN' && 'CreateOrJoinRoom') ||
       'Team',
+=======
+      this.props.activeTab || (this.props.role == 'CAPTAIN' && 'CreateOrJoinRoom') || 'Team',
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
   };
   handleTabs() {
     const { user, observingMatches, notifications } = this.props;
@@ -65,17 +71,20 @@ class Profile extends Component {
 
   componentDidMount() {
     const {
-      socket,
       listenToRoomChanges,
       user,
       listenToUserChanges,
       listenToTeamChanges,
       listenToNotifications,
     } = this.props;
-    listenToRoomChanges(user, socket);
+    listenToRoomChanges(user);
     listenToUserChanges(user.id);
-    listenToTeamChanges(socket);
-    listenToNotifications(socket);
+    listenToTeamChanges();
+    listenToNotifications();
+  }
+  componentWillReceiveProps(nextProps) {
+    const { activeTab } = nextProps;
+    if (activeTab != this.props.activeTab) this.setState({ activeTab: activeTab });
   }
   componentWillReceiveProps(nextProps) {
     const { activeTab } = nextProps;
@@ -94,6 +103,10 @@ class Profile extends Component {
     const { activeTab } = this.state;
     const {
       navigation,
+<<<<<<< HEAD
+=======
+      team,
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
       user,
       showObserverModel,
       observingMatches,
@@ -115,9 +128,13 @@ class Profile extends Component {
         />
 
         <View style={{ flex: 1 }}>
+<<<<<<< HEAD
           {(activeTab == 'Team' && (
             <CreateOrJoinTeam navigation={navigation} />
           )) ||
+=======
+          {(activeTab == 'Team' && <TeamTab navigation={navigation} />) ||
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
             (activeTab == 'Invitations' && (
               <Invitations notifications={notifications.invitations} />
             )) ||
@@ -142,16 +159,24 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = ({
   auth,
+<<<<<<< HEAD
   socket,
+=======
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
   model,
   observingMatches,
   notifications,
   notificationHandler,
+<<<<<<< HEAD
   teamsReducer,
 }) => ({
   user: auth.user,
   team: teamsReducer.curntTeam,
   socket,
+=======
+}) => ({
+  user: auth.user,
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
   showObserverModel: model.showObserver,
   showTeamDetailsModel: model.showTeamDetails,
   observingMatches,

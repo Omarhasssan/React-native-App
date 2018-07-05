@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+<<<<<<< HEAD
 import {
   Text,
   View,
@@ -14,6 +15,13 @@ import {
   removeObservingNotifications,
   removeJoiningTeamNotifications,
   reset,
+=======
+import { Text, View, Image, StyleSheet, ScrollView, FlatList } from 'react-native';
+import {
+  acceptRequest,
+  removeObservingNotifications,
+  removeJoiningTeamNotifications,
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
 } from '../actions';
 import Invitation from '../components/Invitation';
 import Btn from '../components/Btn';
@@ -21,9 +29,10 @@ import List from '../components/List';
 
 class Invitations extends Component {
   state = {
-    observingTab: false,
+    observingTab: this.props.observingTab || false,
     joiningTeamsTab: false,
   };
+<<<<<<< HEAD
   openJoiningTeamTab() {
     this.setState({ joiningTeamsTab: true });
     this.props.removeJoiningTeamNotifications();
@@ -38,7 +47,13 @@ class Invitations extends Component {
   componentWillUnMount() {
     this.setState({ joiningTeamsTab: false });
   }
+=======
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
 
+  componentWillReceiveProps(nextProps) {
+    const { observingTab } = nextProps;
+    if (observingTab != this.props.observingTab) this.setState({ observingTab: observingTab });
+  }
   render() {
     const {
       user,
@@ -104,7 +119,11 @@ class Invitations extends Component {
           txt="joiningTeams"
           containerStyle={styles.tabContainer}
           onPress={() => {
+<<<<<<< HEAD
             removeJoiningTeamNotifications();
+=======
+            removeObservingNotifications();
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
             this.setState({ joiningTeamsTab: !joiningTeamsTab });
           }}
         />
@@ -126,6 +145,7 @@ class Invitations extends Component {
   }
 }
 
+<<<<<<< HEAD
 const mapStateToProps = ({
   auth,
   userInvitations,
@@ -136,6 +156,12 @@ const mapStateToProps = ({
   userInvitations,
   socket,
   joiningTeamsTab: notificationHandler.screenProps.joiningTeamsTab,
+=======
+const mapStateToProps = ({ auth, userInvitations, notificationHandler }) => ({
+  user: auth.user,
+  userInvitations,
+  observingTab: notificationHandler.screenProps.observingTab,
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -147,9 +173,12 @@ const mapDispatchToProps = dispatch => ({
   },
   removeJoiningTeamNotifications() {
     dispatch(removeJoiningTeamNotifications());
+<<<<<<< HEAD
   },
   reset() {
     dispatch(reset());
+=======
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
   },
 });
 const styles = StyleSheet.create({

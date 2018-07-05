@@ -5,7 +5,6 @@ import { Users, dataLoaded } from './global-reducer';
 import userInvitations from './userRequests-reducer';
 import team from './team-reducer';
 import teamsReducer from './teams-reducer';
-import socket from './socket-reducer';
 import roomsReducer from './rooms-reducer';
 import model from './Model-reducer';
 import checkedItems from './checkedItems-reducer';
@@ -21,7 +20,6 @@ const rootReducer = combineReducers({
   dataLoaded: dataLoaded,
   userInvitations,
   team,
-  socket,
   teamsReducer,
   roomsReducer,
   model,

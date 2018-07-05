@@ -14,6 +14,7 @@ export const getTeams = () => dispatch => {
     Promise.resolve();
   });
 };
+<<<<<<< HEAD
 
 export const createTeamWithSendingRequests = (
   user,
@@ -21,6 +22,9 @@ export const createTeamWithSendingRequests = (
   playersId,
   socket
 ) => async dispatch => {
+=======
+export const createTeamWithSendingRequests = (user, teamName, playersId) => async dispatch => {
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
   const team = {
     name: teamName,
     records: { wins: 0, losses: 0, draws: 0, gamesPlayed: 0, goals: 0 },
@@ -33,13 +37,16 @@ export const createTeamWithSendingRequests = (
     type: 'ADD_TEAM',
     team,
   });
+<<<<<<< HEAD
   dispatch({
     type: 'CREATE_ROOM_BY_TEAM_ID',
     id: team.id,
   });
+=======
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
   dispatch(updateUserTeam(user.id, team.id));
   dispatch(updateUserRoleToCaptain(user));
-  dispatch(sendJoiningTeamRequest(team, playersId, socket));
+  dispatch(sendJoiningTeamRequest(team, playersId));
 };
 export const getTeam = teamId => dispatch => {
   dispatch({ type: 'GET_TEAM', teamId });
@@ -87,20 +94,14 @@ export const setTeamPlayers = teamPlayers => dispatch => {
   dispatch({ type: 'SET_TEAM_PLAYERS', teamPlayers });
 };
 
-export const onTeamHasMatch = socket => dispatch => {
+export const onTeamHasMatch = () => dispatch => {
   console.log('in onTeamHasMatch');
-  socket.on('teamHasMatch', data => {
-    console.log('in socket , team has match');
-    dispatch({
-      type: 'SET_TEAM_MATCHES',
-      payload: { teamId: data.teamId, updatedMatches: data.updatedMatches },
-    });
-  });
 };
 
-export const setTeamMatch = (match, team, socket) => dispatch => {
+export const setTeamMatch = (match, team) => dispatch => {
   team.matches.push(match);
   //console.log('tmMatches', team.matches);
+<<<<<<< HEAD
   socket.emit('teamHasMatch', {
     updatedMatches: team.matches,
     teamId: team.id,
@@ -110,6 +111,13 @@ export const setTeamMatch = (match, team, socket) => dispatch => {
 
 export const listenToTeamChanges = socket => dispatch => {
   singleton.onTeamHasPlayer = null;
+=======
+  //dispatch(notifyTeamPlayersWithNextMatch())
+  teamsService.addMatchToTeam(team.id, match.id);
+};
+
+export const listenToTeamChanges = () => dispatch => {
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
   dispatch(onTeamHasNewPlayer());
-  dispatch(onTeamHasMatch(socket));
+  dispatch(onTeamHasMatch());
 };

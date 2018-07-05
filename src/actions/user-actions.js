@@ -20,8 +20,12 @@ export const onUserHasTeam = userId => (dispatch, getState) => {
       .database()
       .ref(`${'users'}/${userId}/${'teamId'}`)
       .on('value', async snap => {
+<<<<<<< HEAD
         if (!userTeam.id && snap.val()) {
           console.log('=> HEY I HAVE A TEAM WHOWHWO', snap.val());
+=======
+        if (!userTeam.id) {
+>>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
           let teamId = snap.val();
           const team = await teamsService.getTeamById(teamId);
           dispatch({
