@@ -50,7 +50,7 @@ class Auth extends Component {
     const activeScreen = this.props.nav.routes[this.props.nav.routes.length - 1].key;
     const curntComponent = this.props.navigation.state.key;
     if (this.props.auth.isFetching) return <Spinner />;
-    if (Object.keys(this.props.auth.user).length && curntComponent == activeScreen) {
+    if (this.props.auth.user && curntComponent == activeScreen) {
       this.props.navigation.navigate('Profile');
     }
 

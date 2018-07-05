@@ -19,7 +19,7 @@
     "jest-expo": "^25.0.0",
     "nodemon": "^1.17.1",
     "prettier-eslint": "^8.8.1",
-    "react-native-scripts": "^1.14.0",
+    "react-native-scripts": "1.11.0",
     "react-test-renderer": "16.0.0",
     "rimraf": "^2.6.2"
   },

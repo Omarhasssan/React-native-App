@@ -9,7 +9,7 @@ class CreateRoom extends Component {
   };
   render() {
     const { Name } = this.state;
-    const { onCreate, user } = this.props;
+    const { onCreate, user, socket } = this.props;
     return (
       <View style={{ flex: 1, justifyContent: 'center' }}>
         <TxtInput
@@ -22,17 +22,18 @@ class CreateRoom extends Component {
           placeholder="Room Name"
         />
 
-        <Button title="Create Room" onPress={() => onCreate(user, Name)} />
+        <Button title="Create Room" onPress={() => onCreate(user, Name, socket)} />
       </View>
     );
   }
 }
-const mapStateToProps = ({ auth }) => ({
+const mapStateToProps = ({ auth, socket }) => ({
   user: auth.user,
+  socket: socket,
 });
 const mapDispatchToProps = dispatch => ({
-  onCreate(user, Name) {
-    dispatch(createRoom(user, Name));
+  onCreate(user, Name, socket) {
+    dispatch(createRoom(user, Name, socket));
   },
 });
 

@@ -1,6 +1,11 @@
 import React from 'react';
 
-import { Text, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import {
+  Text,
+  TouchableOpacity,
+  FlatList,
+  ScrollView,
+} from 'react-native';
 
 const _ = require('lodash');
 
@@ -8,7 +13,7 @@ export default (Rooms = (props) => {
   const { screenProps } = props;
   const { navigate } = screenProps.stackNavigation;
   const {
-    rooms, user, joinRoom, team,
+    rooms, user, socket, joinRoom, team,
   } = screenProps;
   return (
     <ScrollView contentContainerStyle={{ backgroundColor: 'white', height: `${100}%` }}>
@@ -20,7 +25,7 @@ export default (Rooms = (props) => {
           item.id != user.roomId && (
             <TouchableOpacity
               onPress={() => {
-                joinRoom(item, team);
+                joinRoom(item, team, socket);
                 navigate('Room', { room: item });
               }}
             >

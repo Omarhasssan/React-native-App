@@ -10,7 +10,7 @@ const intialState = {
 };
 export default function (
   state = {
-    user: {},
+    
   },
   action,
 ) {

@@ -46,7 +46,7 @@ class Room extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { type } = this.state;
-    const { roomsReducer, joinRoom } = nextProps;
+    const { roomsReducer, socket, joinRoom } = nextProps;
 
     if (type == 'createdRoom') {
       this.setState({ room: roomsReducer.createdRoom });
@@ -55,15 +55,16 @@ class Room extends Component {
     }
   }
   componentWillUnmount() {
-    const { leaveRoom } = this.props;
+    const { leaveRoom, socket } = this.props;
     const { room, type } = this.state;
-    if (type == 'joinedRoom') leaveRoom(room);
+    if (type == 'joinedRoom') leaveRoom(room, socket);
   }
   render() {
     const { date, room, type, OwnerReady, GuestReady } = this.state;
     const {
       style,
       showObserverModel,
+      socket,
       setRoomDate,
       setRoomLocation,
       roomsReducer,
@@ -127,7 +128,7 @@ class Room extends Component {
             </View>
 
             {type == 'createdRoom' && (
-              <Ready txt={'Ready'} setCheck={val => setOwnerReady(room, val)} />
+              <Ready txt={'Ready'} setCheck={val => setOwnerReady(room, val, socket)} />
             )}
             {type != 'createdRoom' &&
               room.settings &&
@@ -166,7 +167,7 @@ class Room extends Component {
               )}
             </View>
             {type == 'joinedRoom' && (
-              <Ready txt={'Ready'} setCheck={val => setGuestReady(room, val)} />
+              <Ready txt={'Ready'} setCheck={val => setGuestReady(room, val, socket)} />
             )}
             {type != 'joinedRoom' &&
               room.settings &&
@@ -198,7 +199,7 @@ class Room extends Component {
               date={
                 _.has(room, 'settings') && _.has(room.settings, 'date') ? room.settings.date : ''
               }
-              setDate={date => setRoomDate(room, date)}
+              setDate={date => setRoomDate(room, date, socket)}
             />
 
             <View
@@ -251,7 +252,7 @@ class Room extends Component {
                       onPress={() =>
                         navigate('SetLocation', {
                           SetLocation: locationCoordinates =>
-                            setRoomLocation(room, locationCoordinates),
+                            setRoomLocation(room, locationCoordinates, socket),
                         })
                       }
                     />
@@ -283,7 +284,7 @@ class Room extends Component {
                 backgroundColor: '#1da1f2',
               }}
               txt={'Set Match !'}
-              onPress={() => setRoomMatch(room)}
+              onPress={() => setRoomMatch(room, socket)}
             />
           </View>
         </View>
@@ -303,8 +304,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 });
-const mapStateToProps = ({ auth, roomsReducer, teamsReducer, model }) => ({
+const mapStateToProps = ({ auth, socket, roomsReducer, teamsReducer, model }) => ({
   team: teamsReducer.curntTeam,
+  socket,
   roomsReducer,
   showTeamDetails: model.showTeamDetails,
 });
@@ -318,23 +320,23 @@ const mapDispatchToProps = dispatch => ({
   showTeamDetailsModel() {
     dispatch(showTeamDetailsModel());
   },
-  setRoomDate(room, date) {
-    dispatch(setRoomDate(room, date));
+  setRoomDate(room, date, socket) {
+    dispatch(setRoomDate(room, date, socket));
   },
-  setRoomLocation(room, location) {
-    dispatch(setRoomLocation(room, location));
+  setRoomLocation(room, location, socket) {
+    dispatch(setRoomLocation(room, location, socket));
   },
-  leaveRoom(room) {
-    dispatch(leaveRoom(room));
+  leaveRoom(room, socket) {
+    dispatch(leaveRoom(room, socket));
   },
-  setOwnerReady(room, val) {
-    dispatch(setOwnerReady(room, val));
+  setOwnerReady(room, val, socket) {
+    dispatch(setOwnerReady(room, val, socket));
   },
-  setGuestReady(room, val) {
-    dispatch(setGuestReady(room, val));
+  setGuestReady(room, val, socket) {
+    dispatch(setGuestReady(room, val, socket));
   },
-  setRoomMatch(room) {
-    dispatch(setRoomMatch(room));
+  setRoomMatch(room, socket) {
+    dispatch(setRoomMatch(room, socket));
   },
 });
 export default connect(mapStateToProps, mapDispatchToProps)(Room);

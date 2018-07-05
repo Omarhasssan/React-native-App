@@ -1,12 +1,11 @@
-import { usersService } from '../Service';
+import { DBHelpers } from '../helpers';
 /*eslint-disable */
 
 export function validateSignUpForm(user) {
   const { name, password, mobilenumber } = user;
 
   return new Promise((resolve, reject) => {
-    return usersService
-      .findByName(name)
+    return DBHelpers.findByName(name)
       .then(() => reject('user exists before'))
       .catch(() => {
         if (password.length < 2) return reject('password should be at least 4 digits digits');

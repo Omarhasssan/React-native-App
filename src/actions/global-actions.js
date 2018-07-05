@@ -4,7 +4,6 @@ import { getRooms } from './room-actions';
 import { getTeams } from './team-actions';
 /*eslint-disable */
 
-<<<<<<< HEAD
 export const getJoinedTeam = socket => dispatch => {
   socket.on('userJoined', teamId => {
     console.log(teamId, 'joind room');
@@ -13,9 +12,6 @@ export const getJoinedTeam = socket => dispatch => {
       .then(team => dispatch({ type: 'JOINED_TEAM', team: team }));
   });
 };
-=======
-export const getJoinedTeam = () => dispatch => {};
->>>>>>> 0686b625329827a35a844f4e9a76da21ab295f5d
 export const addCheckedItem = key => dispatch => {
   dispatch({ type: 'ADD_CHECKED_ITEM', key: key });
 };

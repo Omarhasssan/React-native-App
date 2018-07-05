@@ -36,7 +36,6 @@ function findByName(name, tableName) {
       .database()
       .ref(tableName)
       .on('value', snapshot => {
-
         snapshot.forEach(data => {
           if (data.toJSON().name == name) return resolve(data.toJSON());
         });

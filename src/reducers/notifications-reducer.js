@@ -36,15 +36,6 @@ export default function(state = intialState, action) {
         ...state,
         invitations: {
           ...state.invitations,
-          total: state.invitations.total - state.invitations.joiningTeam,
-          joiningTeam: 0,
-        },
-      };
-    case 'REMOVE_JOININGTEAM_NOTIFICATIONS':
-      return {
-        ...state,
-        invitations: {
-          ...state.invitations,
           total: state.invitations.total - state.invitations.observing,
           observing: 0,
         },
