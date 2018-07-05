@@ -1,6 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Text, View, Image, StyleSheet, FlatList, ScrollView, Button } from 'react-native';
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  FlatList,
+  ScrollView,
+  Button,
+} from 'react-native';
 import PlayerInfo from '../components/Info';
 import openMap from 'react-native-open-maps';
 import Btn from '../components/Btn';
@@ -15,8 +23,12 @@ class TeamTab extends Component {
 
   render() {
     const { user, team } = this.props;
-    const { teamInfoTab, teamNextMatchesTab, teamPlayersTab, joinTeamRequestsTab } = this.state;
-    // for (const indx in team.matches) console.log(team.matches[indx].date);
+    const {
+      teamInfoTab,
+      teamNextMatchesTab,
+      teamPlayersTab,
+      joinTeamRequestsTab,
+    } = this.state;
     return (
       <View>
         <Btn
@@ -59,12 +71,20 @@ class TeamTab extends Component {
           onPress={() => this.setState({ teamPlayersTab: !teamPlayersTab })}
         />
         {teamPlayersTab && (
-          <ScrollView contentContainerStyle={{ backgroundColor: 'white', height: `${100}%` }}>
+          <ScrollView
+            contentContainerStyle={{
+              backgroundColor: 'white',
+              height: `${100}%`,
+            }}
+          >
             <FlatList
               data={Object.keys(team.players)}
               keyExtractor={(item, index) => index}
               renderItem={({ item }) => (
-                <PlayerInfo name={team.players[item].name} imgUri={team.players[item].imgUri} />
+                <PlayerInfo
+                  name={team.players[item].name}
+                  imgUri={team.players[item].imgUri}
+                />
               )}
             />
           </ScrollView>
@@ -86,14 +106,17 @@ class TeamTab extends Component {
             flexDirection: 'row',
             justifyContent: 'space-between',
           }}
-          onPress={() => this.setState({ teamNextMatchesTab: !teamNextMatchesTab })}
+          onPress={() =>
+            this.setState({ teamNextMatchesTab: !teamNextMatchesTab })
+          }
         />
         {teamNextMatchesTab &&
           team.matches &&
           team.matches.map(match => (
             <View>
               <Text>
-                DATE: {match.date.year} : {match.date.month} : {match.date.day} :
+                DATE: {match.date.year} : {match.date.month} : {match.date.day}{' '}
+                :
                 {match.date.time.hours} : {match.date.time.minutes}
               </Text>
               <Btn

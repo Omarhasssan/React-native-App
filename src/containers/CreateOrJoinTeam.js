@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Text, View, Image } from 'react-native';
+import { NavigationActions } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import withCheckUserHaveTeam from '../hocs/withCheckUserHaveTeam';
@@ -22,7 +23,8 @@ class CreateOrJoinTeam extends Component {
     if (this.props.teamName !== nextProps.teamName) {
       if (teamPlayers && teamName) {
         createTeamWithSendingRequests(user, teamName, teamPlayers, socket);
-        navigation.navigate('Profile');
+        this.props.navigation.pop();
+        this.props.navigation.pop();
       }
     }
   }
@@ -65,16 +67,18 @@ class CreateOrJoinTeam extends Component {
 }
 const mapDispatchToProps = dispatch => ({
   createTeamWithSendingRequests(user, teamName, teamPlayers, socket) {
-    dispatch(createTeamWithSendingRequests(user, teamName, teamPlayers, socket));
+    dispatch(
+      createTeamWithSendingRequests(user, teamName, teamPlayers, socket)
+    );
   },
 });
-const mapStateToProps = ({
-  auth, team, teamsReducer, socket,
-}) => ({
+const mapStateToProps = ({ auth, team, teamsReducer, socket }) => ({
   user: auth.user,
   teamPlayers: team.players,
   teamName: team.name,
   team: teamsReducer.curntTeam,
   socket,
 });
-export default connect(mapStateToProps, mapDispatchToProps)(withCheckUserHaveTeam(CreateOrJoinTeam));
+export default connect(mapStateToProps, mapDispatchToProps)(
+  withCheckUserHaveTeam(CreateOrJoinTeam)
+);

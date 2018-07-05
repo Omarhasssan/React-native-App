@@ -1,7 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Text, View, Image, StyleSheet, ScrollView, FlatList } from 'react-native';
-import { getUserRequest, acceptRequest, removeObservingNotifications } from '../actions';
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  ScrollView,
+  FlatList,
+} from 'react-native';
+import {
+  getUserRequest,
+  acceptRequest,
+  removeObservingNotifications,
+  removeJoiningTeamNotifications,
+  reset,
+} from '../actions';
 import Invitation from '../components/Invitation';
 import Btn from '../components/Btn';
 import List from '../components/List';
@@ -11,8 +24,19 @@ class Invitations extends Component {
     observingTab: false,
     joiningTeamsTab: false,
   };
+  openJoiningTeamTab() {
+    this.setState({ joiningTeamsTab: true });
+    this.props.removeJoiningTeamNotifications();
+    this.props.reset();
+  }
   componentDidMount() {
-    this.props.getUserInvitations(this.props.socket, this.props.user);
+    if (this.props.joiningTeamsTab) this.openJoiningTeamTab();
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.joiningTeamsTab) this.openJoiningTeamTab();
+  }
+  componentWillUnMount() {
+    this.setState({ joiningTeamsTab: false });
   }
 
   render() {
@@ -22,6 +46,7 @@ class Invitations extends Component {
       onAccept,
       notifications,
       removeObservingNotifications,
+      removeJoiningTeamNotifications,
     } = this.props;
     const { observingTab, joiningTeamsTab } = this.state;
     return (
@@ -40,9 +65,12 @@ class Invitations extends Component {
             </View>
           }
           txt="Observing"
-          containerStyle={[{ marginTop: 5, marginBottom: 5 }, styles.tabContainer]}
+          containerStyle={[
+            { marginTop: 5, marginBottom: 5 },
+            styles.tabContainer,
+          ]}
           onPress={() => {
-            removeObservingNotifications(user.id);
+            removeObservingNotifications();
             this.setState({ observingTab: !observingTab });
           }}
         />
@@ -67,7 +95,7 @@ class Invitations extends Component {
               <Image
                 style={{ width: 20, height: 20 }}
                 source={
-                  (observingTab && require('../imges/uparrow.png')) ||
+                  (joiningTeamsTab && require('../imges/uparrow.png')) ||
                   require('../imges/downarrow.png')
                 }
               />
@@ -75,14 +103,21 @@ class Invitations extends Component {
           }
           txt="joiningTeams"
           containerStyle={styles.tabContainer}
-          onPress={() => this.setState({ joiningTeamsTab: !joiningTeamsTab })}
+          onPress={() => {
+            removeJoiningTeamNotifications();
+            this.setState({ joiningTeamsTab: !joiningTeamsTab });
+          }}
         />
         {joiningTeamsTab && (
           <List
             data={userInvitations.teamRequests}
             style={{ backgroundColor: '#ccd3e0', height: `${100}%` }}
             renderItem={({ item }) => (
-              <Invitation type={'joiningTeam'} onAccept={inv => onAccept(inv)} invitation={item} />
+              <Invitation
+                type={'joiningTeam'}
+                onAccept={inv => onAccept(inv)}
+                invitation={item}
+              />
             )}
           />
         )}
@@ -91,21 +126,30 @@ class Invitations extends Component {
   }
 }
 
-const mapStateToProps = ({ auth, userInvitations, socket }) => ({
+const mapStateToProps = ({
+  auth,
+  userInvitations,
+  notificationHandler,
+  socket,
+}) => ({
   user: auth.user,
   userInvitations,
   socket,
+  joiningTeamsTab: notificationHandler.screenProps.joiningTeamsTab,
 });
 
 const mapDispatchToProps = dispatch => ({
-  getUserInvitations(socket, user) {
-    dispatch(getUserRequest(socket, user));
-  },
   onAccept(inv) {
     dispatch(acceptRequest(inv));
   },
-  removeObservingNotifications(userId) {
-    dispatch(removeObservingNotifications(userId));
+  removeObservingNotifications() {
+    dispatch(removeObservingNotifications());
+  },
+  removeJoiningTeamNotifications() {
+    dispatch(removeJoiningTeamNotifications());
+  },
+  reset() {
+    dispatch(reset());
   },
 });
 const styles = StyleSheet.create({

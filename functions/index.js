@@ -29,11 +29,12 @@ function updateTeamRecordDB(teamId, records) {
 }
 
 app.post('/sendNotification', (req, res) => {
-  const { userId, notificationType,updatedNotifications } = req.body;
-  console.log("upda",updatedNotifications)
-  io.sockets.in(userId).emit(notificationType);
-  notificationsService.updateNotifications(`Notifications/${userId}`,updatedNotifications);
-  res.send(200)
+  const { userId, notificationType, updatedNotifications } = req.body;
+  notificationsService.updateNotifications(
+    `Notifications/${userId}`,
+    updatedNotifications
+  );
+  res.send(200);
 });
 
 app.post('/submitMatchObservation', (req, res) => {
@@ -59,7 +60,7 @@ app.post('/submitMatchObservation', (req, res) => {
       const playerGamesPlayed = parseInt(player.records.gamesPlayed) + 1;
       const playerRecords = {
         goals: playerGoals,
-        gamesPlayed: playerGamesPlayed
+        gamesPlayed: playerGamesPlayed,
       };
       usersService.updateUser(
         `users/${playerDetails.id}/records`,
@@ -145,48 +146,44 @@ exports.req = functions.https.onRequest(app);
 * 1- add this playerId to target team in teams table
 * 2- add teamId to target user in users table
 */
-// exports.addUserToTeam = functions.database
-//   .ref('/TeamRequests/{reqId}')
-//   .onUpdate(event => {
-//     // interested in playerId , teamId
-//     const playerId = event.before.val().playerId;
-//     const teamId = event.before.val().teamId;
-//     return admin
-//       .database()
-//       .ref(`${'teams'}/${teamId}/${'players'}`)
-//       .once('value', snapshot => {
-//         let players = snapshot.toJSON() || {};
-//         const sz = Object.keys(players).length;
-//         players[sz] = playerId;
-//         admin
-//           .database()
-//           .ref(`${'teams'}/${teamId}/${'players'}`)
-//           .set(players);
-//         return admin
-//           .database()
-//           .ref(`${'users'}/${playerId}/${'teamId'}`)
-//           .set(teamId);
-//       });
-//   });
+exports.addUserToTeam = functions.database
+  .ref('/TeamRequests/{reqId}/status')
+  .onUpdate(event => {
+    const db = admin.database();
+    return event.before.ref.parent.once('value', req => {
+      const playerId = req.val().playerId;
+      const teamId = req.val().teamId;
+
+      return db
+        .ref(`${'teams'}/${teamId}/${'players'}`)
+        .once('value', snapshot => {
+          let players = snapshot.toJSON() || {};
+          const sz = Object.keys(players).length;
+          players[sz] = playerId;
+          db.ref(`${'teams'}/${teamId}/${'players'}`).set(players);
+          db.ref(`${'users'}/${playerId}/${'teamId'}`).set(teamId);
+        });
+    });
+  });
 // /*
 // * trigger function for observerRequest
 // * whenever status turned to 'accepted'
 // * 1-update status to AC to his observing Room giving roomId
 // *
 // */
-// exports.onChangingObservingStatus = functions.database
-//   .ref('/ObservingRequests/{reqId}/status')
-//   .onUpdate(event => {
-//     // console.log('eBefore', event.before.val());
-//     // console.log('eafter', event.after.val());
-//     const roomId = event.after.val().roomId;
+exports.onChangingObservingStatus = functions.database
+  .ref('/ObservingRequests/{reqId}/status')
+  .onUpdate(event => {
+    // console.log('eBefore', event.before.val());
+    // console.log('eafter', event.after.val());
+    const roomId = event.after.val().roomId;
 
-//     const reqStatus = event.after.val().status;
-//     return admin
-//       .database()
-//       .ref(`${'Rooms'}/${roomId}/${'settings'}/${'observer'}/${'status'}`)
-//       .set(reqStatus);
-//   });
+    const reqStatus = event.after.val().status;
+    return admin
+      .database()
+      .ref(`${'Rooms'}/${roomId}/${'settings'}/${'observer'}/${'status'}`)
+      .set(reqStatus);
+  });
 
 io.on('connection', socket => {
   console.log('connected');
@@ -212,7 +209,7 @@ io.on('connection', socket => {
   });
   socket.on('sendRequest', data => {
     io.sockets.in(data.userId).emit('requests', data.request);
-    io.sockets.in(data.userId).emit('observingNotification');
+    //io.sockets.in(data.userId).emit('observingNotification');
   });
   socket.on('removeRequest', data => {
     io.sockets.in(data.userId).emit('removeRequest', data.request);
@@ -234,16 +231,14 @@ io.on('connection', socket => {
 
   socket.on('teamHasMatch', data => {
     console.log('in socket server');
-    io.sockets
-      .in(data.teamId)
-      .emit('teamHasMatch', {
-        teamId: data.teamId,
-        updatedMatches: data.updatedMatches
-      });
+    io.sockets.in(data.teamId).emit('teamHasMatch', {
+      teamId: data.teamId,
+      updatedMatches: data.updatedMatches,
+    });
   });
 
-  socket.on('sendNotification', data => {
-    const { notificationType, userId } = data;
-    io.sockets.in(userId).emit(notificationType);
-  });
+  // socket.on('sendNotification', data => {
+  //   const { notificationType, userId } = data;
+  //   io.sockets.in(userId).emit(notificationType);
+  // });
 });

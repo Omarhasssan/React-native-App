@@ -6,7 +6,7 @@ const intialState = {
   },
   team: { total: 0, nextMatches: 0 },
 };
-export default function (state = intialState, action) {
+export default function(state = intialState, action) {
   switch (action.type) {
     case 'ADD_OBSERVING_NOTIFICATION':
       return {
@@ -38,6 +38,15 @@ export default function (state = intialState, action) {
           ...state.invitations,
           total: state.invitations.total - state.invitations.observing,
           observing: 0,
+        },
+      };
+    case 'REMOVE_JOININGTEAM_NOTIFICATIONS':
+      return {
+        ...state,
+        invitations: {
+          ...state.invitations,
+          total: state.invitations.total - state.invitations.joiningTeam,
+          joiningTeam: 0,
         },
       };
     default:

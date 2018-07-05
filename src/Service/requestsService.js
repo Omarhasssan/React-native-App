@@ -7,9 +7,8 @@ export const requestsService = {
   getUserRequest,
   updateRequest,
 };
-
-function getUserRequest(userId) {
-  const arr = { teamRequests: [], observingRequests: [] };
+function getTeamRequests(userId) {
+  const teamRequests = [];
   return new Promise((resolve, reject) => {
     firebase
       .database()
@@ -18,34 +17,85 @@ function getUserRequest(userId) {
         const reqs = snapshot.toJSON();
         for (index in reqs) {
           const newReq = {};
-          if (reqs[index].playerId == userId && reqs[index].status == 'PENDING') {
+          if (
+            reqs[index].playerId == userId &&
+            reqs[index].status == 'PENDING'
+          ) {
             newReq.team = await teamsService.getTeamById(reqs[index].teamId);
             newReq.status = reqs[index].status;
             newReq.type = 'joinTeam';
-            newReq.player = await usersService.getUserById(reqs[index].playerId);
+            newReq.player = await usersService.getUserById(
+              reqs[index].playerId
+            );
 
             newReq.id = reqs[index].id;
+            teamRequests.push(newReq);
+          }
+        }
+      });
+  });
+}
+function getUserRequest(userId) {
+  const arr = { teamRequests: [], observingRequests: [] };
+  return new Promise((resolve, reject) => {
+    return firebase
+      .database()
+      .ref('TeamRequests')
+      .once('value')
+      .then(async snapshot => {
+        const reqs = snapshot.val();
+
+        for (index in reqs) {
+          const newReq = {};
+          if (
+            reqs[index].playerId == userId &&
+            reqs[index].status == 'PENDING'
+          ) {
+            newReq.team = await teamsService.getTeamById(reqs[index].teamId);
+            newReq.status = reqs[index].status;
+            newReq.type = 'joinTeam';
+            newReq.player = await usersService.getUserById(
+              reqs[index].playerId
+            );
+
+            newReq.id = reqs[index].id;
+
             arr.teamRequests.push(newReq);
           }
         }
-        firebase
+        return Promise.resolve();
+      })
+      .then(() => {
+        return firebase
           .database()
           .ref('ObservingRequests')
-          .once('value', async snapshot => {
+          .once('value')
+          .then(async snapshot => {
             const reqs = snapshot.toJSON();
             for (index in reqs) {
               const newReq = {};
-              if (reqs[index].playerId == userId && reqs[index].status == 'PENDING') {
-                newReq.room = await roomsService.getRoomById(reqs[index].roomId);
+              if (
+                reqs[index].playerId == userId &&
+                reqs[index].status == 'PENDING'
+              ) {
+                newReq.room = await roomsService.getRoomById(
+                  reqs[index].roomId
+                );
                 newReq.status = reqs[index].status;
                 newReq.type = 'observing';
-                newReq.player = await usersService.getUserById(reqs[index].playerId);
+                newReq.player = await usersService.getUserById(
+                  reqs[index].playerId
+                );
                 newReq.id = reqs[index].id;
                 arr.observingRequests.push(newReq);
               }
             }
-            resolve(arr);
+
+            return Promise.resolve();
           });
+      })
+      .then(() => {
+        resolve(arr);
       });
   });
 }

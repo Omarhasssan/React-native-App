@@ -1,8 +1,11 @@
 function sortMatchesByDate(matches) {
   matches.sort((match1, match2) => {
-    if (match1.date.year != match2.date.year) return match1.date.year - match2.date.year;
-    if (match1.date.month != match2.date.month) return match1.date.month - match2.date.month;
-    if (match1.date.day != match2.date.day) return match1.date.day - match2.date.day;
+    if (match1.date.year != match2.date.year)
+      return match1.date.year - match2.date.year;
+    if (match1.date.month != match2.date.month)
+      return match1.date.month - match2.date.month;
+    if (match1.date.day != match2.date.day)
+      return match1.date.day - match2.date.day;
     if (match1.date.time != match2.date.time) {
       if (match1.date.time.hours != match2.date.time.hours) {
         return match1.date.time.hours - match2.date.time.hours;
@@ -15,7 +18,7 @@ function sortMatchesByDate(matches) {
   return matches;
 }
 function addMatch(teams, teamId, updatedMatches) {
-  const x = teams.map((team) => {
+  const x = teams.map(team => {
     if (team.id === teamId) {
       const updatedTeam = team;
       updatedTeam.matches = updatedMatches;
@@ -26,17 +29,24 @@ function addMatch(teams, teamId, updatedMatches) {
   return x;
 }
 function updateTeamPlayers(teams, teamId, player) {
-  return teams.map((team) => {
+  return teams.map(team => {
     if (team.id === teamId) {
-      return { ...team, players: { ...team.players, [team.players.length]: player } };
+      if (!team.players) team.players = {};
+      return {
+        ...team,
+        players: {
+          ...team.players,
+          [Object.keys(team.players).length]: player,
+        },
+      };
     }
     return team;
   });
 }
 function updatePlayer(teams, teamId, userId, type, value) {
-  const x = teams.map((team) => {
+  const x = teams.map(team => {
     if (team.id == teamId) {
-      team.players = Object.keys(team.players).map((playerId) => {
+      team.players = Object.keys(team.players).map(playerId => {
         if (team.players[playerId].id == userId) {
           return { [playerId]: { ...team.players[playerId], [type]: value } };
         }
@@ -49,7 +59,10 @@ function updatePlayer(teams, teamId, userId, type, value) {
   // console.log('x', x);
   return x;
 }
-export default function (state = { teams: [], curntTeam: {} }, action) {
+export default function(
+  state = { teams: [], curntTeam: { players: {} } },
+  action
+) {
   switch (action.type) {
     case 'ADD_TEAM':
       return { ...state, teams: [...state.teams, action.team] };
@@ -58,16 +71,21 @@ export default function (state = { teams: [], curntTeam: {} }, action) {
     case 'UPDATE_TEAM_PLAYERS':
       return {
         ...state,
-        teams: updateTeamPlayers(state.teams, action.payload.teamId, action.payload.player),
+        teams: updateTeamPlayers(
+          state.teams,
+          action.payload.teamId,
+          action.payload.player
+        ),
         curntTeam:
           action.payload.teamId === state.curntTeam.id
             ? {
-              ...state.curntTeam,
-              players: {
-                ...state.curntTeam.players,
-                [state.curntTeam.players.length]: action.payload.player,
-              },
-            }
+                ...state.curntTeam,
+                players: {
+                  ...state.curntTeam.players,
+                  [Object.keys(state.curntTeam.players).length]:
+                    action.payload.player,
+                },
+              }
             : state.curntTeam,
       };
     case 'UPDATE_PLAYER':
@@ -78,7 +96,7 @@ export default function (state = { teams: [], curntTeam: {} }, action) {
           action.payload.teamId,
           action.payload.userId,
           action.payload.type,
-          action.payload.value,
+          action.payload.value
         ),
         curntTeam: {
           ...state.curntTeam,
@@ -87,7 +105,7 @@ export default function (state = { teams: [], curntTeam: {} }, action) {
             action.payload.teamId,
             action.payload.userId,
             action.payload.type,
-            action.payload.value,
+            action.payload.value
           )[0],
         },
       };
@@ -98,13 +116,13 @@ export default function (state = { teams: [], curntTeam: {} }, action) {
         curntTeam:
           action.payload.teamId === state.curntTeam.id
             ? {
-              ...state.curntTeam,
-              matches: addMatch(
-                [state.curntTeam],
-                action.payload.teamId,
-                action.payload.updatedMatches,
-              )[0],
-            }
+                ...state.curntTeam,
+                matches: addMatch(
+                  [state.curntTeam],
+                  action.payload.teamId,
+                  action.payload.updatedMatches
+                )[0],
+              }
             : state.curntTeam,
       };
     case 'SET_CURNT_TEAM':

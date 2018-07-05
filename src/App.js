@@ -11,74 +11,57 @@ import {
 import { StackNavigator, addNavigationHelpers } from 'react-navigation';
 import { Provider } from 'react-redux';
 import configureStore from './store/configureStore';
+import withHandleNotification from './hocs/withHandleNotification';
+
 import {
   checkIfWeKnowThisUserBefore,
   getTeams,
   listenToTeamRequestStatus,
   getRooms,
+  sendJoiningTeamRequest,
+  sendNormalJoiningTeamNotification,
+  handleNotificationClick,
+  loadData,
 } from '../src/actions';
 import Spinner from './components/Spinner';
 import { DBHelpers } from '../src/helpers';
-const middleware = createReactNavigationReduxMiddleware('root', state => state.nav);
+import withLoadData from './hocs/withLoadData';
+const middleware = createReactNavigationReduxMiddleware(
+  'root',
+  state => state.nav
+);
 const addListener = createReduxBoundAddListener('root');
 class App extends Component {
-  state = {
-    dataLoaded: false,
-  };
-
-  componentDidMount() {
-    //  check if user is registered before load his data
-    this.props.checkIfWeKnowThisUserBefore();
-    this.props.getRooms();
-    this.props.getTeams();
-  }
-  componentWillReceiveProps(nextProps) {
-    nextProps.teams && nextProps.rooms ? this.setState({ dataLoaded: true }) : null;
-  }
   componentWillUnmount() {
     console.log('app unmount');
   }
   render() {
-    console.disableYellowBox = true;
-    const { dispatch, nav, teams } = this.props;
-    const { dataLoaded } = this.state;
-    if (!dataLoaded) return <Spinner />;
-
-    return (
-      dataLoaded && (
-        <Screens
-          navigation={addNavigationHelpers({
-            dispatch,
-            state: nav,
-            addListener,
-          })}
-        />
-      )
-    );
+    //console.disableYellowBox = true;
+    const { navigation } = this.props;
+    return <Screens navigation={navigation} />;
   }
 }
 
-const mapStateToProps = ({ nav, teamsReducer, roomsReducer }) => ({
+const mapStateToProps = ({ nav, notificationHandler, dataLoaded }) => ({
   nav,
-  teams: teamsReducer,
-  rooms: roomsReducer.rooms,
+  notificationHandler,
+  dataLoaded,
 });
 
 const mapDispatchToProps = dispatch => ({
-  checkIfWeKnowThisUserBefore() {
-    dispatch(checkIfWeKnowThisUserBefore());
+  onNotificationClick(notification) {
+    console.log('onNotificationClick');
+    dispatch(handleNotificationClick(notification));
   },
-  getTeams() {
-    dispatch(getTeams());
+  loadData() {
+    dispatch(loadData());
   },
-  getRooms() {
-    dispatch(getRooms());
-  },
-
   dispatch,
 });
 
-const AppWithNavigation = connect(mapStateToProps, mapDispatchToProps)(App);
+const AppWithNavigation = connect(mapStateToProps, mapDispatchToProps)(
+  withLoadData(withHandleNotification(App))
+);
 export default () => (
   <Provider store={configureStore()}>
     <AppWithNavigation />

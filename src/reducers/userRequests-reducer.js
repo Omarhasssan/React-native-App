@@ -1,19 +1,31 @@
-export default function (state = { teamRequests: [], observingRequests: [] }, action) {
+export default function(
+  state = { teamRequests: [], observingRequests: [] },
+  action
+) {
   switch (action.type) {
     case 'ADD_TEAM_REQUEST':
-      return { ...state, teamRequests: [...state.teamRequests, action.request] };
+      return {
+        ...state,
+        teamRequests: [...state.teamRequests, action.request],
+      };
     case 'ADD_OBSERVING_REQUEST':
-      return { ...state, observingRequests: [...state.observingRequests, action.request] };
+      return {
+        ...state,
+        observingRequests: [...state.observingRequests, action.request],
+      };
     case 'USER_REQUESTS':
       return action.userReqs;
     case 'ACCEPT_TEAM_REQUEST':
     case 'REJECT_TEAM_REQUEST':
-      if (state.teamRequests.length === 1 && state.teamRequests[0].id === action.requestId) {
+      if (
+        state.teamRequests.length === 1 &&
+        state.teamRequests[0].id === action.requestId
+      ) {
         return { ...state, teamRequests: [] };
       }
       return {
         ...state,
-        teamRequests: state.teamRequests.map((request) => {
+        teamRequests: state.teamRequests.map(request => {
           if (request.id !== action.requestId) {
             return request;
           }
@@ -30,7 +42,7 @@ export default function (state = { teamRequests: [], observingRequests: [] }, ac
       }
       return {
         ...state,
-        observingRequests: state.observingRequests.map((request) => {
+        observingRequests: state.observingRequests.map(request => {
           if (request.id !== action.requestId) {
             return request;
           }
