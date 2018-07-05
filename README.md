@@ -1,9 +1,13 @@
 ## App Description
 
 1- User is able to register and login
+
 2- User can join any team by send 'JOINING TEAM REQUEST' to team Owner (Real time)
+
 3- when teamowner accepts player's joiningTeam Request , player will be added to the team , player will be updated with new team
+
 4- User can createTeam and Add Players with search , add Team Name
+
 5- User should have a team to CreateOrJoinRoom 
 6- when user add player there is a request sent to him (Real Time , Offline Notification) and this player can accept or reject this joiningTeam Request
 7- when user accepts joiningTeam Request,he will be added to team players (Real time)
