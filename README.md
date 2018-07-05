@@ -28,3 +28,6 @@
 
 14- Each team has records contains all games they won, lost or drew
 
+## Part1: CreateTeam with inviting players
+
+![final](https://user-images.githubusercontent.com/13554490/42344015-42fe825e-809b-11e8-84ea-e96c2b8e310e.gif)
