@@ -11,9 +11,9 @@ function addMatch(match) {
     .database()
     .ref('Matches')
     .push();
-  matchRef.set(match).then(() => Promise.resolve(matchRef.key));
+  return matchRef.set(match).then(() => Promise.resolve(matchRef.key));
 }
-function getMatchById(matchId, teamId) {
+function getMatchById(matchId, teamId, observerMood = false) {
   return new Promise((resolve, reject) => {
     firebase
       .database()
@@ -23,19 +23,28 @@ function getMatchById(matchId, teamId) {
         const matchObj = {};
         matchObj.date = match.date;
         matchObj.location = match.location;
-        if (teamId == match.homeTeam) {
-          matchObj.opponentTeam = await teamsService.getTeamById(
-            match.awayTeam,
-            'withoutTeamMatches',
-          );
-        } else
-          matchObj.opponentTeam = await teamsService.getTeamById(
-            match.homeTeam,
-            'withoutTeamMatches',
-          );
-
-        matchObj.observer = await usersService.getUserById(match.observer);
-        return resolve(matchObj);
+        const p1 = teamsService.getTeamById(
+          match.awayTeam,
+          'withoutTeamMatches'
+        );
+        const p2 = teamsService.getTeamById(
+          match.homeTeam,
+          'withoutTeamMatches'
+        );
+        await Promise.all([p1, p2]).then(async teams => {
+          const awayTeam = teams[0];
+          const homeTeam = teams[1];
+          if (observerMood) {
+            matchObj.firstTeam = homeTeam;
+            matchObj.secondTeam = awayTeam;
+          } else {
+            if (teamId == match.homeTeam) {
+              matchObj.oponnentTeam = awayTeam;
+            } else matchObj.oponnentTeam = homeTeam;
+            matchObj.observer = await usersService.getUserById(match.observer);
+          }
+          return resolve(matchObj);
+        });
       });
   });
 }

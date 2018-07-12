@@ -4,8 +4,9 @@ import { connect } from 'react-redux';
 
 import withSearchContainer from '../hocs/withSearchContainer';
 import { getPlayers } from '../actions';
-import PlayerInfo from './Info';
-import Btn from './Btn';
+import PlayerInfo from '../components/Info';
+import Btn from '../components/Btn';
+import Spinner from '../components/Spinner';
 
 export default (Observer = props => (
   <View style={[styles.container]}>
@@ -15,9 +16,14 @@ export default (Observer = props => (
         flex: 1,
       }}
     >
-      {(props.observer && (
-        <PlayerInfo imgUri={props.observer.info.imgUri} name={props.observer.info.name} />
-      )) ||
+      {(props.isObserverLoading && <Spinner />) ||
+        (!props.isObserverLoading &&
+          props.observer && (
+            <PlayerInfo
+              imgUri={props.observer.info.imgUri}
+              name={props.observer.info.name}
+            />
+          )) ||
         (!props.roomOwner && (
           <View style={{ backgroundColor: 'white', width: 50 }}>
             <Text style={{ fontSize: 6, fontWeight: 'bold' }}>
@@ -42,12 +48,19 @@ export default (Observer = props => (
       )}
     </View>
     <View style={{ flex: 1 }}>
-      <Text style={{ fontStyle: 'italic', fontSize: 6 }}>
-        {(props.observer && 'REQUEST STATUS :' && props.observer.status) ||
+      <Text style={{ fontStyle: 'italic', fontSize: 8 }}>
+        {(props.observer &&
+          ((props.observer.status == 'PENDING' &&
+            `*Observing match request has been sent to ${
+              props.observer.info.name
+            }*`) ||
+            (props.observer.status == 'ACCEPTED' &&
+              `*${props.observer.info.name} accepted observing match*`) ||
+            `*${props.observer.info.name} rejected observing match*`)) ||
           (props.roomOwner &&
             '*You should add an observer to record match details such as who scores goals and which team won*') ||
           (!props.roomOwner &&
-            'this observer will record match details such as who scores goals and which team won')}
+            '*this observer will record match details such as who scores goals and which team won*')}
       </Text>
     </View>
   </View>

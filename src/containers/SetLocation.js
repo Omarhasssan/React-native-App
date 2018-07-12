@@ -16,8 +16,8 @@ export default class SetLocation extends Component {
     this.state = {
       locationInput: '',
       locationCoordinates: {
-        latitude: 37.7749,
-        longitude: -122.4194,
+        longitude: 31.340002,
+        latitude: 30.044281,
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
         address: '',
@@ -30,6 +30,7 @@ export default class SetLocation extends Component {
 
   updateLocationCoordinates(results) {
     const info = results[0].geometry.location;
+
     this.setState({
       locationCoordinates: {
         latitude: info.lat,
@@ -42,23 +43,27 @@ export default class SetLocation extends Component {
   }
 
   handleLocationInput(textInput) {
-    fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${textInput
-      .split(' ')
-      .join('')}&key=` + 'AIzaSyAvOysLUFQ9swkfFTSh-8_YnNfWskPeny4')
-      .then((response) => {
-        this.updateLocationCoordinates(JSON.parse(response._bodyInit).results);
+    fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${textInput
+        .split(' ')
+        .join('')}&key=` + 'AIzaSyAvOysLUFQ9swkfFTSh-8_YnNfWskPeny4'
+    )
+      .then(response => response.json())
+      .then(res => {
+        this.updateLocationCoordinates(res.results);
       })
       .catch(error => console.log('Failjax: ', error));
   }
 
   handleLocationChange(response) {
-    console.log('rs', response);
     this.setState({
       locationCoordiante: response,
     });
   }
   componentWillUnmount() {
-    this.props.navigation.state.params.SetLocation(this.state.locationCoordinates);
+    this.props.navigation.state.params.SetLocation(
+      this.state.locationCoordinates
+    );
   }
 
   render() {

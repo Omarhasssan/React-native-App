@@ -3,12 +3,9 @@ import firebase from '../config/firebase';
 export const observingMatchesService = {
   addObservingMatch,
 };
-function addObservingMatch(observingRoom) {
-  const obRoom = observingRoom;
-  const obMatch = firebase
+function addObservingMatch(observingMatch, observerId) {
+  firebase
     .database()
-    .ref('MatchesToObserve')
-    .push();
-  obRoom.id = obMatch.key;
-  obMatch.set(observingRoom);
+    .ref(`MatchesToObserve/${observerId}`)
+    .set(observingMatch);
 }

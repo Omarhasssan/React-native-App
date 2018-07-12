@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { Text, View, Image, StyleSheet, TouchableOpacity, Button } from 'react-native';
+import {
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Button,
+} from 'react-native';
 import ObservingTeam from './ObservingTeam';
 import Btn from '../components/Btn';
 import { submitMatchObservation } from '../actions';
@@ -9,8 +16,16 @@ import { submitMatchObservation } from '../actions';
 class MatcheToObserve extends Component {
   state = {
     matchDetails: {
-      firstTeam: { id: this.props.match.firstTeam.id, goals: '', playersGoals: {} },
-      secondTeam: { id: this.props.match.secondTeam.id, goals: '', playersGoals: {} },
+      firstTeam: {
+        id: this.props.match.firstTeam.id,
+        goals: '',
+        playersGoals: {},
+      },
+      secondTeam: {
+        id: this.props.match.secondTeam.id,
+        goals: '',
+        playersGoals: {},
+      },
     },
   };
   componentWillMount() {}
@@ -21,7 +36,7 @@ class MatcheToObserve extends Component {
       <View>
         <View
           style={{
-            flexDirection: 'row',
+            flexDirection: 'column',
             justifyContent: 'space-between',
             padding: 10,
           }}
@@ -29,24 +44,21 @@ class MatcheToObserve extends Component {
           <ObservingTeam
             team={match.firstTeam}
             onScoringGoal={(playerId, value, teamGoals) => {
-              this.setState(
-                {
-                  matchDetails: {
-                    ...this.state.matchDetails,
-                    firstTeam: {
-                      goals: teamGoals,
-                      playersGoals: {
-                        ...this.state.matchDetails.firstTeam.playersGoals,
-                        [this.state.matchDetails.firstTeam.playersGoals.length]: {
-                          id: playerId,
-                          goals: value,
-                        },
+              this.setState({
+                matchDetails: {
+                  ...this.state.matchDetails,
+                  firstTeam: {
+                    goals: teamGoals,
+                    playersGoals: {
+                      ...this.state.matchDetails.firstTeam.playersGoals,
+                      [this.state.matchDetails.firstTeam.playersGoals.length]: {
+                        id: playerId,
+                        goals: value,
                       },
                     },
                   },
                 },
-                () => console.log('after', this.state.matchDetails),
-              );
+              });
             }}
           />
           <Text>vs</Text>
@@ -60,7 +72,8 @@ class MatcheToObserve extends Component {
                     goals: teamGoals,
                     playersGoals: {
                       ...this.state.matchDetails.secondTeam.playersGoals,
-                      [this.state.matchDetails.secondTeam.playersGoals.length]: {
+                      [this.state.matchDetails.secondTeam.playersGoals
+                        .length]: {
                         id: playerId,
                         goals: value,
                       },

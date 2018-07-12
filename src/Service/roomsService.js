@@ -54,20 +54,27 @@ function onRoomObserverStatusChanged() {
   });
 }
 async function getRoomDetails(room) {
-  let newroom = { settings: {} };
-  newroom.teamOwner = await teamsService.getTeamById(room.teamOwner);
+  let newroom = { settings: { observer: {} } };
   newroom.name = room.name;
   newroom.id = room.id;
 
-  if (room.joinedTeam) {
-    newroom.joinedTeam = await teamsService.getTeamById(room.joinedTeam);
-  }
+  let p1, p2, p3;
+  p1 = teamsService.getTeamById(room.teamOwner);
+  if (room.joinedTeam) p2 = teamsService.getTeamById(room.joinedTeam);
   if (room.settings && _.has(room.settings, 'observer')) {
     newroom.settings = { observer: { info: {}, status: '' } };
-    newroom.settings.observer.info = await usersService.getUserById(room.settings.observer.id);
-    newroom.settings.observer.status = room.settings.observer.status;
+
+    p3 = usersService.getUserById(room.settings.observer.id);
   }
 
+  await Promise.all([p1, p2, p3]).then(data => {
+    newroom.teamOwner = data[0];
+    if (data[1]) newroom.joinedTeam = data[1];
+    if (data[2]) {
+      newroom.settings.observer.info = data[2];
+      newroom.settings.observer.status = room.settings.observer.status;
+    }
+  });
   if (room.settings && _.has(room.settings, 'date')) {
     newroom.settings = { ...newroom.settings, date: '' };
     newroom.settings.date = room.settings.date;

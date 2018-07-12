@@ -10,4 +10,8 @@ const mapDispatchToProps = dispatch => ({
   },
 });
 
-export default connect(null, mapDispatchToProps)(withModel({ flex: 1, justifyContent: 'center' }, ({ closeModel }) => closeModel())(TeamDetails));
+export default connect(null, mapDispatchToProps)(
+  withModel({ flex: 1, justifyContent: 'center' }, ({ closeModel }) =>
+    closeModel()
+  )(TeamDetails)
+);

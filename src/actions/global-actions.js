@@ -30,21 +30,14 @@ export const setObserver = observerId => dispatch => {
     .then(observer => dispatch({ type: 'SET_OBSERVER', observer }));
 };
 
-export const setOpenedTeamDetails = teamRecords => dispatch => {
-  dispatch({
-    type: 'SET_CURNT_TEAM_DETAILS',
-    teamRecords,
-  });
-};
-
 export const loadData = () => dispatch => {
   dispatch({
     type: 'LOAD_DATA_PENDING',
   });
   const p1 = dispatch(checkIfWeKnowThisUserBefore());
   const p2 = dispatch(getRooms());
-  const p3 = dispatch(getTeams());
-  Promise.all([p1, p2, p3]).then(dataLoaded => {
+  // const p3 = dispatch(getTeams());
+  Promise.all([p1, p2]).then(dataLoaded => {
     console.log(
       '=>HEY MAN THE WHOLE DATA IS LOADED U CAN PLAY NOW WITH MY APP'
     );

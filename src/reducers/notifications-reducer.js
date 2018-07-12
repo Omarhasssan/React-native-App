@@ -17,6 +17,15 @@ export default function(state = intialState, action) {
           total: state.invitations.total + 1,
         },
       };
+    case 'ADD_NEXTMATCH_NOTIFICATION':
+      return {
+        ...state,
+        team: {
+          ...state.team,
+          nextMatches: state.team.nextMatches + 1,
+          total: state.team.total + 1,
+        },
+      };
     case 'ADD_JOININGTEAM_NOTIFICATION':
       return {
         ...state,

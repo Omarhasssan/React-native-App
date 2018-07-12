@@ -6,7 +6,6 @@ const _ = require('lodash');
 
 export const teamsService = {
   getTeams,
-  onTeamHasNewPlayer,
   addTeam,
   getTeamPlayers,
   updateTeamPlayers,
@@ -40,45 +39,7 @@ async function getTeams() {
       });
   });
 }
-async function onTeamHasNewPlayer() {
-  const teams = await getTeams();
-  const teamsLen = teams.length;
-  let cnt = 0;
-  let first = true;
-  return new Promise((resolve, reject) => {
-    firebase
-      .database()
-      .ref('teams')
-      .on('child_added', team => {
-        cnt++;
-        if (cnt >= teamsLen) first = false;
-        team = team.toJSON();
-        console.log('team_chiled_added', team.name);
 
-        return firebase
-          .database()
-          .ref(`${'teams'}/${team.id}/${'players'}`)
-          .on('child_added', async playerId => {
-            const updatedTeam = {};
-            if (!first) {
-              console.log(
-                'player_chiled_added',
-                playerId,
-                'teamName',
-                team.name
-              );
-              updatedTeam.id = team.id;
-              updatedTeam.player = await usersService.getUserById(
-                playerId.toJSON()
-              );
-              console.log('after await', updatedTeam.player);
-              resolve(updatedTeam);
-              console.log('after resolve');
-            }
-          });
-      });
-  });
-}
 function addTeam(team) {
   const teamsRef = firebase
     .database()
@@ -149,23 +110,27 @@ function getTeamById(teamId) {
         teamObj.id = team.id;
         teamObj.name = team.name;
         teamObj.records = team.records;
-        if (team.players)
-          for (const index in team.players) {
-            teamObj.players[index] = await usersService.getUserById(
-              team.players[index]
-            );
-          }
-
-        if (!withoutMatches) {
-          for (const index in team.matches) {
-            const match = await matchesService.getMatchById(
-              team.matches[index],
-              teamId
-            );
-            teamObj.matches.push(match);
-          }
+        if (team.players) {
+          const playersPromises = Object.values(team.players).map(player =>
+            usersService.getUserById(player)
+          );
+          var p1 = Promise.all(playersPromises).then(players => {
+            players.map((player, i) => {
+              teamObj.players[i] = player;
+            });
+          });
         }
-        resolve(teamObj);
+        if (!withoutMatches) {
+          const matchesPromises = Object.values(team.matches).map(match =>
+            matchesService.getMatchById(match, teamId, false)
+          );
+          var p2 = Promise.all(matchesPromises).then(matches => {
+            matches.map(match => teamObj.matches.push(match));
+          });
+        }
+        await Promise.all([p1, p2]).then(() => {
+          return resolve(teamObj);
+        });
       });
   });
 }

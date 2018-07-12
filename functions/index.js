@@ -22,18 +22,27 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
-server.listen(9460);
+//server.listen(9000);
 
 function updateTeamRecordDB(teamId, records) {
   teamsService.updateTeam(`teams/${teamId}/records`, records);
 }
 
 app.post('/sendNotification', (req, res) => {
-  const { userId, notificationType, updatedNotifications } = req.body;
-  notificationsService.updateNotifications(
-    `Notifications/${userId}`,
-    updatedNotifications
-  );
+  const { usersId, teamId, updatedNotifications } = req.body || {};
+  if (teamId) {
+    notificationsService.updateNotifications(
+      `Notifications/${teamId}`,
+      updatedNotifications
+    );
+  }
+  if (usersId)
+    usersId.map(userId =>
+      notificationsService.updateNotifications(
+        `Notifications/${userId}`,
+        updatedNotifications
+      )
+    );
   res.send(200);
 });
 
@@ -43,7 +52,7 @@ app.post('/submitMatchObservation', (req, res) => {
   * update team win,lose,draw,gamePlayed,numOfGoals *both teams*
   * delete from matchesToObserve
   */
-  const { matchDetails } = req.body;
+  const matchDetails = req.body;
   const { firstTeam } = matchDetails;
   // = {goals:,playersGoals:{0:{id:gfgf,goals:5},1:{id:gfgf,goals:5}}}
   const { secondTeam } = matchDetails;
@@ -52,8 +61,7 @@ app.post('/submitMatchObservation', (req, res) => {
   allPlayers.push(...Object.values(firstTeam.playersGoals));
   allPlayers.push(...Object.values(secondTeam.playersGoals));
   allPlayers.map(playerDetails => {
-    usersService.getUserById(playerDetails.id).then(data => {
-      const player = data.toJSON();
+    return usersService.getUserById(playerDetails.id).then(player => {
       const playerGoals =
         parseInt(player.records.goals) + parseInt(playerDetails.goals);
 
@@ -72,8 +80,8 @@ app.post('/submitMatchObservation', (req, res) => {
   let fTeam, fTeamGoals, fTeamGamesPlayed, firstTeamRecords;
   teamsService
     .getTeamById(firstTeam.id)
-    .then(() => {
-      fTeam = data.toJSON();
+    .then(team => {
+      fTeam = team;
       fTeamGoals = parseInt(fTeam.records.goals) + parseInt(firstTeam.goals);
       fTeamGamesPlayed = fTeam.records.gamesPlayed + 1;
       firstTeamRecords = {};
@@ -83,8 +91,7 @@ app.post('/submitMatchObservation', (req, res) => {
       return Promise.resolve();
     })
     .then(() => {
-      teamsService.getTeamById(secondTeam.id).then(data2 => {
-        const sTeam = data2.toJSON();
+      teamsService.getTeamById(secondTeam.id).then(sTeam => {
         const sTeamGoals =
           parseInt(sTeam.records.goals) + parseInt(secondTeam.goals);
 
@@ -94,14 +101,13 @@ app.post('/submitMatchObservation', (req, res) => {
         Object.assign(secondTeamRecords, sTeam.records);
         secondTeamRecords.goals = sTeamGoals;
         secondTeamRecords.gamesPlayed = sTeamGamesPlayed;
-
         if (firstTeam.goals > secondTeam.goals) {
           firstTeamRecords.wins = fTeam.records.wins + 1;
-          secondTeamRecords.wins = sTeam.records.loses + 1;
+          secondTeamRecords.losses = sTeam.records.losses + 1;
           updateTeamRecordDB(firstTeam.id, firstTeamRecords);
           updateTeamRecordDB(secondTeam.id, secondTeamRecords);
         } else if (firstTeam.goals < secondTeam.goals) {
-          firstTeamRecords.wins = fTeam.records.loses + 1;
+          firstTeamRecords.wins = fTeam.records.losses + 1;
           secondTeamRecords.wins = sTeam.records.wins + 1;
           updateTeamRecordDB(firstTeam.id, firstTeamRecords);
           updateTeamRecordDB(secondTeam.id, secondTeamRecords);
@@ -113,6 +119,7 @@ app.post('/submitMatchObservation', (req, res) => {
         }
       });
     });
+  res.send(200);
 });
 app.post('/acceptObservingRoom', (req, res) => {
   /*
@@ -120,21 +127,15 @@ app.post('/acceptObservingRoom', (req, res) => {
   * update roomobserver status in room to accept giving roomId
   * update room Object
   */
-  console.log('hi hi hi hi');
-  // const request = req.body;
-  // const room = request.room;
+  const request = req.body;
+  const room = request.room;
 
-  // requestsService.updateRequest(request.id, 'observing');
-  // roomsService.updateRoom(
-  //   `Rooms/${room.id}/settings/observer/status`,
-  //   'ACCEPTED'
-  // );
+  requestsService.updateRequest(request.id, 'observing');
+  roomsService.updateRoom(
+    `Rooms/${room.id}/settings/observer/status`,
+    'ACCEPTED'
+  );
 
-  // const observingRoom = {
-  //   roomId: room.id,
-  //   observerId: room.settings.observer.info.id
-  // };
-  // observingMatchesService.addObservingMatch(observingRoom);
   res.send(200);
 });
 

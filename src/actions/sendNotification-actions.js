@@ -14,14 +14,35 @@ const sendNormalObservingNotification = recieverId => (dispatch, getState) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        userId: recieverId,
-        notificationType: 'observingNotification',
+        usersId: recieverId,
         updatedNotifications,
       }),
     }
   );
 };
+export const notifyTeamTeamWithNextMatch = teamId => (dispatch, getState) => {
+  const teamNotification = {
+    ...JSON.parse(JSON.stringify(getState().notifications)).team,
+  };
+  console.log('tmNotification', teamNotification);
+  teamNotification.nextMatches += 1;
+  teamNotification.total += 1;
 
+  fetch(
+    'https://us-central1-squad-builder.cloudfunctions.net/req/sendNotification',
+    {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        teamId: teamId,
+        updatedNotifications: teamNotification,
+      }),
+    }
+  );
+};
 const sendOfflineObservingNotification = userId => async dispatch => {
   const userNotificationToken = await usersService.getUserNotificationToken(
     userId
@@ -69,34 +90,7 @@ export const notifyRoomOwnerWithJoiningTeam = userId => async dispatch => {
     }),
   }).catch(err => console.log('err', err));
 };
-export const notifyTeamPlayersWithNextMatch = playersId => async dispatch => {
-  // redo it
 
-  const playersNotificationTokens = playersId.map(playerId => {
-    usersService
-      .getUserNotificationToken(playerId)
-      .then(playerToken => playerToken);
-  });
-  const msgs = playersNotificationTokens.map(playerToken => ({
-    to: playerToken,
-    title: 'hello',
-    body: 'world',
-    data: { type: 'TEAM_TAB' },
-  }));
-  console.log('msgs', msgs);
-  // fetch('https://exp.host/--/api/v2/push/send', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({
-  //     to: userNotificationToken,
-  //     title: 'hello',
-  //     body: 'world',
-  //     data: { type: 'CREATEDROOM_TAB' },
-  //   }),
-  // }).catch(err => console.log('err', err));
-};
 export const sendNormalJoiningTeamNotification = recieverId => (
   dispatch,
   getState
@@ -116,8 +110,7 @@ export const sendNormalJoiningTeamNotification = recieverId => (
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        userId: recieverId,
-        notificationType: 'joiningTeamNotification',
+        usersId: recieverId,
         updatedNotifications,
       }),
     }

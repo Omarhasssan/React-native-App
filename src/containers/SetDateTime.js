@@ -3,12 +3,13 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import DatePicker from 'react-native-datepicker';
 import Btn from '../components/Btn';
 
-export default (DateTimePickerTester = (props) => {
+export default (DateTimePickerTester = props => {
   const { setDate, date } = props;
   return (
     <View
       style={{
         flexDirection: 'row',
+
         // height: 20,
         alignItems: 'center',
         // marginBottom: 20,
@@ -32,8 +33,9 @@ export default (DateTimePickerTester = (props) => {
             justifyContent: 'center',
           }}
           date={date}
+          disabled={!props.isRoomOwner}
           mode="datetime"
-          placeholder="select date"
+          placeholder={(props.isRoomOwner && 'Select Date') || 'No Date'}
           confirmBtnText="Confirm"
           cancelBtnText="Cancel"
           customStyles={{
@@ -57,8 +59,9 @@ export default (DateTimePickerTester = (props) => {
         />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ fontStyle: 'italic', fontSize: 6 }}>
-          *Set Time for the match , Both Team players will be notifyed by this time*
+        <Text style={{ fontStyle: 'italic', fontSize: 8 }}>
+          *Set Time for the match , Both Team players will be notifyed by this
+          time*
         </Text>
       </View>
     </View>

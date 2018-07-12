@@ -6,6 +6,7 @@ import {
   listenToUserChanges,
   listenToTeamChanges,
   listenToNotifications,
+  showTeamDetailsModel,
 } from '../actions';
 import Top from '../components/ProfileTop';
 import TabNavigator from './TabNavigator';
@@ -13,6 +14,8 @@ import Invitations from './Invitations';
 import CreateOrJoinTeam from './CreateOrJoinTeam';
 import MatchesToObserve from './MatchesToObserve';
 import ObserverWithModel from './ObserverWithModel';
+import TeamDetailsWithModel from './TeamDetailsWithModel';
+import withHandleModel from '../hocs/withHandleModel';
 const mapDispatchToProps = dispatch => ({
   listenToUserChanges(userId) {
     dispatch(listenToUserChanges(userId));
@@ -31,7 +34,7 @@ class Profile extends Component {
   state = {
     activeTab:
       this.props.activeTab ||
-      (this.props.role == 'CAPTAIN' && 'CreateOrJoinRoom') ||
+      (this.props.user.role == 'CAPTAIN' && 'CreateOrJoinRoom') ||
       'Team',
   };
   handleTabs() {
@@ -103,8 +106,6 @@ class Profile extends Component {
 
     return (
       <View style={styles.container}>
-        {showObserverModel && <ObserverWithModel />}
-
         <Top
           setActive={tabName => {
             this.setState({ activeTab: tabName });
@@ -152,10 +153,11 @@ const mapStateToProps = ({
   user: auth.user,
   team: teamsReducer.curntTeam,
   socket,
-  showObserverModel: model.showObserver,
-  showTeamDetailsModel: model.showTeamDetails,
+  model,
   observingMatches,
   notifications,
   activeTab: notificationHandler.screenProps.activeTab,
 });
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default connect(mapStateToProps, mapDispatchToProps)(
+  withHandleModel(Profile)
+);

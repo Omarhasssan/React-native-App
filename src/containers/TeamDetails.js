@@ -1,9 +1,8 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Text, View, Image, StyleSheet } from 'react-native';
 
-export const TeamDetails = (props) => {
-  console.log('prp', props);
+export default (TeamDetails = props => {
+  console.log('=====>', props);
   return (
     <View
       style={{
@@ -33,14 +32,9 @@ export const TeamDetails = (props) => {
       </View>
     </View>
   );
-};
+});
 const styles = StyleSheet.create({
   txt: {
     alignItems: 'center',
   },
 });
-const mapStateToProps = ({ teamRecords }) => ({
-  teamRecords,
-});
-
-export default connect(mapStateToProps, null)(TeamDetails);

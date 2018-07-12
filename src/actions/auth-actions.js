@@ -46,9 +46,7 @@ export const Register = user => dispatch => {
       });
       dispatch(registerForPushNotificationsAsync(returnedUser.id));
 
-      AsyncStorage.setItem('@UserId', returnedUser.id).then(() =>
-        console.log('user saved')
-      );
+      AsyncStorage.setItem('@UserId', returnedUser.id);
     })
     .catch(err => {
       dispatch({ type: 'SIGNUP_FAILURE', err });
@@ -57,43 +55,41 @@ export const Register = user => dispatch => {
 
 export const getUserData = user => async (dispatch, getState) => {
   if (user.teamId) {
-    const team = await teamsService.getTeamById(user.teamId);
-    dispatch({
-      type: 'CREATE_ROOM_BY_TEAM_ID',
-      id: user.teamId,
-    });
+    var p1 = teamsService.getTeamById(user.teamId).then(team => {
+      dispatch({
+        type: 'CREATE_ROOM_BY_TEAM_ID',
+        id: user.teamId,
+      });
 
-    dispatch({
-      type: 'SET_CURNT_TEAM',
-      team,
+      dispatch({
+        type: 'SET_CURNT_TEAM',
+        team,
+      });
     });
-    console.log('SET_CURNT_TEAM');
   }
 
   if (user.roomId) {
-    const room = await roomsService.getRoomById(user.roomId);
-    dispatch({
-      type: 'CREATE_ROOM_BY_ROOM_ID',
-      id: user.roomId,
-    });
-    dispatch({
-      type: 'SET_CREATED_ROOM',
-      room,
-    });
-  }
-  const notifications = await notificationsService.getUserNotifications(
-    user.id
-  );
-  const reqs = await dispatch(getUserRequest(getState().socket, user));
-
-  if (notifications) {
-    dispatch({
-      type: 'LOAD_USER_NOTIFICATIONS',
-      notifications: notifications.val(),
+    var p2 = roomsService.getRoomById(user.roomId).then(room => {
+      dispatch({
+        type: 'CREATE_ROOM_BY_ROOM_ID',
+        id: user.roomId,
+      });
+      dispatch({
+        type: 'SET_CREATED_ROOM',
+        room,
+      });
     });
   }
-
-  return Promise.resolve();
+  const p3 = notificationsService
+    .getUserNotifications(user.id)
+    .then(notifications => {
+      dispatch({
+        type: 'LOAD_USER_NOTIFICATIONS',
+        notifications: notifications,
+      });
+    });
+  const p4 = dispatch(getUserRequest(getState().socket, user));
+  await Promise.all([p1, p2, p3, p4]).then(() => Promise.resolve());
 };
 
 export const Login = user => (dispatch, getState) => {
@@ -109,17 +105,11 @@ export const Login = user => (dispatch, getState) => {
 
       const userDataLoaded = dispatch(getUserData(user));
       userDataLoaded.then(() => {
-        console.log('USER_DATA_LOADED_SUCCESFFULY');
         dispatch({
           type: 'LOGIN_SUCCESS',
           user,
         });
       });
-
-      // should save to async storage ?
-      AsyncStorage.setItem('@UserId', user.id).then(() =>
-        console.log('user saved')
-      );
     })
     .catch(() => {
       dispatch({ type: 'LOGIN_FAILURE', err: 'username or password incorret' });
@@ -139,8 +129,6 @@ export const getUserFromAsyncStorage = () =>
 
 export const checkIfWeKnowThisUserBefore = () => async (dispatch, getState) => {
   //AsyncStorage.removeItem('@UserId');
-
-  console.log("=> i'm in checkIfWeKnowThisUserBefore");
   const user = await getUserFromAsyncStorage();
 
   if (Object.keys(user).length) {
@@ -148,10 +136,10 @@ export const checkIfWeKnowThisUserBefore = () => async (dispatch, getState) => {
       type: 'CREATE_ROOM_BY_USER_ID',
       id: user.id,
     });
+
     const userDataLoaded = dispatch(getUserData(user));
 
     return userDataLoaded.then(() => {
-      console.log('USER_DATA_LOADED_SUCCESFFULY');
       dispatch({
         type: 'LOGIN_SUCCESS',
         user,

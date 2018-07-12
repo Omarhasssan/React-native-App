@@ -124,7 +124,7 @@ export const acceptRequest = (request, socket) => dispatch => {
         body: JSON.stringify(request),
       }
     ).then(res => {
-      console.log('res');
+      console.log('=> OBSERVING REQUEST ACCEPTED ;)');
       // dispatch({
       //   type: 'ACCEPT_OBSERVING_REQUEST',
       //   requestId: request.id,

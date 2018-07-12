@@ -4,8 +4,10 @@
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      userId:'-L8U1vG1mWTIdJeV1TTt',
-      notificationType:'observingNotification'
-    }),
+   body: JSON.stringify({
+        teamId: '-LGW7uF05sJTGBkigm7s',
+        updatedNotifications:{
+  team: { total: 1, nextMatches: 1 }
+  },
+      })
   })

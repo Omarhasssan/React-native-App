@@ -20,17 +20,18 @@ class TabNav extends Component {
   }
 }
 
-const mapStateToProps = ({ roomsReducer, auth, teamsReducer }) => ({
+const mapStateToProps = ({ roomsReducer, auth, teamsReducer, socket }) => ({
   rooms: roomsReducer.rooms,
   room: roomsReducer.createdRoom,
   user: auth.user,
   team: teamsReducer.curntTeam,
   teamsReducer,
+  socket,
 });
 const mapDispatchToProps = dispatch => ({
-  joinRoom(room, user) {
+  joinRoom(room, team, socket) {
     dispatch(setJoinedRoom(room));
-    dispatch(joinRoom(room, user));
+    dispatch(joinRoom(room, team, socket));
   },
   listenToRoomChanges(user) {
     dispatch(listenToRoomChanges(user));

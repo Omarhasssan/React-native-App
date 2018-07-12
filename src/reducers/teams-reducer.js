@@ -17,17 +17,17 @@ function sortMatchesByDate(matches) {
   });
   return matches;
 }
-function addMatch(teams, teamId, updatedMatches) {
-  const x = teams.map(team => {
-    if (team.id === teamId) {
-      const updatedTeam = team;
-      updatedTeam.matches = updatedMatches;
-      updatedTeam.matches = sortMatchesByDate(team.matches);
-      return updatedTeam.matches;
-    }
-  });
-  return x;
-}
+// function addMatch(teams, teamId, updatedMatches) {
+//   const x = teams.map(team => {
+//     if (team.id === teamId) {
+//       const updatedTeam = team;
+//       updatedTeam.matches = updatedMatches;
+//       updatedTeam.matches = sortMatchesByDate(updatedTeam.matches);
+//       return updatedTeam.matches;
+//     }
+//   });
+//   return x;
+// }
 function updateTeamPlayers(teams, teamId, player) {
   return teams.map(team => {
     if (team.id === teamId) {
@@ -112,16 +112,11 @@ export default function(
     case 'SET_TEAM_MATCHES':
       return {
         ...state,
-        teams: [],
         curntTeam:
           action.payload.teamId === state.curntTeam.id
             ? {
                 ...state.curntTeam,
-                matches: addMatch(
-                  [state.curntTeam],
-                  action.payload.teamId,
-                  action.payload.updatedMatches
-                )[0],
+                matches: sortMatchesByDate(action.payload.updatedMatches),
               }
             : state.curntTeam,
       };

@@ -6,8 +6,14 @@ import {
   updateUserRoom,
 } from '.';
 import firebase from '../config/firebase';
-import { usersService, roomsService, teamsService } from '../Service';
-import { matchesService } from '../../functions/dist/server/Service/matchesService';
+import {
+  usersService,
+  roomsService,
+  teamsService,
+  observingMatchesService,
+  matchesService,
+} from '../Service';
+let singleton = { onObserverStatusChanged: null };
 
 export const createRoom = (user, Name, socket) => dispatch => {
   // save room to database admin of el room and room details
@@ -17,7 +23,6 @@ export const createRoom = (user, Name, socket) => dispatch => {
   room.name = Name;
   room.settings = { OwnerReady: false, GuestReady: false };
   roomsService.addRoom(room);
-  // console.log('usr', user);
   teamsService.getTeamById(user.teamId).then(team => {
     const Room = { ...room, teamOwner: team };
     dispatch({
@@ -64,6 +69,39 @@ export const joinRoom = (room, team, socket) => dispatch => {
   // update allRooms and room object in roomOwner and roomGuest
   dispatch(updateRoom(room, 'joinedTeam', team, socket));
 };
+const onRoomObserverStatusChanged = (roomId, socket) => (
+  dispatch,
+  getState
+) => {
+  if (!singleton.onObserverStatusChanged) {
+    singleton.onObserverStatusChanged = true;
+    let first = true;
+    firebase
+      .database()
+      .ref(`${'Rooms'}/${roomId}/${'settings'}/${'observer'}/${'status'}`)
+      .on('value', async status => {
+        // should return req status and roomId
+
+        if (first) first = false;
+        else if (status.val() && status.val() != 'PENDING') {
+          dispatch(
+            updateRoom(
+              getState().roomsReducer.createdRoom,
+              'settings',
+              {
+                ...getState().roomsReducer.createdRoom.settings,
+                observer: {
+                  ...getState().roomsReducer.createdRoom.settings.observer,
+                  status: status.val(),
+                },
+              },
+              socket
+            )
+          );
+        }
+      });
+  }
+};
 export const listenToRoomChanges = (user, socket) => dispatch => {
   dispatch({
     type: 'JOIN_ROOMS_CHANNEL',
@@ -87,9 +125,7 @@ export const listenToRoomChanges = (user, socket) => dispatch => {
 
   socket.on('updateRoom', updatedRoom => {
     // if the user is roomOwner
-    console.log('in update Room Socet');
     if (updatedRoom.id === user.roomId) {
-      console.log('update mycreatdRoom');
       dispatch({
         type: 'UPDATE_CREATED_ROOM',
         room: { id: updatedRoom.id, updatedRoom },
@@ -97,38 +133,13 @@ export const listenToRoomChanges = (user, socket) => dispatch => {
     }
     // if guest
     else {
-      console.log('update myjoinedRoom');
-
       dispatch({
         type: 'UPDATE_JOINED_ROOM',
         room: { id: updatedRoom.id, updatedRoom },
       });
     }
   });
-  let first = true;
-  firebase
-    .database()
-    .ref('Rooms')
-    .on('child_added', room => {
-      room = room.toJSON();
-      firebase
-        .database()
-        .ref(`${'Rooms'}/${room.id}/${'settings'}/${'observer'}/${'status'}`)
-        .on('value', async status => {
-          // should return req status and roomId
-          if (first) first = false;
-          else {
-            const updatedRoom = await roomsService.getRoomById(room.id);
-            dispatch(
-              updateRoom(updatedRoom, 'settings', updatedRoom.settings, socket)
-            );
-            first = false;
-          }
-        });
-    });
-  // DBHelpers.onRoomObserverStatusChanged().then((updatedRoom) => {
-  //   dispatch(updateRoom(updatedRoom, 'settings', updatedRoom.settings, socket));
-  // });
+  dispatch(onRoomObserverStatusChanged(user.roomId, socket));
 };
 
 export const setRoomDate = (room, date, socket) => dispatch => {
@@ -157,13 +168,19 @@ export const leaveRoom = (room, socket) => dispatch => {
 
 export const setRoomObserver = (room, observerId, socket) => dispatch => {
   // updateRoom in DB AND REDUCER w bt send request lel observer
+
+  //TODO:START LOADING
+
   if (observerId) {
+    dispatch({
+      type: 'LOAD_OBSERVER_INFO_PENDING',
+    });
     updateRoomDB(`Rooms/${room.id}/settings/observer/id`, observerId);
     updateRoomDB(`Rooms/${room.id}/settings/observer/status`, 'PENDING');
     // law kan f observer abl kda w hasl change -> this.observer != el observer l fat
     if (
       room.settings &&
-      room.settings.observer &&
+      Object.keys(room.settings.observer).length &&
       room.settings.observer.info.id != observerId
     ) {
       // then remove request l observer l fat mn l database
@@ -175,6 +192,12 @@ export const setRoomObserver = (room, observerId, socket) => dispatch => {
     }
     dispatch(saveAndSendObservingRequest(room, observerId, socket));
     usersService.getUserById(observerId).then(user => {
+      //TODO STOP LOADING
+      setTimeout(() => {
+        dispatch({
+          type: 'LOAD_OBSERVER_INFO_SUCCESS',
+        });
+      }, 1000);
       dispatch(
         updateRoom(
           room,
@@ -207,18 +230,17 @@ export const setGuestReady = (room, val, socket) => dispatch => {
     updateRoom(room, 'settings', { ...room.settings, GuestReady: val }, socket)
   );
 };
-export const setRoomMatch = (room, socket) => dispatch => {
+export const setRoomMatch = (room, socket) => async dispatch => {
   const dateObj = convertDateToYMDH(room.settings.date);
-  const matchSettings = { ...room.settings };
-  const homeTeamMatch = {
+  let homeTeamMatch = {
     oponnentTeam: room.joinedTeam,
+    ...room.settings,
     date: dateObj,
-    ...matchSettings.settings,
   };
-  const awayTeamMatch = {
+  let awayTeamMatch = {
     oponnentTeam: room.teamOwner,
+    ...room.settings,
     date: dateObj,
-    ...matchSettings.settings,
   };
   const matchDB = {
     homeTeam: room.teamOwner.id,
@@ -227,10 +249,18 @@ export const setRoomMatch = (room, socket) => dispatch => {
     location: room.settings.location,
     observer: room.settings.observer.info.id,
   };
-  matchesService.addMatch(matchDB).then(matchId => {
-    homeTeamMatch.id = matchId;
-    awayTeamMatch.id = matchId;
-    dispatch(setTeamMatch(homeTeamMatch, room.teamOwner, socket));
-    dispatch(setTeamMatch(awayTeamMatch, room.joinedTeam, socket));
-  });
+  const matchId = await matchesService.addMatch(matchDB);
+  homeTeamMatch.id = matchId;
+  awayTeamMatch.id = matchId;
+  setTeamMatch(homeTeamMatch, room.teamOwner, socket);
+  setTeamMatch(awayTeamMatch, room.joinedTeam, socket);
+
+  // OBSERVER LOGIC
+  const observingMatch = {
+    matchId: matchId,
+  };
+  observingMatchesService.addObservingMatch(
+    observingMatch,
+    room.settings.observer.info.id
+  );
 };

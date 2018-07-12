@@ -23,8 +23,6 @@ import {
   handleNotificationClick,
   loadData,
 } from '../src/actions';
-import Spinner from './components/Spinner';
-import { DBHelpers } from '../src/helpers';
 import withLoadData from './hocs/withLoadData';
 const middleware = createReactNavigationReduxMiddleware(
   'root',
@@ -35,6 +33,7 @@ class App extends Component {
   componentWillUnmount() {
     console.log('app unmount');
   }
+
   render() {
     //console.disableYellowBox = true;
     const { navigation } = this.props;
@@ -56,6 +55,7 @@ const mapDispatchToProps = dispatch => ({
   loadData() {
     dispatch(loadData());
   },
+
   dispatch,
 });
 

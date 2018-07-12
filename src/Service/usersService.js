@@ -56,14 +56,12 @@ function checkUserFound(user) {
 }
 
 function getUserById(userId) {
-  const withoutMatches = arguments[1] == 'withoutTeamMatches';
-
   return new Promise((resolve, reject) =>
     firebase
       .database()
       .ref(`${'users'}/${userId}`)
-      .once('value', async snapshot => {
-        resolve(snapshot.toJSON());
+      .once('value', snapshot => {
+        return resolve(snapshot.val());
       })
   );
 }

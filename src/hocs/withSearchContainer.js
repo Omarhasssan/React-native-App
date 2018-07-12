@@ -21,7 +21,7 @@ export default (withSearchContainer = (
   renderHeaderRight,
   setCheckedItems,
   loadCheckedItems,
-  settings,
+  settings
 ) =>
   class extends Component {
     state = {
@@ -35,27 +35,27 @@ export default (withSearchContainer = (
           headerRight: renderHeaderRight(
             navigation.state.params.checkedItems,
             navigation,
-            navigation.state.params.prps,
+            navigation.state.params.prps
           ),
         };
       }
     }
     componentDidMount() {
       const { navigation, clearCheckedItems } = this.props;
-      console.log('did id didid i');
       loadCheckedItems(this.props);
       this.setState({ loading: true });
       dispatchGetData(this.props);
     }
     componentWillReceiveProps(nextProps) {
-      console.log('withSearchContainer RCCCC', nextProps.checkedItems.loaded);
       if (
         !nextProps.checkedItems.loaded &&
         (Object.keys(nextProps.checkedItems.items).length !==
           Object.keys(this.props.checkedItems.items).length ||
-          !this.isEqual(nextProps.checkedItems.items, this.props.checkedItems.items))
+          !this.isEqual(
+            nextProps.checkedItems.items,
+            this.props.checkedItems.items
+          ))
       ) {
-        console.log('withSearchContainer innnnn');
         this.updateCheckedItems(nextProps.checkedItems.items);
         setCheckedItems(nextProps.checkedItems.items, this.props);
       }
@@ -80,13 +80,15 @@ export default (withSearchContainer = (
           prps: this.props,
         });
     }
-    componentWillUnmount() {
-      console.log('uuunnnnnnmounttt');
-    }
 
     render() {
       const { data, text, loading } = this.state;
-      const { checkedItems, addCheckedItem, removeCheckedItem, clearCheckedItems } = this.props;
+      const {
+        checkedItems,
+        addCheckedItem,
+        removeCheckedItem,
+        clearCheckedItems,
+      } = this.props;
       if (loading) return <Spinner />;
       this.selectedData = [];
       this.filteredData = [];
@@ -94,7 +96,8 @@ export default (withSearchContainer = (
         this.filteredData = data.filter(d => d.name.includes(text));
       } else this.filteredData = data;
       if (data)
-        for (var k in checkedItems.items) this.selectedData.push(data.filter(d => d.id == k)[0]);
+        for (var k in checkedItems.items)
+          this.selectedData.push(data.filter(d => d.id == k)[0]);
       return (
         <View style={{ flex: 1 }}>
           <Search onChangeText={text => this.setState({ text })} />

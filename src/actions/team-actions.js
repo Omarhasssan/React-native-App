@@ -5,6 +5,7 @@ import {
   updateUserRoleToCaptain,
 } from '.';
 import { teamsService, usersService } from '../Service';
+import { notifyTeamPlayersWithNextMatch } from './sendNotification-actions';
 /*eslint-disable */
 
 let singleton = { onTeamHasPlayer: null };
@@ -57,14 +58,7 @@ export const onTeamHasNewPlayer = () => async (dispatch, getState) => {
         .database()
         .ref(`${'teams'}/${team.id}/${'players'}`)
         .on('child_added', async playerId => {
-          console.log(
-            '=> player child added BUT TILL I DONT KNOW IF U NEW ONE OR OLD HEHEHE '
-          );
           if (!first) {
-            console.log(
-              '=> THIS IS A NEW PLAYER I GOT YOU HEHEE',
-              playerId.val()
-            );
             let updatedTeam = {};
             const player = await usersService.getUserById(playerId.toJSON());
             dispatch({
@@ -72,7 +66,6 @@ export const onTeamHasNewPlayer = () => async (dispatch, getState) => {
               payload: { teamId: team.id, player: player },
             });
           } else {
-            console.log('=>IN CNT');
             playersCnt++;
             if (playersCnt == Object.keys(team.players).length) first = false;
           }
@@ -88,9 +81,8 @@ export const setTeamPlayers = teamPlayers => dispatch => {
 };
 
 export const onTeamHasMatch = socket => dispatch => {
-  console.log('in onTeamHasMatch');
   socket.on('teamHasMatch', data => {
-    console.log('in socket , team has match');
+    console.log('My Team HAS MATCHHHHHHHHH');
     dispatch({
       type: 'SET_TEAM_MATCHES',
       payload: { teamId: data.teamId, updatedMatches: data.updatedMatches },
@@ -98,14 +90,16 @@ export const onTeamHasMatch = socket => dispatch => {
   });
 };
 
-export const setTeamMatch = (match, team, socket) => dispatch => {
-  team.matches.push(match);
-  //console.log('tmMatches', team.matches);
+export const setTeamMatch = (match, team, socket) => {
+  let Team = JSON.parse(JSON.stringify(team));
+  Team.matches.push(match);
+
+  teamsService.addMatchToTeam(Team.id, match.id);
   socket.emit('teamHasMatch', {
-    updatedMatches: team.matches,
-    teamId: team.id,
+    updatedMatches: Team.matches,
+    teamId: Team.id,
   });
-  teamsService.addMatchToTeam(team.id, match.id);
+  notifyTeamWithNextMatch(team.id);
 };
 
 export const listenToTeamChanges = socket => dispatch => {

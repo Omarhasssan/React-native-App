@@ -1,7 +1,12 @@
-import { usersService, teamsService, roomsService } from '../Service';
+import {
+  usersService,
+  teamsService,
+  roomsService,
+  matchesService,
+} from '../Service';
 import firebase from '../config/firebase';
 /*eslint-disable */
-let singleton = { onUserHasTeam: null };
+let singleton = { onUserHasTeam: null, onUserHasMatchesToObserve: null };
 export const updateUserRoleToCaptain = user => {
   usersService.updateUser(`users/${user.id}/role`, 'CAPTAIN');
   return {
@@ -21,7 +26,6 @@ export const onUserHasTeam = userId => (dispatch, getState) => {
       .ref(`${'users'}/${userId}/${'teamId'}`)
       .on('value', async snap => {
         if (!userTeam.id && snap.val()) {
-          console.log('=> HEY I HAVE A TEAM WHOWHWO', snap.val());
           let teamId = snap.val();
           const team = await teamsService.getTeamById(teamId);
           dispatch({
@@ -43,25 +47,25 @@ export const onUserHasTeam = userId => (dispatch, getState) => {
 };
 export const onUserHasMatchesToObserve = userId => dispatch => {
   return new Promise((resolve, reject) => {
-    return firebase
-      .database()
-      .ref('MatchesToObserve')
-      .on('child_added', async snapshot => {
-        // have roomId , playerId
-        let match = {};
-        const data = snapshot.toJSON();
-        if (userId == data.observerId) {
-          const room = await roomsService.getRoomById(data.roomId);
-          match.firstTeam = room.teamOwner;
-          if (room.joinedTeam) match.secondTeam = room.joinedTeam;
-          if (room.settings.data) match.date = room.settings.date;
-          if (room.settings.location) match.location = room.settings.location;
+    if (!singleton.onUserHasMatchesToObserve) {
+      singleton.onUserHasMatchesToObserve = true;
+      return firebase
+        .database()
+        .ref(`MatchesToObserve/${userId}`)
+        .on('child_added', async snapshot => {
+          const data = snapshot.val();
+          console.log('=> HEY MAN I HAVE A MATCH TO OBSERVE', snapshot.val());
+          const match = await matchesService.getMatchById(
+            snapshot.val(),
+            '',
+            true
+          );
           dispatch({
             type: 'SET_OBSERVING_MATCH',
             match,
           });
-        }
-      });
+        });
+    }
   });
 };
 export const updateUserRoom = (user, room) => dispatch => {
