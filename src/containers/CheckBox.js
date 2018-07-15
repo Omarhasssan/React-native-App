@@ -25,7 +25,7 @@ export default class MyCheckBox extends Component {
     const { checked } = this.state;
     return (
       <TouchableOpacity style={{ flexDirection: 'row' }} onPress={this.onCheck}>
-        <Text style={{ fontSize: 10 }}>{txt}</Text>
+        <Text style={{ fontSize: 10, color: 'white' }}>{txt}</Text>
         <CheckBox
           containerStyle={{
             padding: 0,

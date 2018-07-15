@@ -19,7 +19,7 @@ export default class Tabs extends Component {
             }
             onPress={() => setActive(tab.tabName)}
           >
-            <Text style={{ fontSize: 8 }}>{tab.tabName}</Text>
+            <Text style={{ fontSize: 7 }}>{tab.tabName}</Text>
             {tab.tabNotifications && (
               <View style={styles.notificationCnt}>
                 <Text style={{ fontSize: 8, color: 'white' }}>
@@ -37,13 +37,20 @@ export default class Tabs extends Component {
 const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
-    width: `${100}%`,
     justifyContent: 'space-between',
     borderWidth: 1,
     borderColor: '#1da1f2',
     borderRadius: 3,
-    height: 30,
-    //flex: 1,
+    height: `${23}%`,
+  },
+  tab: {
+    backgroundColor: 'white',
+    flex: 1,
+    // height: `${100}%`,
+    borderColor: '#1da1f2',
+    borderRightWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   activeTab: {
     backgroundColor: '#1da1f2',
@@ -59,14 +66,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     top: -5,
     right: 0,
-  },
-  tab: {
-    backgroundColor: 'white',
-    flex: 1,
-    borderColor: '#1da1f2',
-    borderRightWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: `${100}%`,
   },
 });

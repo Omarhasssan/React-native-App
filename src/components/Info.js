@@ -5,10 +5,12 @@ export default (Info = props => (
   <View style={props.containerStyle}>
     <Image
       style={[styles.userImg, props.userImgStyle]}
-      source={(props.imgUri && { uri: props.imgUri }) || require('../imges/user.png')}
+      source={
+        (props.imgUri && { uri: props.imgUri }) || require('../imges/user.png')
+      }
     />
     <View style={{ alignItems: 'center', padding: 5 }}>
-      <Text style={{ fontSize: 10 }}>{props.name}</Text>
+      <Text style={[{ fontSize: 10 }, props.txtStyle]}>{props.name}</Text>
     </View>
   </View>
 ));

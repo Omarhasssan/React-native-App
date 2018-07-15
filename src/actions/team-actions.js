@@ -5,7 +5,10 @@ import {
   updateUserRoleToCaptain,
 } from '.';
 import { teamsService, usersService } from '../Service';
-import { notifyTeamPlayersWithNextMatch } from './sendNotification-actions';
+import {
+  notifyTeamPlayersWithNextMatch,
+  notifyTeamTeamWithNextMatch,
+} from './sendNotification-actions';
 /*eslint-disable */
 
 let singleton = { onTeamHasPlayer: null };
@@ -99,7 +102,7 @@ export const setTeamMatch = (match, team, socket) => {
     updatedMatches: Team.matches,
     teamId: Team.id,
   });
-  notifyTeamWithNextMatch(team.id);
+  notifyTeamTeamWithNextMatch(team.id);
 };
 
 export const listenToTeamChanges = socket => dispatch => {

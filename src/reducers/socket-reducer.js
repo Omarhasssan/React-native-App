@@ -1,6 +1,6 @@
 import io from 'socket.io-client/dist/socket.io';
 
-let socket = io.connect('http://99b2d461.ngrok.io');
+let socket = io.connect('http://26882f8c.ngrok.io');
 export default function(state = socket, action) {
   switch (action.type) {
     case 'CREATE_ROOM_BY_USER_ID': {

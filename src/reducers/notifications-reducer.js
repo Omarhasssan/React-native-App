@@ -8,7 +8,7 @@ const intialState = {
 };
 export default function(state = intialState, action) {
   switch (action.type) {
-    case 'ADD_OBSERVING_NOTIFICATION':
+    case 'SET_OBSERVING_NOTIFICATION':
       return {
         ...state,
         invitations: {
@@ -17,47 +17,18 @@ export default function(state = intialState, action) {
           total: state.invitations.total + 1,
         },
       };
-    case 'ADD_NEXTMATCH_NOTIFICATION':
+    case 'SET_TEAM_NOTIFICATION':
       return {
         ...state,
-        team: {
-          ...state.team,
-          nextMatches: state.team.nextMatches + 1,
-          total: state.team.total + 1,
-        },
+        team: action.notifications,
       };
-    case 'ADD_JOININGTEAM_NOTIFICATION':
-      return {
-        ...state,
-        invitations: {
-          ...state.invitations,
-          joiningTeam: state.invitations.joiningTeam + 1,
-          total: state.invitations.total + 1,
-        },
-      };
+
     case 'LOAD_USER_NOTIFICATIONS':
       return {
         ...state,
         ...action.notifications,
       };
-    case 'REMOVE_OBSERVING_NOTIFICATIONS':
-      return {
-        ...state,
-        invitations: {
-          ...state.invitations,
-          total: state.invitations.total - state.invitations.observing,
-          observing: 0,
-        },
-      };
-    case 'REMOVE_JOININGTEAM_NOTIFICATIONS':
-      return {
-        ...state,
-        invitations: {
-          ...state.invitations,
-          total: state.invitations.total - state.invitations.joiningTeam,
-          joiningTeam: 0,
-        },
-      };
+
     default:
       return state;
   }

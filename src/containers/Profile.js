@@ -115,9 +115,12 @@ class Profile extends Component {
           tabs={[...captainTabs, ...defaultTabs, ...observerTabs]}
         />
 
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 2 }}>
           {(activeTab == 'Team' && (
-            <CreateOrJoinTeam navigation={navigation} />
+            <CreateOrJoinTeam
+              navigation={navigation}
+              notifications={notifications.team}
+            />
           )) ||
             (activeTab == 'Invitations' && (
               <Invitations notifications={notifications.invitations} />

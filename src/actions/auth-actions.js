@@ -83,10 +83,11 @@ export const getUserData = user => async (dispatch, getState) => {
   const p3 = notificationsService
     .getUserNotifications(user.id)
     .then(notifications => {
-      dispatch({
-        type: 'LOAD_USER_NOTIFICATIONS',
-        notifications: notifications,
-      });
+      if (notifications.val())
+        dispatch({
+          type: 'LOAD_USER_NOTIFICATIONS',
+          notifications: notifications,
+        });
     });
   const p4 = dispatch(getUserRequest(getState().socket, user));
   await Promise.all([p1, p2, p3, p4]).then(() => Promise.resolve());

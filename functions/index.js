@@ -22,7 +22,7 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
-//server.listen(9000);
+server.listen(5000);
 
 function updateTeamRecordDB(teamId, records) {
   teamsService.updateTeam(`teams/${teamId}/records`, records);

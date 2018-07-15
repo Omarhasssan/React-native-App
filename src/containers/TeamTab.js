@@ -14,23 +14,19 @@ import PlayerInfo from '../components/Info';
 import openMap from 'react-native-open-maps';
 import Btn from '../components/Btn';
 import NextMatch from './NextMatch';
+import { removeNextMatchesNotifications } from '../actions';
 
 class TeamTab extends Component {
   state = {
     teamInfoTab: false,
     teamPlayersTab: false,
-    teamNextMatchesTab: true,
+    teamNextMatchesTab: false,
     joinTeamRequestsTab: false,
   };
 
   render() {
-    const { user, team } = this.props;
-    const {
-      teamInfoTab,
-      teamNextMatchesTab,
-      teamPlayersTab,
-      joinTeamRequestsTab,
-    } = this.state;
+    const { notifications, team, removeNextMatchesNotifications } = this.props;
+    const { teamInfoTab, teamNextMatchesTab, teamPlayersTab } = this.state;
     return (
       <View style={{ flex: 1 }}>
         <Btn
@@ -93,13 +89,18 @@ class TeamTab extends Component {
         )}
         <Btn
           renderAfterIcon={
-            <Image
-              style={{ width: 20, height: 20 }}
-              source={
-                (teamNextMatchesTab && require('../imges/uparrow.png')) ||
-                require('../imges/downarrow.png')
-              }
-            />
+            <View style={{ flexDirection: 'row' }}>
+              <Text>
+                {notifications.nextMatches != 0 && notifications.nextMatches}
+              </Text>
+              <Image
+                style={{ width: 20, height: 20 }}
+                source={
+                  (teamNextMatchesTab && require('../imges/uparrow.png')) ||
+                  require('../imges/downarrow.png')
+                }
+              />
+            </View>
           }
           txt="Team NextMatches"
           containerStyle={{
@@ -108,9 +109,11 @@ class TeamTab extends Component {
             flexDirection: 'row',
             justifyContent: 'space-between',
           }}
-          onPress={() =>
-            this.setState({ teamNextMatchesTab: !teamNextMatchesTab })
-          }
+          onPress={() => {
+            this.setState({ teamNextMatchesTab: !teamNextMatchesTab });
+            if (notifications.nextMatches != 0)
+              removeNextMatchesNotifications();
+          }}
         />
         <View style={{ flex: 1 }}>
           {teamNextMatchesTab &&
@@ -122,8 +125,10 @@ class TeamTab extends Component {
   }
 }
 
-const mapStateToProps = ({ socket }) => ({
-  socket,
+const mapDispatchToProps = dispatch => ({
+  removeNextMatchesNotifications() {
+    dispatch(removeNextMatchesNotifications());
+  },
 });
 
-export default connect(mapStateToProps)(TeamTab);
+export default connect(null, mapDispatchToProps)(TeamTab);

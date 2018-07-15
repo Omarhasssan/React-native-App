@@ -3,32 +3,33 @@ import { Text, View, Image, StyleSheet } from 'react-native';
 import Tabs from './Tabs';
 
 export default (ProfileTop = props => (
-  <View style={{ width: `${100}%`, height: `${25}%` }}>
+  <View
+    style={{
+      // backgroundColor: 'green',
+      height: `${27}%`,
+      justifyContent: 'space-between',
+    }}
+  >
     <View style={styles.topContainer}>
       <Image
         style={styles.userImg}
-        source={(props.user.imgUri && { uri: props.user.imgUri }) || require('../imges/user.png')}
+        source={
+          (props.user.imgUri && { uri: props.user.imgUri }) ||
+          require('../imges/user.png')
+        }
       />
       <View style={{ width: `${100}%`, alignItems: 'center', padding: 5 }}>
         <Text>{props.user.name}</Text>
       </View>
     </View>
-    <View style={styles.tabsContainer}>
-      <Tabs
-        setActive={tabName => props.setActive(tabName)}
-        tabs={props.tabs}
-        activeTab={props.activeTab}
-      />
-    </View>
+    <Tabs
+      setActive={tabName => props.setActive(tabName)}
+      tabs={props.tabs}
+      activeTab={props.activeTab}
+    />
   </View>
 ));
 const styles = StyleSheet.create({
-  tabsContainer: {
-    position: 'absolute',
-    bottom: 0,
-    width: `${100}%`,
-    alignItems: 'center',
-  },
   userImg: {
     alignSelf: 'center',
     marginRight: 7,
@@ -39,7 +40,8 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     width: `${100}%`,
-    height: 120,
+    height: `${60}%`,
+    //backgroundColor: 'yellow',
     padding: 5,
   },
 });

@@ -54,7 +54,9 @@ class Invitations extends Component {
         <Btn
           renderAfterIcon={
             <View style={{ flexDirection: 'row' }}>
-              <Text>{notifications.observing}</Text>
+              <Text>
+                {notifications.observing != 0 && notifications.observing}
+              </Text>
               <Image
                 style={{ width: 20, height: 20 }}
                 source={
@@ -70,7 +72,7 @@ class Invitations extends Component {
             styles.tabContainer,
           ]}
           onPress={() => {
-            removeObservingNotifications();
+            if (notifications.observing != 0) removeObservingNotifications();
             this.setState({ observingTab: !observingTab });
           }}
         />
