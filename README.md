@@ -31,3 +31,13 @@
 ## Part1: CreateTeam with inviting players
 
 ![final](https://user-images.githubusercontent.com/13554490/42344015-42fe825e-809b-11e8-84ea-e96c2b8e310e.gif)
+
+## part2
+
+![img_2836](https://user-images.githubusercontent.com/13554490/42997205-30dcd72a-8c16-11e8-9d8b-f780dca9115d.PNG)
+![img_2835](https://user-images.githubusercontent.com/13554490/42997206-31031a7a-8c16-11e8-9a80-6c0512f0cde7.PNG)
+![img_2834](https://user-images.githubusercontent.com/13554490/42997207-3128595c-8c16-11e8-94ef-9cadcb62ec95.PNG)
+![img_2833](https://user-images.githubusercontent.com/13554490/42997208-314d135a-8c16-11e8-842b-f4ebcbb0d8d2.PNG)
+![img_2823](https://user-images.githubusercontent.com/13554490/42997209-3190355e-8c16-11e8-9913-81baeeaa0c8b.PNG)
+![img_2822](https://user-images.githubusercontent.com/13554490/42997210-31b39b2a-8c16-11e8-8421-c1bac1df464a.PNG)
+![img_2818](https://user-images.githubusercontent.com/13554490/42997211-31d9c57a-8c16-11e8-922a-0071fbbf6e2f.PNG)
