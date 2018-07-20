@@ -32,7 +32,7 @@
 
 ![final](https://user-images.githubusercontent.com/13554490/42344015-42fe825e-809b-11e8-84ea-e96c2b8e310e.gif)
 
-## part2
+## Part2: Rest of App (SCREEN SHOTS)
 
 <div>
 <a href="https://ibb.co/e4AAJd"><img src="https://image.ibb.co/jhxqJd/IMG_2836.png" alt="IMG_2836" width="150"></a>
